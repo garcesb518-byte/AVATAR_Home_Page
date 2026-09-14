@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}AVATAR | Villanova Energy{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-copy">
+        <p class="eyebrow">Villanova campus energy</p>
+        <h1>Empowering Villanova's energy future</h1>
+        <p class="hero-description">
+            See how energy moves across campus, and where sustainability is headed next.
+        </p>
+
+        <div class="button-row">
+            <a class="button button-primary" href="{{ url_for('dashboard') }}">Explore dashboard</a>
+            <a class="button button-secondary" href="{{ url_for('why_avatar') }}">Learn about AVATAR</a>
+        </div>
+    </div>
+
+    <figure class="hero-image">
+        <img src="https://www.villanova.edu/university/visit/_jcr_content/root/container/hero.coreimg.jpeg/1785866062920/visit-header.jpeg" alt="Villanova University campus">
+        <figcaption>Villanova University campus</figcaption>
+    </figure>
+</section>
+
+<section class="home-section">
+    <div class="section-heading">
+        <p class="eyebrow">Start here</p>
+        <h2>What AVATAR helps you do</h2>
+    </div>
+
+    <div class="feature-grid">
+        <a class="feature-card" href="{{ url_for('dashboard') }}">
+            <span class="feature-icon" aria-hidden="true">▥</span>
+            <div>
+                <h3>Track campus energy</h3>
+                <p>See how energy is being used across Villanova.</p>
+            </div>
+        </a>
+
+        <a class="feature-card" href="{{ url_for('load_forecasting') }}">
+            <span class="feature-icon" aria-hidden="true">↗</span>
+            <div>
+                <h3>Look ahead</h3>
+                <p>Explore future campus load through forecasting.</p>
+            </div>
+        </a>
+
+        <a class="feature-card" href="{{ url_for('avatar_ai') }}">
+            <span class="feature-icon" aria-hidden="true">◯</span>
+            <div>
+                <h3>Ask smart questions</h3>
+                <p>Use AVATAR AI to learn more about campus energy.</p>
+            </div>
+        </a>
+    </div>
+</section>
+
+<section class="value-strip" aria-label="AVATAR priorities">
+    <span>Energy transparency</span>
+    <span>Sustainability</span>
+    <span>Resiliency</span>
+    <span>Student engagement</span>
+</section>
+
+<section class="why-banner">
+    <div>
+        <p class="eyebrow light">The purpose</p>
+        <h2>Why AVATAR?</h2>
+        <p>
+            AVATAR gives the Villanova community greater visibility into campus energy use
+            so students, faculty, and decision-makers can better understand the present
+            and explore possibilities for the future.
+        </p>
+    </div>
+    <a class="text-link light-link" href="{{ url_for('why_avatar') }}">Read more →</a>
+</section>
+{% endblock %}
