@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AVATAR helps the Villanova community understand campus energy, forecasting, sustainability, and resiliency.">
+    <title>{% block title %}AVATAR{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="site-shell">
+        <header class="site-header">
+            <a class="brand" href="{{ url_for('home') }}" aria-label="AVATAR homepage">
+                <span class="brand-mark" aria-hidden="true"></span>
+                <span>
+                    <strong>AVATAR</strong>
+                    <small>Advancing Villanova to Energy Autonomy and Resiliency</small>
+                </span>
+            </a>
+
+            <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">
+                Menu
+            </button>
+
+            <nav id="main-navigation" class="main-nav" aria-label="Main navigation">
+                {% for endpoint, label in nav_items %}
+                    <a href="{{ url_for(endpoint) }}" class="{% if active_page == endpoint %}active{% endif %}">
+                        {{ label }}
+                    </a>
+                {% endfor %}
+            </nav>
+        </header>
+
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="site-footer">
+            <strong>AVATAR</strong>
+            <div class="footer-links">
+                <a href="{{ url_for('about') }}">About</a>
+                <a href="{{ url_for('contact') }}">Contact</a>
+                <a href="{{ url_for('acknowledgements') }}">Acknowledgements</a>
+                <a href="{{ url_for('sustainability_resources') }}">Sustainability resources</a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
