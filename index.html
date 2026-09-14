@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AVATAR helps the Villanova community explore campus energy use, forecasts, and sustainability scenarios.">
+  <title>AVATAR | Villanova Energy</title>
+  <link rel="stylesheet" href="static/styles.css">
+  <style>
+    .main-nav a{cursor:pointer}.section-anchor{scroll-margin-top:24px}
+    .hero-kicker{display:inline-flex;align-items:center;gap:8px}.hero-kicker:before{content:"";width:8px;height:8px;border-radius:50%;background:#2e8b57}
+    .data-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .data-card{padding:22px;border:1px solid var(--line);border-radius:12px;background:#fff}
+    .data-card span{display:block;color:#647482;font-size:12px}.data-card strong{display:block;margin:8px 0;color:var(--navy);font-size:24px}
+    .chart{height:220px;padding:24px 12px 10px;display:flex;align-items:flex-end;gap:10px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(#fff,#f6faf7)}
+    .bar-wrap{height:100%;flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:7px}.bar{width:100%;min-height:8px;border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,#42a86d,#0b2d50);transition:height .3s}.bar-label{font-size:10px;color:#647482}
+    .result-panel{min-height:100%;padding:24px;border-radius:12px;background:var(--navy);color:#fff}.result-panel h3{margin-top:0}.result-panel strong{font-size:30px}.result-panel p{color:#dce7ef;line-height:1.6}
+    .about-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:24px}.about-grid p{line-height:1.7;color:#607080}
+    @media(max-width:960px){.data-grid,.about-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="site-shell">
+  <header class="site-header">
+    <a class="brand" href="#home" aria-label="AVATAR homepage">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span><strong>AVATAR</strong><small>Advancing Villanova to Energy Autonomy and Resiliency</small></span>
+    </a>
+    <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">Menu</button>
+    <nav id="main-navigation" class="main-nav" aria-label="Main navigation">
+      <a href="#energy-usage">Energy Usage</a>
+      <a href="#load-forecasting">Load Forecasting</a>
+      <a href="#what-ifs">What-Ifs</a>
+      <a href="#data">Data</a>
+      <a href="#about">About</a>
+    </nav>
+  </header>
+  <main id="home">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow hero-kicker">Villanova campus energy</p>
+        <h1>See today. Plan tomorrow.</h1>
+        <p class="hero-description">AVATAR turns campus energy information into clear insights, forecasts, and sustainability scenarios for the Villanova community.</p>
+        <div class="button-row">
+          <a class="button button-primary" href="#energy-usage">Explore energy usage</a>
+          <a class="button button-secondary" href="#about">Learn about AVATAR</a>
+        </div>
+      </div>
+      <figure class="hero-image">
+        <img src="https://www.villanova.edu/university/visit/_jcr_content/root/container/hero.coreimg.jpeg/1785866062920/visit-header.jpeg" alt="Villanova University campus">
+        <figcaption>Villanova University campus</figcaption>
+      </figure>
+    </section>
+
+    <section id="energy-usage" class="content-section section-anchor">
+      <div class="section-heading"><p class="eyebrow">Energy Usage</p><h2>A clear view of campus demand</h2></div>
+      <div class="data-grid">
+        <article class="data-card"><span>Current campus load</span><strong>Demo data</strong><p>Ready to connect to the approved campus meter feed.</p></article>
+        <article class="data-card"><span>Peak demand</span><strong>Demo data</strong><p>Compare hourly, daily, and seasonal peaks.</p></article>
+        <article class="data-card"><span>Energy trend</span><strong>Demo data</strong><p>Reveal patterns that can guide energy decisions.</p></article>
+      </div>
+      <div class="info-panel"><strong>Designed for real Villanova data</strong><p>This prototype uses clearly labeled placeholders until approved facilities data is connected. The interface is prepared for historical usage, live demand, building comparisons, and emissions information.</p></div>
+    </section>
+
+    <section id="load-forecasting" class="content-section section-anchor">
+      <div class="section-heading"><p class="eyebrow">Load Forecasting</p><h2>Explore how demand could change</h2></div>
+      <div class="two-column">
+        <form id="forecast-form" class="tool-card">
+          <h2>Build a forecast</h2>
+          <label>Current annual load <span>Enter a starting value in MWh</span><input id="current-load" type="number" min="0" step="0.1" value="10000" required></label>
+          <label>Annual growth rate <span>Enter a percentage from -100 to 100</span><input id="growth-rate" type="number" min="-100" max="100" step="0.1" value="2" required></label>
+          <label>Forecast period <span>Choose 1 to 20 years</span><input id="forecast-years" type="number" min="1" max="20" value="5" required></label>
+          <button class="button button-primary" type="submit">Calculate forecast</button>
+        </form>
+        <div>
+          <div id="forecast-chart" class="chart" aria-label="Forecast chart"></div>
+          <p class="demo-note">This simple growth model demonstrates the interface. Future versions can include weather, occupancy, calendar, and historical meter data.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="what-ifs" class="content-section section-anchor">
+      <div class="section-heading"><p class="eyebrow">What-Ifs</p><h2>Test a campus energy scenario</h2></div>
+      <div class="two-column">
+        <form id="scenario-form" class="tool-card">
+          <h2>Efficiency scenario</h2>
+          <label>Annual energy use <span>Enter current usage in MWh</span><input id="annual-use" type="number" min="0" step="0.1" value="10000" required></label>
+          <label>Target reduction <span>Enter a percentage from 0 to 100</span><input id="reduction" type="number" min="0" max="100" step="0.1" value="10" required></label>
+          <button class="button button-primary" type="submit">Run scenario</button>
+        </form>
+        <aside class="result-panel">
+          <p class="eyebrow light">Projected result</p><h3>Estimated annual savings</h3>
+          <strong id="saved-energy">1,000 MWh</strong>
+          <p id="remaining-energy">Remaining annual use: 9,000 MWh</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="data" class="content-section section-anchor">
+      <div class="section-heading"><p class="eyebrow">Data</p><h2>From campus systems to understandable insights</h2></div>
+      <div class="feature-grid">
+        <article class="feature-card static-card"><span class="feature-icon">01</span><div><h3>Collect</h3><p>Bring approved meter, weather, occupancy, and infrastructure data together.</p></div></article>
+        <article class="feature-card static-card"><span class="feature-icon">02</span><div><h3>Analyze</h3><p>Identify patterns, compare periods, and create forecasts and scenarios.</p></div></article>
+        <article class="feature-card static-card"><span class="feature-icon">03</span><div><h3>Communicate</h3><p>Present results clearly for students, faculty, facilities staff, and decision-makers.</p></div></article>
+      </div>
+    </section>
+
+    <section id="about" class="content-section section-anchor">
+      <div class="about-grid">
+        <div><p class="eyebrow">About AVATAR</p><h2>Advancing Villanova to Energy Autonomy and Resiliency</h2><p>AVATAR is a campus energy visualization and decision-support project. Its goal is to make energy information easier to understand and help the Villanova community explore practical paths toward sustainability and resilience.</p></div>
+        <div class="info-panel"><strong>Built to grow</strong><p>The homepage provides the shared foundation for future analytical tools, approved data connections, expanded building views, and research-driven forecasting models.</p></div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><strong>AVATAR</strong><div class="footer-links"><a href="#energy-usage">Energy Usage</a><a href="#load-forecasting">Forecasting</a><a href="#what-ifs">What-Ifs</a><a href="#about">About</a></div></footer>
+</div>
+<script src="static/script.js"></script>
+</body>
+</html>
