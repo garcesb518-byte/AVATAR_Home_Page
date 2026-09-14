@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | AVATAR{% endblock %}
+{% block content %}
+<section class="page-hero">
+    <p class="eyebrow">Dashboard</p>
+    <h1>Understand campus energy at a glance</h1>
+    <p>
+        This section is ready to connect to Villanova's real energy data.
+        The cards below are intentionally labeled as demo placeholders until a live data source is added.
+    </p>
+</section>
+
+<section class="content-section">
+    <div class="metric-grid">
+        {% for metric in metrics %}
+        <article class="metric-card">
+            <span>{{ metric.label }}</span>
+            <strong>{{ metric.value }}</strong>
+            <p>{{ metric.detail }}</p>
+        </article>
+        {% endfor %}
+    </div>
+
+    <div class="info-panel">
+        <h2>What belongs here later</h2>
+        <p>
+            Campus load trends, building comparisons, peak demand, energy cost,
+            renewable contribution, time filters, and downloadable reports can all live here.
+        </p>
+    </div>
+</section>
+{% endblock %}
