@@ -5,3 +5,6 @@ venv/
 .env
 .DS_Store
 .vscode/
+
+forecast_outputs/
+avatar_outputs/
