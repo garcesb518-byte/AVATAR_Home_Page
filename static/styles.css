@@ -448,3 +448,11 @@ input:focus {
     }
     .chat-input-row { grid-template-columns: 1fr; }
 }
+
+.team-photo {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 20px;
+}
