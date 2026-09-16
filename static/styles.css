@@ -449,6 +449,10 @@ input:focus {
     .chat-input-row { grid-template-columns: 1fr; }
 }
 
+.page-return {
+    padding-top: 0;
+}
+
 .team-photo {
     width: 160px;
     height: 160px;
