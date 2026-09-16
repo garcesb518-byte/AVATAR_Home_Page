@@ -3,67 +3,198 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Test a demonstration Villanova campus energy-efficiency scenario with AVATAR.">
+  <meta name="description" content="Run AVATAR PV, battery, and campus load what-if scenarios for Villanova University.">
+  <meta name="avatar-api-url" content="http://127.0.0.1:5000">
   <title>What-Ifs | AVATAR</title>
   <link rel="stylesheet" href="static/styles.css">
   <style>
-.result-panel{min-height:100%;padding:24px;border-radius:12px;background:var(--navy);color:#fff}.result-panel h2{margin-top:0}.result-panel strong{font-size:30px}.result-panel p{color:#dce7ef;line-height:1.6}
-</style>
+    .scenario-layout{display:grid;grid-template-columns:minmax(300px,.72fr) minmax(0,1.28fr);gap:22px;align-items:start}
+    .scenario-form{position:sticky;top:18px}.scenario-form select{width:100%;min-height:44px;margin-top:7px;padding:10px 12px;border:1px solid #bdc9d3;border-radius:8px;background:#fff;color:var(--text);font:inherit;font-size:15px}
+    .scenario-form select:focus{outline:3px solid rgba(46,139,87,.13);border-color:var(--green)}
+    .form-section{padding-top:18px;margin-top:18px;border-top:1px solid var(--line)}.form-section h3{margin:0 0 14px;color:var(--navy);font-size:14px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.form-note{margin:2px 0 18px;color:#667684;font-size:12px;line-height:1.5}.scenario-form button{width:100%}
+    .result-panel{min-height:330px;padding:26px;border-radius:12px;background:var(--navy);color:#fff}.result-panel h2{margin:0;color:#fff}.result-panel p{color:#dce7ef;line-height:1.6}.result-placeholder{display:grid;min-height:275px;place-items:center;text-align:center}.result-placeholder div{max-width:470px}.result-placeholder h2{margin-bottom:10px}.result-placeholder p{margin:0}.result-error{padding:18px;border:1px solid #f0b5b5;border-radius:10px;background:#fff0f0;color:#7a2020}.result-error strong{display:block;margin-bottom:6px}
+    .scenario-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}.scenario-metric{padding:15px;border-radius:9px;background:rgba(255,255,255,.09)}.scenario-metric span{display:block;color:#bcd0df;font-size:11px}.scenario-metric strong{display:block;margin-top:7px;font-size:20px}.scenario-summary{padding:15px;border-radius:9px;background:rgba(255,255,255,.07)}
+    .comparison-card{margin-top:22px;padding:24px;border:1px solid var(--line);border-radius:12px;background:#fff}.comparison-card h2{margin-bottom:5px}.chart-description{margin:7px 0 0;color:#667684;font-size:12px;line-height:1.5}.chart-legend{display:flex;flex-wrap:wrap;gap:18px;margin:12px 0 18px;color:#617180;font-size:12px}.chart-legend span::before{content:"";display:inline-block;width:10px;height:10px;margin-right:6px;border-radius:2px}.chart-legend .baseline::before{background:#b8c6d1}.chart-legend .adjusted::before{background:var(--green)}.chart-legend .grid::before{background:#d3a72e}.load-chart{height:250px;display:flex;align-items:flex-end;gap:5px;padding:16px 8px 26px;border-bottom:1px solid var(--line);overflow-x:auto}.load-hour{min-width:37px;height:100%;display:flex;align-items:flex-end;justify-content:center;gap:2px;position:relative}.load-bar{width:10px;border-radius:4px 4px 0 0;background:#b8c6d1}.load-bar.adjusted{background:var(--green)}.load-bar.grid{background:#d3a72e}.load-label{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);color:#70808d;font-size:9px}
+    .model-details{margin-top:22px}.model-details details{margin-top:12px;border:1px solid var(--line);border-radius:10px;background:#fff}.model-details summary{padding:16px 18px;cursor:pointer;color:var(--navy);font-weight:750}.table-scroll{overflow:auto;padding:0 18px 18px}.model-table{width:100%;border-collapse:collapse;font-size:11px}.model-table th,.model-table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}.model-table th:first-child,.model-table td:first-child{text-align:left}.model-table th{color:var(--navy);background:#f4f7f5}
+    .proxy-note{margin:22px 0 0;padding:14px 16px;border-radius:9px;background:var(--green-light);color:#496858;font-size:12px;line-height:1.55}
+    [hidden]{display:none!important}
+    @media(max-width:900px){.scenario-layout{grid-template-columns:1fr}.scenario-form{position:static}.scenario-metrics{grid-template-columns:1fr 1fr}}
+    @media(max-width:560px){.form-grid,.scenario-metrics{grid-template-columns:1fr}.load-chart{gap:3px}.load-hour{min-width:24px}}
+  </style>
 </head>
 <body>
 <div class="site-shell">
   <header class="site-header">
-  <a class="brand" href="index.html" aria-label="AVATAR homepage">
-    <span class="brand-mark" aria-hidden="true"></span>
-    <span><strong>AVATAR</strong><small>Advancing Villanova to Energy Autonomy and Resiliency</small></span>
-  </a>
-  <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">Menu</button>
-  <nav id="main-navigation" class="main-nav" aria-label="Main navigation">
-    <a href="energy-usage.html">Energy Usage</a>
-    <a href="load-forecasting.html">Load Forecasting</a>
-    <a href="what-ifs.html" class="active">What-Ifs</a>
-    <a href="data.html">Data</a>
-    <a href="about.html">About</a>
-    <a href="meet-the-team.html">Meet the Team</a>
-  </nav>
-</header>
-  <main><section class="page-hero">
-  <p class="eyebrow">What-Ifs</p>
-  <h1>Test a campus energy scenario</h1>
-  <p>Explore how an efficiency target could affect annual energy use and estimated savings.</p>
-</section>
-<section class="content-section">
-  <div class="two-column">
-    <form id="scenario-form" class="tool-card">
-      <h2>Efficiency scenario</h2>
-      <label for="annual-use">Annual energy use <span>Enter current usage in MWh</span><input id="annual-use" type="number" min="0" step="0.1" value="10000" required></label>
-      <label for="reduction">Target reduction <span>Enter a percentage from 0 to 100</span><input id="reduction" type="number" min="0" max="100" step="0.1" value="10" required></label>
-      <button class="button button-primary" type="submit">Run scenario</button>
-    </form>
-    <aside class="result-panel">
-      <p class="eyebrow light">Projected result</p>
-      <h2>Estimated annual savings</h2>
-      <strong id="saved-energy">1,000 MWh</strong>
-      <p id="remaining-energy">Remaining annual use: 9,000 MWh</p>
-    </aside>
-  </div>
-  <p class="demo-note">This is a simplified demonstration and does not yet use approved Villanova facilities data.</p>
-</section>  <section class="content-section page-return">
-    <div class="button-row">
-      <a class="button button-primary" href="index.html">Return to homepage</a>
-    </div>
-  </section>
-</main>
+    <a class="brand" href="index.html" aria-label="AVATAR homepage">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span><strong>AVATAR</strong><small>Advancing Villanova to Energy Autonomy and Resiliency</small></span>
+    </a>
+    <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">Menu</button>
+    <nav id="main-navigation" class="main-nav" aria-label="Main navigation">
+      <a href="energy-usage.html">Energy Usage</a>
+      <a href="load-forecasting.html">Load Forecasting</a>
+      <a href="what-ifs.html" class="active">What-Ifs</a>
+      <a href="data.html">Data</a>
+      <a href="about.html">About</a>
+      <a href="meet-the-team.html">Meet the Team</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <p class="eyebrow">PV + BESS What-Ifs</p>
+      <h1>Optimize a campus energy scenario</h1>
+      <p>Choose the planning constraints, then run the open-source SciPy/HiGHS model to estimate system sizing, operating cost, and grid-energy reduction.</p>
+    </section>
+
+    <section class="content-section">
+      <div class="scenario-layout">
+        <form id="scenario-form" class="tool-card scenario-form">
+          <h2>Scenario controls</h2>
+          <p class="form-note">The current campus baseline is fixed at the temporary 5.5 MWh/day estimate. PECO energy is valued at $0.10236/kWh.</p>
+
+          <label for="system-mode">Model mode
+            <span>Let the model select equipment or test specified quantities.</span>
+            <select id="system-mode" name="mode">
+              <option value="optimize">Optimize within constraints</option>
+              <option value="scenario">Test selected equipment</option>
+            </select>
+          </label>
+
+          <div class="form-grid">
+            <label for="displayed-season">Displayed season
+              <span>Hourly detail returned below.</span>
+              <select id="displayed-season" name="displayed_season">
+                <option value="winter">Winter</option>
+                <option value="spring">Spring</option>
+                <option value="summer">Summer</option>
+                <option value="fall">Fall</option>
+              </select>
+            </label>
+            <label for="project-budget">Project budget ($)
+              <span>Maximum confirmed budget: $2.5M.</span>
+              <input id="project-budget" name="project_budget" type="number" min="0" max="2500000" step="1000" value="2500000" required>
+            </label>
+          </div>
+
+          <div id="optimize-equipment" class="form-section">
+            <h3>Optimization limits</h3>
+            <div class="form-grid">
+              <label for="max-panels">Maximum solar panels
+                <input id="max-panels" name="max_solar_panels" type="number" min="0" max="450" step="1" value="450" required>
+              </label>
+              <label for="max-bess">Maximum BESS units
+                <input id="max-bess" name="max_bess_units" type="number" min="0" max="30" step="1" value="30" required>
+              </label>
+            </div>
+          </div>
+
+          <div id="scenario-equipment" class="form-section" hidden>
+            <h3>Selected equipment</h3>
+            <div class="form-grid">
+              <label for="selected-panels">Solar panels
+                <input id="selected-panels" name="selected_panels" type="number" min="0" max="450" step="1" value="250">
+              </label>
+              <label for="selected-bess">BESS units
+                <input id="selected-bess" name="selected_bess_units" type="number" min="0" max="30" step="1" value="5">
+              </label>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>Campus load assumptions</h3>
+            <label for="conservation">Campus energy-use reduction (%)
+              <span>Efficiency or conservation reduction applied to every baseline hour.</span>
+              <input id="conservation" name="energy_conservation_percent" type="number" min="0" max="100" step="0.1" value="0" required>
+            </label>
+            <div class="form-grid">
+              <label for="occupancy-change">Occupancy load change (%)
+                <span>Use negative values for lower occupancy.</span>
+                <input id="occupancy-change" name="occupancy_load_change_percent" type="number" min="-100" max="100" step="0.1" value="0" required>
+              </label>
+              <label for="temperature-change">Temperature load change (%)
+                <span>Estimated HVAC-related load effect.</span>
+                <input id="temperature-change" name="temperature_load_change_percent" type="number" min="-100" max="100" step="0.1" value="0" required>
+              </label>
+            </div>
+          </div>
+
+          <button id="run-optimization" class="button button-primary" type="submit">Run optimization</button>
+        </form>
+
+        <div>
+          <section class="result-panel" aria-live="polite">
+            <div id="scenario-empty" class="result-placeholder">
+              <div>
+                <p class="eyebrow light">Ready</p>
+                <h2>Choose your assumptions</h2>
+                <p>Press <strong>Run optimization</strong> when you are ready. No model run occurs automatically when this page opens.</p>
+              </div>
+            </div>
+            <div id="scenario-loading" class="result-placeholder" hidden>
+              <div>
+                <p class="eyebrow light">SciPy/HiGHS is running</p>
+                <h2>Optimizing the campus scenario…</h2>
+                <p>The model is evaluating four weighted seasonal days, unit commitment, economic dispatch, solar, and battery operation.</p>
+              </div>
+            </div>
+            <div id="scenario-error" class="result-error" hidden>
+              <strong>Unable to complete this scenario</strong>
+              <span id="scenario-error-message"></span>
+            </div>
+            <div id="scenario-results" hidden>
+              <p class="eyebrow light">Optimization complete</p>
+              <h2 id="scenario-result-title">Recommended AVATAR system</h2>
+              <div class="scenario-metrics">
+                <div class="scenario-metric"><span>Solar panels</span><strong id="result-panels">—</strong></div>
+                <div class="scenario-metric"><span>BESS units</span><strong id="result-bess">—</strong></div>
+                <div class="scenario-metric"><span>Project cost</span><strong id="result-project-cost">—</strong></div>
+                <div class="scenario-metric"><span>Annual operating savings</span><strong id="result-savings">—</strong></div>
+                <div class="scenario-metric"><span>Grid-energy reduction</span><strong id="result-grid-reduction">—</strong></div>
+                <div class="scenario-metric"><span>Renewable share</span><strong id="result-renewable-share">—</strong></div>
+              </div>
+              <p id="scenario-summary" class="scenario-summary"></p>
+            </div>
+          </section>
+
+          <section id="comparison-card" class="comparison-card" hidden>
+            <p class="eyebrow">24-hour load comparison</p>
+            <h2>Campus demand and grid supply</h2>
+            <p class="chart-description">Grid supply is the portion of adjusted campus demand remaining after direct solar contribution and battery discharge.</p>
+            <div class="chart-legend"><span class="baseline">Baseline demand</span><span class="adjusted">Adjusted demand</span><span class="grid">Grid supply after PV + BESS</span></div>
+            <div id="scenario-load-chart" class="load-chart" role="img" aria-label="Hourly baseline demand, adjusted demand, and grid supply after solar and battery chart"></div>
+          </section>
+
+          <section id="model-details" class="model-details" hidden>
+            <details>
+              <summary>View unit commitment</summary>
+              <div id="commitment-table" class="table-scroll"></div>
+            </details>
+            <details>
+              <summary>View economic dispatch</summary>
+              <div id="dispatch-table" class="table-scroll"></div>
+            </details>
+          </section>
+        </div>
+      </div>
+      <p class="proxy-note"><strong>Current data status:</strong> This planning demonstration uses the temporary 5.5 MWh/day Villanova estimate and a Bryn Mawr-derived daily load shape. Replace the proxy when approved campus interval data becomes available.</p>
+    </section>
+
+    <section class="content-section page-return">
+      <div class="button-row"><a class="button button-primary" href="index.html">Return to homepage</a></div>
+    </section>
+  </main>
+
   <footer class="site-footer">
-  <strong>AVATAR</strong>
-  <div class="footer-links">
-    <a href="energy-usage.html">Energy Usage</a>
-    <a href="load-forecasting.html">Forecasting</a>
-    <a href="what-ifs.html">What-Ifs</a>
-    <a href="about.html">About</a>
-    <a href="meet-the-team.html">Meet the Team</a>
-  </div>
-</footer>
+    <strong>AVATAR</strong>
+    <div class="footer-links">
+      <a href="energy-usage.html">Energy Usage</a>
+      <a href="load-forecasting.html">Forecasting</a>
+      <a href="what-ifs.html">What-Ifs</a>
+      <a href="about.html">About</a>
+      <a href="meet-the-team.html">Meet the Team</a>
+    </div>
+  </footer>
 </div>
 <script src="static/script.js"></script>
 </body>
