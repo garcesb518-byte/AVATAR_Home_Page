@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Test a demonstration Villanova campus energy-efficiency scenario with AVATAR.">
+  <title>What-Ifs | AVATAR</title>
+  <link rel="stylesheet" href="static/styles.css">
+  <style>
+.result-panel{min-height:100%;padding:24px;border-radius:12px;background:var(--navy);color:#fff}.result-panel h2{margin-top:0}.result-panel strong{font-size:30px}.result-panel p{color:#dce7ef;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="site-shell">
+  <header class="site-header">
+  <a class="brand" href="index.html" aria-label="AVATAR homepage">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span><strong>AVATAR</strong><small>Advancing Villanova to Energy Autonomy and Resiliency</small></span>
+  </a>
+  <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">Menu</button>
+  <nav id="main-navigation" class="main-nav" aria-label="Main navigation">
+    <a href="energy-usage.html">Energy Usage</a>
+    <a href="load-forecasting.html">Load Forecasting</a>
+    <a href="what-ifs.html" class="active">What-Ifs</a>
+    <a href="data.html">Data</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+  <main><section class="page-hero">
+  <p class="eyebrow">What-Ifs</p>
+  <h1>Test a campus energy scenario</h1>
+  <p>Explore how an efficiency target could affect annual energy use and estimated savings.</p>
+</section>
+<section class="content-section">
+  <div class="two-column">
+    <form id="scenario-form" class="tool-card">
+      <h2>Efficiency scenario</h2>
+      <label for="annual-use">Annual energy use <span>Enter current usage in MWh</span><input id="annual-use" type="number" min="0" step="0.1" value="10000" required></label>
+      <label for="reduction">Target reduction <span>Enter a percentage from 0 to 100</span><input id="reduction" type="number" min="0" max="100" step="0.1" value="10" required></label>
+      <button class="button button-primary" type="submit">Run scenario</button>
+    </form>
+    <aside class="result-panel">
+      <p class="eyebrow light">Projected result</p>
+      <h2>Estimated annual savings</h2>
+      <strong id="saved-energy">1,000 MWh</strong>
+      <p id="remaining-energy">Remaining annual use: 9,000 MWh</p>
+    </aside>
+  </div>
+  <p class="demo-note">This is a simplified demonstration and does not yet use approved Villanova facilities data.</p>
+</section></main>
+  <footer class="site-footer">
+  <strong>AVATAR</strong>
+  <div class="footer-links">
+    <a href="energy-usage.html">Energy Usage</a>
+    <a href="load-forecasting.html">Forecasting</a>
+    <a href="what-ifs.html">What-Ifs</a>
+    <a href="about.html">About</a>
+  </div>
+</footer>
+</div>
+<script src="static/script.js"></script>
+</body>
+</html>
