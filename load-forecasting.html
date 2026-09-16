@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Use the AVATAR demonstration forecasting tool to explore future campus energy demand.">
+  <title>Load Forecasting | AVATAR</title>
+  <link rel="stylesheet" href="static/styles.css">
+  <style>
+.chart{height:260px;padding:24px 12px 10px;display:flex;align-items:flex-end;gap:10px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(#fff,#f6faf7)}
+.bar-wrap{height:100%;flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:7px}.bar{width:100%;min-height:8px;border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,#42a86d,#0b2d50);transition:height .3s}.bar-label{font-size:10px;color:#647482}
+</style>
+</head>
+<body>
+<div class="site-shell">
+  <header class="site-header">
+  <a class="brand" href="index.html" aria-label="AVATAR homepage">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span><strong>AVATAR</strong><small>Advancing Villanova to Energy Autonomy and Resiliency</small></span>
+  </a>
+  <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">Menu</button>
+  <nav id="main-navigation" class="main-nav" aria-label="Main navigation">
+    <a href="energy-usage.html">Energy Usage</a>
+    <a href="load-forecasting.html" class="active">Load Forecasting</a>
+    <a href="what-ifs.html">What-Ifs</a>
+    <a href="data.html">Data</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+  <main><section class="page-hero">
+  <p class="eyebrow">Load Forecasting</p>
+  <h1>Explore how demand could change</h1>
+  <p>Enter a starting annual load, an expected growth rate, and a forecast period to create a simple demonstration forecast.</p>
+</section>
+<section class="content-section">
+  <div class="two-column">
+    <form id="forecast-form" class="tool-card">
+      <h2>Build a forecast</h2>
+      <label for="current-load">Current annual load <span>Enter a starting value in MWh</span></label>
+      <input id="current-load" type="number" min="0" step="0.1" value="10000" required>
+      <label for="growth-rate">Annual growth rate <span>Enter a percentage from -100 to 100</span></label>
+      <input id="growth-rate" type="number" min="-100" max="100" step="0.1" value="2" required>
+      <label for="forecast-years">Forecast period <span>Choose 1 to 20 years</span></label>
+      <input id="forecast-years" type="number" min="1" max="20" value="5" required>
+      <button class="button button-primary" type="submit">Calculate forecast</button>
+    </form>
+    <div>
+      <div id="forecast-chart" class="chart" aria-label="Forecast chart"></div>
+      <p class="demo-note">This growth model demonstrates the interface. Future versions can include weather, occupancy, calendar, and historical meter data.</p>
+    </div>
+  </div>
+</section></main>
+  <footer class="site-footer">
+  <strong>AVATAR</strong>
+  <div class="footer-links">
+    <a href="energy-usage.html">Energy Usage</a>
+    <a href="load-forecasting.html">Forecasting</a>
+    <a href="what-ifs.html">What-Ifs</a>
+    <a href="about.html">About</a>
+  </div>
+</footer>
+</div>
+<script src="static/script.js"></script>
+</body>
+</html>
