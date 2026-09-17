@@ -36,7 +36,7 @@ a { color: inherit; }
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 28px;
+    gap: 18px;
     border-bottom: 1px solid var(--line);
     background: #fff;
 }
@@ -48,6 +48,7 @@ a { color: inherit; }
     color: var(--navy);
     text-decoration: none;
     min-width: 205px;
+    flex-shrink: 0;
 }
 .brand-mark {
     width: 36px;
@@ -68,15 +69,17 @@ a { color: inherit; }
 .main-nav {
     display: flex;
     align-items: stretch;
-    gap: 22px;
+    gap: 13px;
     white-space: nowrap;
+    justify-content: flex-end;
+    min-width: 0;
 }
 .main-nav a {
     padding: 29px 0 25px;
     color: #536271;
     border-bottom: 2px solid transparent;
     text-decoration: none;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 650;
 }
 .main-nav a:hover,
@@ -404,7 +407,7 @@ input:focus {
 .chat-answer strong { color: var(--green); }
 .chat-answer p { margin: 7px 0 0; line-height: 1.6; }
 
-@media (max-width: 960px) {
+@media (max-width: 1080px) {
     .site-header {
         align-items: center;
         flex-wrap: wrap;
