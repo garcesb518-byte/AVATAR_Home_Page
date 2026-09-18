@@ -9,6 +9,8 @@ NAV_ITEMS = [
     ("avatar_ai", "AVATAR AI"),
     ("why_avatar", "Why AVATAR?"),
     ("about", "About"),
+    ("fun_facts", "Fun Facts"),
+    ("dorm_rankings", "Dorm Facts"),
 ]
 
 
@@ -198,6 +200,20 @@ def sustainability_resources():
         page_intro="Use this section for approved Villanova sustainability resources, reports, campus initiatives, and external references.",
     )
 
+
+@app.route('/fun-facts')
+def fun_facts():
+    return render_template(
+        'fun_facts.html',
+        active_page='fun_facts'
+    )
+
+@app.route('/dorm-rankings')
+def dorm_rankings():
+    return render_template(
+        'dorm_rankings.html',
+        active_page='dorm_rankings'
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)

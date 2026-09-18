@@ -1,336 +1,199 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="What drives energy use in Villanova residence halls — and what you can do about it.">
-  <title>Dorm Rankings | AVATAR</title>
-  <link rel="stylesheet" href="static/styles.css">
-  <style>
-    /* ── Category accordion ── */
-    .cat-list { display: flex; flex-direction: column; gap: 10px; margin: 2rem 0; }
+{% extends "base.html" %}
+{% block title %}Dorm Facts | AVATAR{% endblock %}
 
-    .cat-card {
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: 10px;
-      overflow: hidden;
-      background: rgba(255,255,255,.03);
-    }
+{% block content %}
 
-    .cat-trigger {
-      width: 100%;
-      background: none;
-      border: none;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 16px 20px;
-      cursor: pointer;
-      text-align: left;
-      color: inherit;
-    }
-    .cat-trigger:hover { background: rgba(255,255,255,.05); }
+<section class="page-hero">
+  <p class="eyebrow">Dorm Facts</p>
+  <h1>Understanding residence hall energy</h1>
+  <p>What's driving energy use across Villanova's dorms — and concrete steps every student can take to reduce it.</p>
+</section>
 
-    .cat-pct-badge {
-      font-size: 13px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 99px;
-      flex-shrink: 0;
-      min-width: 52px;
-      text-align: center;
-    }
+<!-- DATA NOTE -->
+<section class="content-section">
+  <div class="info-panel">
+    <strong>Real metering data is coming</strong>
+    <p>Per-building energy rankings will appear here once campus metering data is connected through Villanova Facilities Management. In the meantime, this page explains the key drivers common to all residence hall types and gives every student practical ways to reduce their footprint.</p>
+  </div>
+</section>
 
-    .cat-trigger-text { flex: 1; min-width: 0; }
-    .cat-trigger-name { font-size: 15px; font-weight: 600; display: block; margin-bottom: 2px; }
-    .cat-trigger-sub { font-size: 12px; opacity: .55; }
+<!-- ENERGY BREAKDOWN -->
+<section class="content-section">
+  <div class="section-heading">
+    <p class="eyebrow">Energy breakdown</p>
+    <h2>What's driving the bill</h2>
+  </div>
+  <p style="opacity:.65; font-size:14px; margin-bottom:1.5rem;">Across all Villanova residence halls, five categories account for nearly all energy consumption. Click any category to expand it.</p>
 
-    .cat-bar-wrap { flex: 2; max-width: 180px; }
-    .cat-bar-track { background: rgba(255,255,255,.1); border-radius: 99px; height: 5px; }
-    .cat-bar-fill { height: 5px; border-radius: 99px; }
+  <div class="cat-list">
 
-    .cat-chevron {
-      width: 16px; height: 16px;
-      opacity: .5; flex-shrink: 0;
-      transition: transform .2s;
-    }
-    .cat-chevron.open { transform: rotate(180deg); }
-
-    .cat-body {
-      display: none;
-      padding: 0 20px 20px;
-      border-top: 1px solid rgba(255,255,255,.07);
-    }
-    .cat-body.open { display: block; }
-
-    .cat-why {
-      font-size: 13px;
-      opacity: .7;
-      line-height: 1.65;
-      margin: 14px 0 16px;
-    }
-
-    .tip-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
-      gap: 10px;
-    }
-    .tip-item {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-size: 13px;
-      line-height: 1.55;
-    }
-    .tip-emoji { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-
-    /* ── Quick win banner ── */
-    .quickwin {
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 12px;
-      padding: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      flex-wrap: wrap;
-      margin: 2rem 0;
-    }
-    .qw-label { font-size: 11px; opacity: .5; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
-    .qw-headline { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-    .qw-sub { font-size: 13px; opacity: .7; line-height: 1.6; max-width: 440px; }
-    .qw-num { font-size: 40px; font-weight: 700; line-height: 1; display: block; }
-    .qw-unit { font-size: 11px; opacity: .5; display: block; margin-top: 4px; }
-  </style>
-</head>
-<body>
-<div class="site-shell">
-
-  <header class="site-header">
-    <a class="brand" href="index.html" aria-label="AVATAR homepage">
-      <span class="brand-mark" aria-hidden="true"></span>
-      <span><strong>AVATAR</strong><small>Advancing Villanova to Energy Autonomy and Resiliency</small></span>
-    </a>
-    <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">Menu</button>
-    <nav id="main-navigation" class="main-nav" aria-label="Main navigation">
-      <a href="energy-usage.html">Energy Usage</a>
-      <a href="load-forecasting.html">Load Forecasting</a>
-      <a href="what-ifs.html">What-Ifs</a>
-      <a href="fun-facts.html">Fun Facts</a>
-      <a href="dorm-rankings.html" class="active">Dorm Rankings</a>
-      <a href="about.html">About</a>
-      <a href="meet-the-team.html">Meet the Team</a>
-    </nav>
-  </header>
-
-  <main>
-
-    <!-- PAGE HERO -->
-    <section class="page-hero">
-      <p class="eyebrow">Dorm Rankings</p>
-      <h1>Understanding residence hall energy</h1>
-      <p>What's driving energy use across Villanova's dorms — and concrete steps every student can take to reduce it.</p>
-    </section>
-
-    <!-- DATA NOTE -->
-    <section class="content-section">
-      <div class="info-panel">
-        <strong>Real metering data is coming</strong>
-        <p>Per-building energy rankings will appear here once campus metering data is connected through Villanova Facilities Management. In the meantime, this page explains the key drivers common to all residence hall types and gives every student practical ways to reduce their own footprint.</p>
-      </div>
-    </section>
-
-    <!-- ENERGY BREAKDOWN -->
-    <section class="content-section">
-      <div class="section-heading">
-        <p class="eyebrow">Energy breakdown</p>
-        <h2>What's driving the bill</h2>
-      </div>
-      <p style="opacity:.65; font-size:14px; margin-bottom: 0.5rem;">Across all Villanova residence halls, five categories account for nearly all energy consumption. Click any category to see what's driving it and how to help.</p>
-
-      <div class="cat-list">
-
-        <div class="cat-card">
-          <button class="cat-trigger" onclick="tog(0)">
-            <span class="cat-pct-badge" style="background:rgba(55,138,221,.2);color:#7bbfff;">~38%</span>
-            <span class="cat-trigger-text">
-              <span class="cat-trigger-name">HVAC — Heating & Cooling</span>
-              <span class="cat-trigger-sub">Typically 33–40% of a dorm's total energy bill</span>
-            </span>
-            <span class="cat-bar-wrap">
-              <span class="cat-bar-track"><span class="cat-bar-fill" style="width:38%;background:#378ADD;"></span></span>
-            </span>
-            <svg class="cat-chevron" id="chev-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="4 6 8 10 12 6"/></svg>
-          </button>
-          <div class="cat-body" id="body-0">
-            <p class="cat-why"><strong>Why it's so high:</strong> Heating and cooling large buildings is energy-intensive, especially in older dorms with poor insulation. Every time a window is left open while the heat or AC runs, the system works overtime to compensate for the lost conditioned air.</p>
-            <div class="tip-grid">
-              <div class="tip-item"><span class="tip-emoji">🌡️</span><span>Keep your thermostat at a steady 68–70°F — constant cycling between extremes wastes more energy than a stable setting.</span></div>
-              <div class="tip-item"><span class="tip-emoji">🪟</span><span>Close windows when HVAC is running. Even a small gap forces the system to run continuously.</span></div>
-              <div class="tip-item"><span class="tip-emoji">🚪</span><span>Don't prop exterior doors open — one of the fastest ways to waste conditioned air in an entire building.</span></div>
-              <div class="tip-item"><span class="tip-emoji">🛠️</span><span>Report malfunctioning HVAC to Facilities. A broken unit often runs non-stop, wasting energy while keeping nobody comfortable.</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="cat-card">
-          <button class="cat-trigger" onclick="tog(1)">
-            <span class="cat-pct-badge" style="background:rgba(239,159,39,.2);color:#f5c46a;">~22%</span>
-            <span class="cat-trigger-text">
-              <span class="cat-trigger-name">Lighting</span>
-              <span class="cat-trigger-sub">Typically 20–24% of a dorm's total energy bill</span>
-            </span>
-            <span class="cat-bar-wrap">
-              <span class="cat-bar-track"><span class="cat-bar-fill" style="width:22%;background:#EF9F27;"></span></span>
-            </span>
-            <svg class="cat-chevron" id="chev-1" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="4 6 8 10 12 6"/></svg>
-          </button>
-          <div class="cat-body" id="body-1">
-            <p class="cat-why"><strong>Why it's so high:</strong> Corridor and common area lights run 24 hours a day in most dorms. Many rooms still use older bulbs that draw 4–5× more power than LEDs for the same brightness.</p>
-            <div class="tip-grid">
-              <div class="tip-item"><span class="tip-emoji">💡</span><span>Switch personal lamps to LED bulbs — 75% less energy, years longer lifespan.</span></div>
-              <div class="tip-item"><span class="tip-emoji">☀️</span><span>Use natural sunlight during the day. South-facing rooms can go hours without overhead lights on a clear day.</span></div>
-              <div class="tip-item"><span class="tip-emoji">🌙</span><span>Start a floor habit: a nightly lights-off check of study lounges and common rooms before bed.</span></div>
-              <div class="tip-item"><span class="tip-emoji">📢</span><span>Advocate with your RA for motion-sensor lighting in low-traffic hallways — simple upgrade, big payoff.</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="cat-card">
-          <button class="cat-trigger" onclick="tog(2)">
-            <span class="cat-pct-badge" style="background:rgba(127,119,221,.2);color:#b0abf5;">~22%</span>
-            <span class="cat-trigger-text">
-              <span class="cat-trigger-name">Appliances & Electronics</span>
-              <span class="cat-trigger-sub">Typically 15–31% — highest in apartment-style dorms</span>
-            </span>
-            <span class="cat-bar-wrap">
-              <span class="cat-bar-track"><span class="cat-bar-fill" style="width:22%;background:#7F77DD;"></span></span>
-            </span>
-            <svg class="cat-chevron" id="chev-2" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="4 6 8 10 12 6"/></svg>
-          </button>
-          <div class="cat-body" id="body-2">
-            <p class="cat-why"><strong>Why it's so high:</strong> Mini-fridges (~350 kWh/yr each), microwaves, gaming PCs, and coffee makers all add up fast. "Vampire load" from chargers and devices on standby can account for up to 10% of a room's usage alone.</p>
-            <div class="tip-grid">
-              <div class="tip-item"><span class="tip-emoji">🔌</span><span>Unplug chargers and small appliances when not in use — a plugged-in charger draws power even with nothing connected.</span></div>
-              <div class="tip-item"><span class="tip-emoji">❄️</span><span>Set your mini-fridge to 37°F — the minimum safe temperature. Every extra degree costs real energy.</span></div>
-              <div class="tip-item"><span class="tip-emoji">🎮</span><span>Fully power down gaming consoles and monitors when leaving — sleep mode still draws significant power.</span></div>
-              <div class="tip-item"><span class="tip-emoji">🔋</span><span>Use a smart power strip for your desk setup — it cuts power to peripherals when your main device turns off.</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="cat-card">
-          <button class="cat-trigger" onclick="tog(3)">
-            <span class="cat-pct-badge" style="background:rgba(29,158,117,.2);color:#6dd9b8;">~18%</span>
-            <span class="cat-trigger-text">
-              <span class="cat-trigger-name">Hot Water</span>
-              <span class="cat-trigger-sub">Typically 15–20% of a dorm's total energy bill</span>
-            </span>
-            <span class="cat-bar-wrap">
-              <span class="cat-bar-track"><span class="cat-bar-fill" style="width:18%;background:#1D9E75;"></span></span>
-            </span>
-            <svg class="cat-chevron" id="chev-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="4 6 8 10 12 6"/></svg>
-          </button>
-          <div class="cat-body" id="body-3">
-            <p class="cat-why"><strong>Why it's so high:</strong> Heating water is one of the most energy-intensive processes in a building. A single 10-minute shower uses 2–5 kWh — multiplied by hundreds of residents every day, this adds up to hundreds of thousands of dollars per year across campus.</p>
-            <div class="tip-grid">
-              <div class="tip-item"><span class="tip-emoji">🚿</span><span>Cut your shower to 7 minutes or less. A 2-minute reduction per student could save Villanova nearly $200,000/year.</span></div>
-              <div class="tip-item"><span class="tip-emoji">🧺</span><span>Wash laundry on cold — just as effective, cuts energy per load by up to 75%.</span></div>
-              <div class="tip-item"><span class="tip-emoji">💧</span><span>Report dripping hot faucets to Facilities — a slow drip wastes thousands of gallons of heated water per semester.</span></div>
-              <div class="tip-item"><span class="tip-emoji">🍽️</span><span>Air-dry dishes instead of using the heat-dry cycle on apartment-hall dishwashers.</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="cat-card">
-          <button class="cat-trigger" onclick="tog(4)">
-            <span class="cat-pct-badge" style="background:rgba(136,135,128,.2);color:#bbb;">~8%</span>
-            <span class="cat-trigger-text">
-              <span class="cat-trigger-name">Other — Elevators, Vending & Shared Spaces</span>
-              <span class="cat-trigger-sub">Typically 7–10% of a dorm's total energy bill</span>
-            </span>
-            <span class="cat-bar-wrap">
-              <span class="cat-bar-track"><span class="cat-bar-fill" style="width:8%;background:#888780;"></span></span>
-            </span>
-            <svg class="cat-chevron" id="chev-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="4 6 8 10 12 6"/></svg>
-          </button>
-          <div class="cat-body" id="body-4">
-            <p class="cat-why"><strong>Why it matters:</strong> Vending machines draw 2,500–3,000 kWh per year each. Shared lounges, lobby lighting, and laundry machines all contribute to base load that runs regardless of how many students are present.</p>
-            <div class="tip-grid">
-              <div class="tip-item"><span class="tip-emoji">🛗</span><span>Take the stairs for 1–2 floors. Elevators use more energy per trip than most people realize.</span></div>
-              <div class="tip-item"><span class="tip-emoji">📺</span><span>Turn off shared lounge TVs and lights when the space is empty.</span></div>
-              <div class="tip-item"><span class="tip-emoji">👕</span><span>Run full laundry loads — same energy per cycle, more clothes cleaned per kWh.</span></div>
-              <div class="tip-item"><span class="tip-emoji">🏫</span><span>Study in academic buildings during the day — that energy is spread across far more people per kWh.</span></div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- QUICK WIN -->
-    <section class="content-section">
-      <div class="section-heading">
-        <p class="eyebrow">Highest-impact action</p>
-        <h2>One change, outsized result</h2>
-      </div>
-      <div class="quickwin">
-        <div>
-          <p class="qw-label">The single biggest thing you can do</p>
-          <p class="qw-headline">Shorten your shower by 2 minutes</p>
-          <p class="qw-sub">If every on-campus resident made this one change, Villanova could save nearly <strong>$200,000 per year</strong> — without any new technology, infrastructure, or investment.</p>
-        </div>
-        <div style="text-align:center; flex-shrink:0;">
-          <span class="qw-num">$200k</span>
-          <span class="qw-unit">saved per year</span>
+    <div class="cat-card">
+      <button class="cat-trigger" onclick="tog(0)" aria-expanded="false" aria-controls="body-0">
+        <span class="cat-pct-badge" style="background:rgba(55,138,221,.15);color:#7bbfff;">~38%</span>
+        <span class="cat-trigger-text">
+          <span class="cat-trigger-name">HVAC — Heating &amp; Cooling</span>
+          <span class="cat-trigger-sub">Typically 33–40% of a dorm's total energy bill</span>
+        </span>
+        <svg class="cat-chevron" id="chev-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="4 6 8 10 12 6"/></svg>
+      </button>
+      <div class="cat-body" id="body-0" hidden>
+        <p class="cat-why"><strong>Why it's so high:</strong> Heating and cooling large buildings is energy-intensive, especially in older dorms with poor insulation. Every time a window is left open while the heat or AC runs, the system works overtime to compensate.</p>
+        <div class="tip-grid">
+          <div class="tip-item">🌡️ Keep your thermostat at a steady 68–70°F — constant cycling between extremes wastes more energy than a stable setting.</div>
+          <div class="tip-item">🪟 Close windows when HVAC is running. Even a small gap forces the system to run continuously.</div>
+          <div class="tip-item">🚪 Don't prop exterior doors open — one of the fastest ways to waste conditioned air in an entire building.</div>
+          <div class="tip-item">🛠️ Report malfunctioning HVAC to Facilities. A broken unit often runs non-stop, wasting energy while keeping nobody comfortable.</div>
         </div>
       </div>
-    </section>
-
-    <!-- RANKINGS COMING SOON -->
-    <section class="content-section">
-      <div class="section-heading">
-        <p class="eyebrow">Live data</p>
-        <h2>Per-dorm rankings — coming soon</h2>
-      </div>
-      <div class="info-panel">
-        <strong>Designed for real Villanova metering data</strong>
-        <p>Once campus meter feeds are connected, this page will show per-capita energy rankings for every residence hall, updated in real time. Buildings will be ranked, color-coded, and linked to specific improvement recommendations. Ask AVATAR any questions in the meantime.</p>
-      </div>
-      <div class="button-row" style="margin-top:1.5rem;">
-        <a class="button button-primary" href="avatar-ai.html">Ask AVATAR</a>
-        <a class="button button-secondary" href="fun-facts.html">Explore fun facts</a>
-        <a class="button button-secondary" href="index.html">Return to homepage</a>
-      </div>
-    </section>
-
-  </main>
-
-  <footer class="site-footer">
-    <strong>AVATAR</strong>
-    <div class="footer-links">
-      <a href="energy-usage.html">Energy Usage</a>
-      <a href="fun-facts.html">Fun Facts</a>
-      <a href="dorm-rankings.html">Dorm Rankings</a>
-      <a href="about.html">About</a>
-      <a href="meet-the-team.html">Meet the Team</a>
     </div>
-  </footer>
 
-</div>
-<script src="static/script.js"></script>
+    <div class="cat-card">
+      <button class="cat-trigger" onclick="tog(1)" aria-expanded="false" aria-controls="body-1">
+        <span class="cat-pct-badge" style="background:rgba(239,159,39,.15);color:#f5c46a;">~22%</span>
+        <span class="cat-trigger-text">
+          <span class="cat-trigger-name">Lighting</span>
+          <span class="cat-trigger-sub">Typically 20–24% of a dorm's total energy bill</span>
+        </span>
+        <svg class="cat-chevron" id="chev-1" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="4 6 8 10 12 6"/></svg>
+      </button>
+      <div class="cat-body" id="body-1" hidden>
+        <p class="cat-why"><strong>Why it's so high:</strong> Corridor and common area lights run 24 hours a day in most dorms. Many rooms still use older bulbs that draw 4–5× more power than LEDs for the same brightness.</p>
+        <div class="tip-grid">
+          <div class="tip-item">💡 Switch personal lamps to LED bulbs — 75% less energy, years longer lifespan.</div>
+          <div class="tip-item">☀️ Use natural sunlight during the day. South-facing rooms can go hours without overhead lights on a clear day.</div>
+          <div class="tip-item">🌙 Start a floor habit: a nightly lights-off check of study lounges and common rooms before bed.</div>
+          <div class="tip-item">📢 Advocate with your RA for motion-sensor lighting in low-traffic hallways — simple upgrade, big payoff.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cat-card">
+      <button class="cat-trigger" onclick="tog(2)" aria-expanded="false" aria-controls="body-2">
+        <span class="cat-pct-badge" style="background:rgba(127,119,221,.15);color:#b0abf5;">~22%</span>
+        <span class="cat-trigger-text">
+          <span class="cat-trigger-name">Appliances &amp; Electronics</span>
+          <span class="cat-trigger-sub">Typically 15–31% — highest in apartment-style dorms</span>
+        </span>
+        <svg class="cat-chevron" id="chev-2" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="4 6 8 10 12 6"/></svg>
+      </button>
+      <div class="cat-body" id="body-2" hidden>
+        <p class="cat-why"><strong>Why it's so high:</strong> Mini-fridges (~350 kWh/yr each), microwaves, gaming PCs, and coffee makers all add up fast. "Vampire load" from chargers on standby can account for up to 10% of a room's usage alone.</p>
+        <div class="tip-grid">
+          <div class="tip-item">🔌 Unplug chargers and small appliances when not in use — a plugged-in charger draws power even with nothing connected.</div>
+          <div class="tip-item">❄️ Set your mini-fridge to 37°F — the minimum safe temperature. Every extra degree costs real energy.</div>
+          <div class="tip-item">🎮 Fully power down gaming consoles and monitors when leaving — sleep mode still draws significant power.</div>
+          <div class="tip-item">🔋 Use a smart power strip for your desk setup — it cuts power to peripherals when your main device turns off.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cat-card">
+      <button class="cat-trigger" onclick="tog(3)" aria-expanded="false" aria-controls="body-3">
+        <span class="cat-pct-badge" style="background:rgba(29,158,117,.15);color:#6dd9b8;">~18%</span>
+        <span class="cat-trigger-text">
+          <span class="cat-trigger-name">Hot Water</span>
+          <span class="cat-trigger-sub">Typically 15–20% of a dorm's total energy bill</span>
+        </span>
+        <svg class="cat-chevron" id="chev-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="4 6 8 10 12 6"/></svg>
+      </button>
+      <div class="cat-body" id="body-3" hidden>
+        <p class="cat-why"><strong>Why it's so high:</strong> A single 10-minute shower uses 2–5 kWh — multiplied by hundreds of residents every day, this adds up to hundreds of thousands of dollars per year across campus.</p>
+        <div class="tip-grid">
+          <div class="tip-item">🚿 Cut your shower to 7 minutes or less. A 2-minute reduction per student could save Villanova nearly $200,000/year.</div>
+          <div class="tip-item">🧺 Wash laundry on cold — just as effective, cuts energy per load by up to 75%.</div>
+          <div class="tip-item">💧 Report dripping hot faucets to Facilities — a slow drip wastes thousands of gallons of heated water per semester.</div>
+          <div class="tip-item">🍽️ Air-dry dishes instead of using the heat-dry cycle on apartment-hall dishwashers.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cat-card">
+      <button class="cat-trigger" onclick="tog(4)" aria-expanded="false" aria-controls="body-4">
+        <span class="cat-pct-badge" style="background:rgba(136,135,128,.15);color:#bbb;">~8%</span>
+        <span class="cat-trigger-text">
+          <span class="cat-trigger-name">Other — Elevators, Vending &amp; Shared Spaces</span>
+          <span class="cat-trigger-sub">Typically 7–10% of a dorm's total energy bill</span>
+        </span>
+        <svg class="cat-chevron" id="chev-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="4 6 8 10 12 6"/></svg>
+      </button>
+      <div class="cat-body" id="body-4" hidden>
+        <p class="cat-why"><strong>Why it matters:</strong> Vending machines draw 2,500–3,000 kWh per year each. Shared lounges, lobby lighting, and laundry machines all contribute to base load that runs regardless of occupancy.</p>
+        <div class="tip-grid">
+          <div class="tip-item">🛗 Take the stairs for 1–2 floors. Elevators use more energy per trip than most people realize.</div>
+          <div class="tip-item">📺 Turn off shared lounge TVs and lights when the space is empty.</div>
+          <div class="tip-item">👕 Run full laundry loads — same energy per cycle, more clothes cleaned per kWh.</div>
+          <div class="tip-item">🏫 Study in academic buildings during the day — that energy is spread across far more people per kWh.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- QUICK WIN -->
+<section class="content-section">
+  <div class="section-heading">
+    <p class="eyebrow">Highest-impact action</p>
+    <h2>One change, outsized result</h2>
+  </div>
+  <div class="info-panel">
+    <strong>Shorten your shower by 2 minutes → ~$200,000 saved per year</strong>
+    <p>If every on-campus resident made this one change, Villanova could save nearly $200,000 per year — without any new technology, infrastructure, or investment. No infrastructure required. Just awareness.</p>
+  </div>
+</section>
+
+<!-- RANKINGS COMING SOON -->
+<section class="content-section">
+  <div class="section-heading">
+    <p class="eyebrow">Live data</p>
+    <h2>Per-dorm rankings — coming soon</h2>
+  </div>
+  <div class="info-panel">
+    <strong>Designed for real Villanova metering data</strong>
+    <p>Once campus meter feeds are connected, this page will show per-capita energy rankings for every residence hall, updated in real time. Buildings will be ranked, color-coded, and linked to specific improvement recommendations.</p>
+  </div>
+  <div class="button-row" style="margin-top:1.5rem;">
+    <a class="button button-primary" href="{{ url_for('avatar_ai') }}">Ask AVATAR AI</a>
+    <a class="button button-secondary" href="{{ url_for('fun_facts') }}">Explore fun facts</a>
+    <a class="button button-secondary" href="{{ url_for('home') }}">Return to homepage</a>
+  </div>
+</section>
+
+<!-- ACCORDION STYLES & SCRIPT -->
+<style>
+  .cat-list { display:flex; flex-direction:column; gap:10px; }
+  .cat-card { border:1px solid rgba(255,255,255,.1); border-radius:10px; overflow:hidden; background:rgba(255,255,255,.03); }
+  .cat-trigger { width:100%; background:none; border:none; display:flex; align-items:center; gap:14px; padding:16px 20px; cursor:pointer; text-align:left; color:inherit; }
+  .cat-trigger:hover { background:rgba(255,255,255,.05); }
+  .cat-pct-badge { font-size:13px; font-weight:700; padding:4px 10px; border-radius:99px; flex-shrink:0; min-width:50px; text-align:center; }
+  .cat-trigger-text { flex:1; min-width:0; }
+  .cat-trigger-name { font-size:15px; font-weight:600; display:block; margin-bottom:2px; }
+  .cat-trigger-sub { font-size:12px; opacity:.5; }
+  .cat-chevron { width:16px; height:16px; opacity:.5; flex-shrink:0; transition:transform .2s; }
+  .cat-chevron.open { transform:rotate(180deg); }
+  .cat-body { padding:0 20px 20px; border-top:1px solid rgba(255,255,255,.07); }
+  .cat-body[hidden] { display:none; }
+  .cat-why { font-size:13px; opacity:.7; line-height:1.65; margin:14px 0 16px; }
+  .tip-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; }
+  .tip-item { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); border-radius:8px; padding:12px 14px; font-size:13px; line-height:1.55; }
+</style>
+
 <script>
   function tog(i) {
     var b = document.getElementById('body-' + i);
     var c = document.getElementById('chev-' + i);
-    b.classList.toggle('open');
-    c.classList.toggle('open');
+    var btn = c.closest('button');
+    var isHidden = b.hasAttribute('hidden');
+    if (isHidden) {
+      b.removeAttribute('hidden');
+      c.classList.add('open');
+      btn.setAttribute('aria-expanded', 'true');
+    } else {
+      b.setAttribute('hidden', '');
+      c.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    }
   }
 </script>
-</body>
-</html>
+
+{% endblock %}
