@@ -204,14 +204,15 @@ def sustainability_resources():
 @app.route('/fun-facts')
 def fun_facts():
     return render_template(
-        'fun_facts.html'
+        'fun_facts.html',
+        active_page='fun_facts'
     )
-
 
 @app.route('/dorm-rankings')
 def dorm_rankings():
     return render_template(
-        'dorm_rankings.html'
+        'dorm_rankings.html',
+        active_page='dorm_rankings'
     )
 
 if __name__ == "__main__":
