@@ -2,6 +2,50 @@ const menuButton=document.querySelector(".menu-button");
 const navigation=document.querySelector(".main-nav");
 if(menuButton&&navigation){menuButton.addEventListener("click",()=>{const open=navigation.classList.toggle("open");menuButton.setAttribute("aria-expanded",String(open));});navigation.querySelectorAll("a").forEach(link=>link.addEventListener("click",()=>{navigation.classList.remove("open");menuButton.setAttribute("aria-expanded","false");}));}
 const number=value=>new Intl.NumberFormat("en-US",{maximumFractionDigits:1}).format(value);
+const displayDate=value=>{
+  if(!value)return "Date unavailable";
+  const parts=String(value).split("-").map(Number);
+  if(parts.length!==3||parts.some(part=>!Number.isFinite(part)))return String(value);
+  return new Intl.DateTimeFormat("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"}).format(new Date(parts[0],parts[1]-1,parts[2]));
+};
+
+async function requestForecastData(){
+  const apiBase=document.querySelector('meta[name="avatar-api-url"]')?.content?.replace(/\/$/,"");
+  if(apiBase){
+    try{
+      const response=await fetch(apiBase+"/api/forecast",{cache:"no-store"});
+      if(!response.ok)throw new Error("Live forecast request failed");
+      const liveData=await response.json();
+      if(liveData.status==="error")throw new Error(liveData.message||"Live forecast request failed");
+      return liveData;
+    }catch(error){
+      console.warn("Using the static AVATAR forecast fallback.",error);
+    }
+  }
+  const response=await fetch("static/data/load_forecast.json",{cache:"no-store"});
+  if(!response.ok)throw new Error("Forecast data request failed");
+  return response.json();
+}
+
+function renderForecastWeather(weather){
+  const panel=document.querySelector("#forecast-weather");
+  const unavailable=document.querySelector("#forecast-weather-unavailable");
+  if(!panel||!unavailable)return;
+  if(weather?.status!=="available"){
+    panel.hidden=true;
+    unavailable.hidden=false;
+    return;
+  }
+  document.querySelector("#weather-provider").textContent=weather.provider||"weather service";
+  document.querySelector("#weather-date").textContent=displayDate(weather.forecast_date);
+  document.querySelector("#weather-temperature").textContent=number(weather.temperature_low_f)+"–"+number(weather.temperature_high_f)+"°F";
+  document.querySelector("#weather-humidity").textContent=number(weather.average_humidity_pct)+"%";
+  document.querySelector("#weather-precipitation").textContent=number(weather.precipitation_total_in)+" in";
+  document.querySelector("#weather-note").textContent=weather.note||"Weather is displayed for context and is not yet applied to demand.";
+  unavailable.hidden=true;
+  panel.hidden=false;
+}
+
 async function renderForecast(){
   const chart=document.querySelector("#forecast-chart");
   if(!chart)return;
@@ -9,9 +53,7 @@ async function renderForecast(){
   const content=document.querySelector("#forecast-content");
   const errorPanel=document.querySelector("#forecast-error");
   try{
-    const response=await fetch("static/data/load_forecast.json",{cache:"no-store"});
-    if(!response.ok)throw new Error("Forecast data request failed");
-    const data=await response.json();
+    const data=await requestForecastData();
     if(!Array.isArray(data.hourly)||data.hourly.length!==24)throw new Error("Forecast data is incomplete");
     const maximum=Math.max(...data.hourly.map(row=>Number(row.forecast_kw)),1);
     chart.innerHTML=data.hourly.map(row=>{
@@ -24,7 +66,9 @@ async function renderForecast(){
     document.querySelector("#forecast-peak-load").textContent=number(data.peak_load_kw)+" kW";
     document.querySelector("#forecast-peak-time").textContent="Expected near "+data.peak_label+".";
     document.querySelector("#forecast-warning").textContent=data.warning;
+    document.querySelector("#forecast-date").textContent=data.forecast_date?"Profile date: "+displayDate(data.forecast_date):"Static representative profile";
     document.querySelector("#forecast-method").textContent=data.method;
+    renderForecastWeather(data.weather);
     loading.hidden=true;
     content.hidden=false;
   }catch(error){

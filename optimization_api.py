@@ -8,7 +8,9 @@ runs the existing engineering model, and returns a JSON-safe result.
 from __future__ import annotations
 
 import os
+from datetime import datetime, timedelta
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from flask import Flask, jsonify, request
 
@@ -17,6 +19,12 @@ from AVATARbegginsformodifiableWHATIF import (
     AvatarInputs,
     run_avatar,
     website_payload,
+)
+from avatar_load_forecasting import create_proxy_forecast
+from weather_service import (
+    WeatherConfig,
+    WeatherServiceError,
+    fetch_forecast_weather,
 )
 
 
@@ -128,6 +136,123 @@ def health():
             "solver": "SciPy milp / HiGHS",
         }
     )
+
+
+def _tomorrows_proxy_and_weather() -> dict[str, Any]:
+    """Build the Load Forecasting tab payload without overstating accuracy."""
+    weather_config = WeatherConfig.from_environment()
+    local_now = datetime.now(ZoneInfo(weather_config.timezone_name))
+    forecast_date = local_now.date() + timedelta(days=1)
+
+    proxy = create_proxy_forecast(
+        daily_energy_mwh=5.5,
+        forecast_date=forecast_date.isoformat(),
+        timezone=weather_config.timezone_name,
+    )
+    hourly_load = [
+        {
+            "timestamp": timestamp.isoformat(),
+            "hour": int(timestamp.hour),
+            "label": timestamp.strftime("%I %p").lstrip("0"),
+            "forecast_kw": round(float(row["forecast_kw"]), 2),
+        }
+        for timestamp, row in proxy.forecast.iterrows()
+    ]
+    peak = max(hourly_load, key=lambda item: item["forecast_kw"])
+
+    weather_payload: dict[str, Any]
+    try:
+        weather_result = fetch_forecast_weather(
+            forecast_days=3, config=weather_config
+        )
+        weather_day = weather_result.hourly[
+            weather_result.hourly.index.date == forecast_date
+        ]
+        if weather_day.empty:
+            raise WeatherServiceError(
+                "Tomorrow's hourly weather was not present in the provider response."
+            )
+
+        weather_payload = {
+            "status": "available",
+            "provider": weather_result.provider,
+            "dataset": weather_result.dataset,
+            "forecast_date": forecast_date.isoformat(),
+            "retrieved_at_utc": weather_result.retrieved_at_utc,
+            "from_cache": weather_result.from_cache,
+            "applied_to_demand": False,
+            "temperature_low_f": round(float(weather_day["temp_f"].min()), 1),
+            "temperature_high_f": round(float(weather_day["temp_f"].max()), 1),
+            "average_humidity_pct": round(
+                float(weather_day["humidity_pct"].mean()), 1
+            ),
+            "precipitation_total_in": round(
+                float(weather_day["precipitation_in"].sum()), 3
+            ),
+            "hourly": [
+                {
+                    "timestamp": timestamp.isoformat(),
+                    "label": timestamp.strftime("%I %p").lstrip("0"),
+                    "temp_f": round(float(row["temp_f"]), 1),
+                    "humidity_pct": round(float(row["humidity_pct"]), 1),
+                    "apparent_temp_f": round(
+                        float(row["apparent_temp_f"]), 1
+                    ),
+                    "precipitation_in": round(
+                        float(row["precipitation_in"]), 3
+                    ),
+                }
+                for timestamp, row in weather_day.iterrows()
+            ],
+            "note": (
+                "Weather is displayed for context but is not yet applied to demand. "
+                "Historical Villanova load data are required to learn that relationship."
+            ),
+        }
+    except (WeatherServiceError, ValueError) as exc:
+        app.logger.warning("AVATAR weather request unavailable: %s", exc)
+        weather_payload = {
+            "status": "unavailable",
+            "provider": "Open-Meteo",
+            "forecast_date": forecast_date.isoformat(),
+            "applied_to_demand": False,
+            "hourly": [],
+            "message": (
+                "Tomorrow's weather is temporarily unavailable. The baseline proxy "
+                "load profile is still available."
+            ),
+        }
+
+    return {
+        "status": "temporary_proxy",
+        "method": proxy.summary["method"],
+        "forecast_date": forecast_date.isoformat(),
+        "daily_energy_mwh": proxy.summary["forecast_energy_mwh"],
+        "daily_energy_kwh": proxy.summary["forecast_energy_kwh"],
+        "average_load_kw": proxy.summary["average_load_kw"],
+        "peak_load_kw": proxy.summary["peak_load_kw"],
+        "peak_hour": peak["hour"],
+        "peak_label": peak["label"],
+        "weather_applied_to_demand": False,
+        "warning": proxy.summary["warning"],
+        "hourly": hourly_load,
+        "weather": weather_payload,
+    }
+
+
+@app.get("/api/forecast")
+def forecast():
+    """Return tomorrow's proxy load and contextual weather for the website."""
+    try:
+        return jsonify(_tomorrows_proxy_and_weather())
+    except Exception:
+        app.logger.exception("AVATAR forecast request failed")
+        return jsonify(
+            {
+                "status": "error",
+                "message": "The forecast service could not complete this request.",
+            }
+        ), 500
 
 
 @app.route("/api/optimize", methods=["POST", "OPTIONS"])
