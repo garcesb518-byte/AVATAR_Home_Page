@@ -1,12 +1,101 @@
-from flask import Flask, render_template, request
+import os
+
+import requests
+from dotenv import load_dotenv
+from flask import Flask, jsonify, render_template, request
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from pathlib import Path
+from bs4 import BeautifulSoup
+
+load_dotenv()
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+MODEL = "mistralai/mistral-small-3.2-24b-instruct"
+
+def load_knowledge():
+    folder = Path(__file__).parent / "knowledge"
+    parts = []
+    for f in sorted(folder.glob("*.txt")):
+        title = f.stem.replace("_", " ").title()
+        parts.append(f"## {title}\n{f.read_text(encoding='utf-8').strip()}")
+    return "\n\n".join(parts)
 
 app = Flask(__name__)
+limiter = Limiter(get_remote_address, app=app, storage_uri="memory://")
+
+# Pages the bot should read. Add or remove pages here.
+KNOWLEDGE_PAGES = [
+    ("Home", "/"),
+    ("Why AVATAR?", "/why-avatar"),
+    ("About", "/about"),
+    ("Fun Facts", "/fun-facts"),
+    ("Dorm Facts", "/dorm-rankings"),
+]
+MAX_CHARS_PER_PAGE = 6000
+
+SYSTEM_PROMPT_BASE = (
+    "You are AVATAR AI, the assistant for AVATAR (Advancing Villanova to Energy "
+    "Autonomy and Resiliency), a Villanova University capstone website about campus "
+    "energy, load forecasting, what-if scenarios, sustainability, and resiliency. "
+    "Keep answers short (under 120 words) and clear. Respond in plain text with no "
+    "markdown.\n\n"
+    "How to answer:\n"
+    "1. For questions about this website, AVATAR, or Villanova's specific numbers, "
+    "use the SITE KNOWLEDGE below, using its exact figures and showing any math "
+    "briefly. If the site knowledge doesn't contain the answer, say you don't have "
+    "that information. Never invent Villanova-specific figures.\n"
+    "2. For general questions about energy, sustainability, or related technology "
+    "(for example: what a battery energy storage system (BESS), peak demand, or a "
+    "microgrid is), answer from your own general knowledge in plain language, and "
+    "make clear you're giving general information rather than site data.\n"
+    "3. If a question is unrelated to energy, sustainability, or this site, "
+    "politely steer back to those topics."
+)
+
+
+def page_text(path):
+    """Render one of our own pages and return just its readable text."""
+    response = app.test_client().get(path)
+    if response.status_code != 200:
+        return ""
+    soup = BeautifulSoup(response.get_data(as_text=True), "html.parser")
+    for tag in soup(["script", "style", "nav", "footer", "noscript"]):
+        tag.decompose()
+    for tag in soup.select("#chat-toggle, #chat-panel"):
+        tag.decompose()
+    root = soup.find("main") or soup.body or soup
+    return root.get_text("\n", strip=True)[:MAX_CHARS_PER_PAGE]
+
+
+def load_page_knowledge():
+    parts = []
+    for title, path in KNOWLEDGE_PAGES:
+        text = page_text(path)
+        if text:
+            parts.append(f"## {title} page\n{text}")
+    return "\n\n".join(parts)
+
+
+_prompt_cache = {}
+
+
+def get_system_prompt():
+    # Cached after first use; rebuilt on every message while debug=True
+    # so edits to your pages show up without restarting.
+    if "prompt" not in _prompt_cache or app.debug:
+        _prompt_cache["prompt"] = (
+            SYSTEM_PROMPT_BASE
+            + "\n\nSITE KNOWLEDGE:\n"
+            + load_page_knowledge()
+            + "\n\n"
+            + load_knowledge()
+        )
+    return _prompt_cache["prompt"]
 
 NAV_ITEMS = [
     ("dashboard", "Dashboard"),
     ("load_forecasting", "Load Forecasting"),
     ("what_ifs", "What Ifs"),
-    ("avatar_ai", "AVATAR AI"),
     ("why_avatar", "Why AVATAR?"),
     ("about", "About"),
     ("fun_facts", "Fun Facts"),
@@ -118,47 +207,47 @@ def what_ifs():
     )
 
 
-@app.route("/avatar-ai", methods=["GET", "POST"])
-def avatar_ai():
-    answer = None
-    question = ""
+@app.route("/api/chat", methods=["POST"])
+@limiter.limit("10 per minute")
+def chat():
+    if not OPENROUTER_API_KEY:
+        return jsonify({"reply": "AVATAR AI isn't configured yet."}), 503
 
-    if request.method == "POST":
-        question = request.form.get("question", "").strip()
-        q = question.lower()
+    data = request.get_json(silent=True) or {}
+    history = data.get("messages", [])
+    if not isinstance(history, list):
+        history = []
 
-        if not question:
-            answer = "Ask a question about campus energy, forecasting, sustainability, or resiliency."
-        elif "forecast" in q or "future load" in q:
-            answer = (
-                "The Load Forecasting section is designed to estimate how campus demand "
-                "could change over time. Once AVATAR is connected to real Villanova data, "
-                "the model can use historical load, weather, occupancy, and calendar patterns."
-            )
-        elif "what if" in q or "scenario" in q:
-            answer = (
-                "The What Ifs section is where AVATAR can compare scenarios such as lower "
-                "energy use, solar generation, storage, or other campus changes."
-            )
-        elif "avatar" in q:
-            answer = (
-                "AVATAR stands for Advancing Villanova to Energy Autonomy and Resiliency. "
-                "The project is meant to make campus energy easier to understand and support "
-                "better decisions about sustainability and resiliency."
-            )
-        else:
-            answer = (
-                "This is a starter AVATAR AI response. The page and interaction are working, "
-                "but a production version should connect this form to your chosen AI model "
-                "and Villanova-approved energy data sources."
-            )
+    messages = []
+    for m in history[-10:]:
+        if (
+            isinstance(m, dict)
+            and m.get("role") in ("user", "assistant")
+            and isinstance(m.get("content"), str)
+            and m["content"].strip()
+        ):
+            cap = 500 if m["role"] == "user" else 2000
+            messages.append({"role": m["role"], "content": m["content"][:cap]})
 
-    return render_template(
-        "avatar_ai.html",
-        active_page="avatar_ai",
-        answer=answer,
-        question=question,
-    )
+    if not messages or messages[-1]["role"] != "user":
+        return jsonify({"reply": "Please type a question."}), 400
+
+    try:
+        r = requests.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            headers={"Authorization": f"Bearer {OPENROUTER_API_KEY}"},
+            json={
+                "model": MODEL,
+                "max_tokens": 300,
+                "messages": [{"role": "system", "content": get_system_prompt()}, *messages],
+            },
+            timeout=30,
+        )
+        r.raise_for_status()
+        reply = r.json()["choices"][0]["message"]["content"]
+        return jsonify({"reply": reply})
+    except Exception:
+        return jsonify({"reply": "Sorry, AVATAR AI is unavailable right now. Please try again shortly."}), 502
 
 
 @app.route("/why-avatar")

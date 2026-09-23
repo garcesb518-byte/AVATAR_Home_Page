@@ -11,8 +11,6 @@ The site is designed to keep the homepage simple while sending users to focused 
 - Why AVATAR?
 - About
 
-The current forecasting, scenario, dashboard, and AVATAR AI content is demonstration functionality. It is intended to be replaced or extended with approved Villanova data and the team's production models.
-
 ## Project structure
 
 ```text
@@ -25,7 +23,6 @@ AVATAR_Home_Page/
 │   ├── dashboard.html
 │   ├── load_forecasting.html
 │   ├── what_ifs.html
-│   ├── avatar_ai.html
 │   ├── why_avatar.html
 │   ├── about.html
 │   └── simple_page.html
