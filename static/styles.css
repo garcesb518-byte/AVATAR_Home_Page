@@ -463,3 +463,134 @@ input:focus {
     border-radius: 50%;
     margin-bottom: 20px;
 }
+
+/* Fun Facts interactive energy calculator */
+
+.energy-input small {
+  display: block;
+  margin-top: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+
+/* ================================
+   Custom Energy Calculator Sliders
+   ================================ */
+
+.energy-input .range-wrap {
+  position: relative;
+  width: 100%;
+  height: 28px;
+  margin: 6px 0 10px 0;
+
+  --range-percent: 0%;
+}
+
+
+/* Visible track */
+.energy-input .range-wrap::before {
+  content: "";
+  position: absolute;
+
+  /* Leave room for the circular thumb */
+  left: 9px;
+  right: 9px;
+
+  top: 50%;
+  transform: translateY(-50%);
+
+  height: 6px;
+  border-radius: 999px;
+
+  background: linear-gradient(
+    to right,
+    #4775ed 0%,
+    #4775ed var(--range-percent),
+    #e5e7eb var(--range-percent),
+    #e5e7eb 100%
+  );
+}
+
+
+/* Actual clickable slider */
+.energy-input .range-wrap input[type="range"] {
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+  width: 100% !important;
+  height: 28px !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+
+  background: transparent !important;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  cursor: pointer;
+}
+
+
+/* Chrome / Edge track */
+.energy-input .range-wrap input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+
+  background: transparent;
+  border: none;
+}
+
+
+/* Chrome / Edge thumb */
+.energy-input .range-wrap input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 18px;
+  height: 18px;
+
+  margin-top: -15px;
+
+  border: 2px solid white;
+  border-radius: 50%;
+
+  background: #4775ed;
+
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+
+  cursor: pointer;
+}
+
+
+/* Firefox track */
+.energy-input .range-wrap input[type="range"]::-moz-range-track {
+  width: 100%;
+  height: 6px;
+
+  background: transparent;
+  border: none;
+}
+
+
+/* Firefox thumb */
+.energy-input .range-wrap input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+
+  border: 2px solid white;
+  border-radius: 50%;
+
+  background: #4775ed;
+
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+
+  cursor: pointer;
+}

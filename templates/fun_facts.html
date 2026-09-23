@@ -51,7 +51,7 @@
       <p>One ChatGPT prompt uses roughly 10 times the energy of a standard web search.</p>
     </article>
     <article class="metric-card">
-      <span>Global AI data centers by 2026</span>
+      <span>Global data centers by 2030</span>
       <strong>~1,000 TWh/yr</strong>
       <p>Projected annual consumption — comparable to Japan's entire national grid.</p>
     </article>
@@ -85,15 +85,213 @@
       <strong>= 3 months of hallway LEDs</strong>
       <p>Leaving a desktop on overnight every night uses as much energy as lighting an entire hallway for 3 months.</p>
     </article>
-    <article class="metric-card">
-      <span>Charging your phone daily for a year</span>
-      <strong>Only ~2 kWh total</strong>
-      <p>Less than one load of laundry. Your phone isn't the problem — it's everything else.</p>
-    </article>
   </div>
   <div class="info-panel">
     <strong>Small habits, large collective impact</strong>
     <p>Villanova has over 3,000 on-campus residents. A 2-minute shower reduction, unplugged chargers, and powered-down PCs — multiplied by 3,000 people — adds up to hundreds of thousands of dollars in savings annually.</p>
+  </div>
+</section>
+
+<!-- INTERACTIVE ENERGY CALCULATOR -->
+<section class="content-section interactive-energy">
+  <div class="section-heading">
+    <p class="eyebrow">Make it personal</p>
+    <h2>Build your energy day</h2>
+    <p>
+      How much energy does a typical day of dorm life use?
+      Adjust the sliders to see how your everyday habits add up.
+    </p>
+  </div>
+
+  <div class="energy-calculator">
+
+    <!-- SHOWER -->
+    <div class="energy-input">
+      <div class="input-header">
+        <span>🚿 Shower</span>
+        <strong><span id="showerValue">10</span> min</strong>
+      </div>
+
+      <small>Hot-water energy use</small>
+    
+    <div class="range-wrap">
+      <input
+        type="range"
+        id="shower"
+        min="0"
+        max="30"
+        value="10"
+        step="1"
+      >
+    </div>
+
+    <!-- LAPTOP -->
+    <div class="energy-input">
+      <div class="input-header">
+        <span>💻 Laptop</span>
+        <strong><span id="laptopValue">5</span> hrs</strong>
+      </div>
+
+      <small>Time spent using your laptop</small>
+
+    <div class="range-wrap">
+      <input
+        type="range"
+        id="laptop"
+        min="0"
+        max="16"
+        value="5"
+        step="1"
+      >
+    </div>
+
+    <!-- DESKTOP -->
+    <div class="energy-input">
+      <div class="input-header">
+        <span>🖥️ Desktop / Gaming PC</span>
+        <strong><span id="desktopValue">2</span> hrs</strong>
+      </div>
+
+      <small>Gaming, studying, or other desktop use</small>
+
+    <div class="range-wrap">
+      <input
+        type="range"
+        id="desktop"
+        min="0"
+        max="12"
+        value="2"
+        step="1"
+      >
+    </div>
+
+    <!-- STREAMING -->
+    <div class="energy-input">
+      <div class="input-header">
+        <span>📺 Streaming</span>
+        <strong><span id="streamingValue">2</span> hrs</strong>
+      </div>
+
+      <small>Netflix, YouTube, Twitch, etc.</small>
+
+    <div class="range-wrap">
+      <input
+        type="range"
+        id="streaming"
+        min="0"
+        max="12"
+        value="2"
+        step="1"
+      >
+    </div>
+
+    <!-- AI -->
+    <div class="energy-input">
+      <div class="input-header">
+        <span>🤖 AI prompts</span>
+        <strong><span id="aiValue">10</span></strong>
+      </div>
+
+      <small>ChatGPT, Gemini, Claude, and other AI tools</small>
+
+    <div class="range-wrap">
+      <input
+        type="range"
+        id="ai"
+        min="0"
+        max="100"
+        value="10"
+        step="1"
+      >
+    </div>
+
+    <!-- LIGHTS -->
+    <div class="energy-input">
+      <div class="input-header">
+        <span>💡 Lights</span>
+        <strong><span id="lightsValue">5</span> hrs</strong>
+      </div>
+
+      <small>Approximate time your room lights are on</small>
+
+    <div class="range-wrap">
+      <input
+        type="range"
+        id="lights"
+        min="0"
+        max="16"
+        value="5"
+        step="1"
+      >
+    </div>
+
+    <!-- RESULT -->
+    <div class="energy-result">
+      <p class="eyebrow">Your estimated daily energy</p>
+
+      <div class="energy-total">
+        <span id="totalEnergy">4.02</span>
+        <small>kWh</small>
+      </div>
+
+      <p id="energyComparison">
+        That's your estimated electricity use from the activities above.
+      </p>
+
+      <div class="energy-breakdown">
+        <div>
+          <span>🚿 Shower</span>
+          <strong id="showerResult">3.50 kWh</strong>
+        </div>
+
+        <div>
+          <span>💻 Laptop</span>
+          <strong id="laptopResult">0.25 kWh</strong>
+        </div>
+
+        <div>
+          <span>🖥️ Desktop</span>
+          <strong id="desktopResult">0.40 kWh</strong>
+        </div>
+
+        <div>
+          <span>📺 Streaming</span>
+          <strong id="streamingResult">0.16 kWh</strong>
+        </div>
+
+        <div>
+          <span>🤖 AI</span>
+          <strong id="aiResult">0.00 kWh</strong>
+        </div>
+
+        <div>
+          <span>💡 Lights</span>
+          <strong id="lightsResult">0.05 kWh</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- VILLANOVA SCALE -->
+    <div class="energy-scale">
+      <p class="eyebrow">Now multiply it</p>
+
+      <h3>What if 3,000 students did the same thing?</h3>
+
+      <p>
+        Multiply your estimated daily energy use by 3,000
+        on-campus residents.
+      </p>
+
+      <strong>
+        <span id="campusEnergy">12,060</span> kWh/day
+      </strong>
+
+      <p>
+        That's why small individual choices can become significant
+        when thousands of people make them every day.
+      </p>
+    </div>
+
   </div>
 </section>
 
@@ -133,5 +331,153 @@
     <a class="button button-secondary" href="{{ url_for('home') }}">Return to homepage</a>
   </div>
 </section>
+
+<script>
+  const inputs = {
+    shower: document.getElementById("shower"),
+    laptop: document.getElementById("laptop"),
+    desktop: document.getElementById("desktop"),
+    streaming: document.getElementById("streaming"),
+    ai: document.getElementById("ai"),
+    lights: document.getElementById("lights")
+  };
+
+  const values = {
+    shower: document.getElementById("showerValue"),
+    laptop: document.getElementById("laptopValue"),
+    desktop: document.getElementById("desktopValue"),
+    streaming: document.getElementById("streamingValue"),
+    ai: document.getElementById("aiValue"),
+    lights: document.getElementById("lightsValue")
+  };
+
+  function updateCalculator() {
+
+    // Get user inputs
+    const showerMinutes = Number(inputs.shower.value);
+    const laptopHours = Number(inputs.laptop.value);
+    const desktopHours = Number(inputs.desktop.value);
+    const streamingHours = Number(inputs.streaming.value);
+    const aiPrompts = Number(inputs.ai.value);
+    const lightHours = Number(inputs.lights.value);
+
+    // Update displayed slider values
+    values.shower.textContent = showerMinutes;
+    values.laptop.textContent = laptopHours;
+    values.desktop.textContent = desktopHours;
+    values.streaming.textContent = streamingHours;
+    values.ai.textContent = aiPrompts;
+    values.lights.textContent = lightHours;
+
+    /*
+      These are illustrative estimates.
+
+      Shower:
+      Current page states 2–5 kWh per 10-minute shower.
+      We use the midpoint: 3.5 kWh / 10 minutes.
+
+      Laptop:
+      ~50 watts
+
+      Desktop:
+      ~200 watts
+
+      Streaming:
+      Uses the estimate already shown on your page:
+      ~0.08 kWh/hour
+
+      AI:
+      Illustrative value only. AI energy use varies significantly
+      by model, hardware, task, and data center.
+
+      Lights:
+      10W LED bulb
+    */
+
+    const showerEnergy = showerMinutes * 0.35;
+    const laptopEnergy = laptopHours * 0.05;
+    const desktopEnergy = desktopHours * 0.20;
+    const streamingEnergy = streamingHours * 0.08;
+    const aiEnergy = aiPrompts * 0.00024;
+    const lightEnergy = lightHours * 0.01;
+
+    const totalEnergy =
+      showerEnergy +
+      laptopEnergy +
+      desktopEnergy +
+      streamingEnergy +
+      aiEnergy +
+      lightEnergy;
+
+    // Update total
+    document.getElementById("totalEnergy").textContent =
+      totalEnergy.toFixed(2);
+
+    // Update breakdown
+    document.getElementById("showerResult").textContent =
+      showerEnergy.toFixed(2) + " kWh";
+
+    document.getElementById("laptopResult").textContent =
+      laptopEnergy.toFixed(2) + " kWh";
+
+    document.getElementById("desktopResult").textContent =
+      desktopEnergy.toFixed(2) + " kWh";
+
+    document.getElementById("streamingResult").textContent =
+      streamingEnergy.toFixed(2) + " kWh";
+
+    document.getElementById("aiResult").textContent =
+      aiEnergy.toFixed(3) + " kWh";
+
+    document.getElementById("lightsResult").textContent =
+      lightEnergy.toFixed(2) + " kWh";
+
+    // Villanova scale
+    const campusEnergy = totalEnergy * 3000;
+
+    document.getElementById("campusEnergy").textContent =
+      campusEnergy.toLocaleString(undefined, {
+        maximumFractionDigits: 0
+      });
+
+    // Comparison
+    const comparison = document.getElementById("energyComparison");
+
+    if (totalEnergy < 1) {
+      comparison.textContent =
+        "That's a relatively small amount of electricity — but daily habits add up over time.";
+    } else if (totalEnergy < 3) {
+      comparison.textContent =
+        "That's several kilowatt-hours from just the activities you selected.";
+    } else if (totalEnergy < 6) {
+      comparison.textContent =
+        "Your shower and other daily activities are adding up to several kWh per day.";
+    } else {
+      comparison.textContent =
+        "That's a substantial amount of energy from only a handful of everyday activities.";
+    }
+
+    document.querySelectorAll('.range-wrap input[type="range"]').forEach(slider => {
+      const min = Number(slider.min);
+      const max = Number(slider.max);
+      const value = Number(slider.value);
+
+      const percent = ((value - min) / (max - min)) * 100;
+
+      slider.parentElement.style.setProperty(
+        '--range-percent',
+        `${percent}%`
+      );
+    });
+  }
+
+  // Update calculator whenever a slider moves
+  Object.values(inputs).forEach(input => {
+    input.addEventListener("input", updateCalculator);
+  });
+
+  // Initial calculation
+  updateCalculator();
+</script>
 
 {% endblock %}
