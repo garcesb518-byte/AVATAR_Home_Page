@@ -194,3 +194,37 @@ document.querySelector("#system-mode")?.addEventListener("change",toggleScenario
 document.querySelector("#scenario-form")?.addEventListener("submit",runScenario);
 toggleScenarioMode();
 renderForecast();
+
+// Shared static-site chatbot. The provider key remains server-side on Render.
+(()=>{
+  if(document.querySelector("#avatar-chat-toggle"))return;
+  const apiBase=document.querySelector('meta[name="avatar-api-url"]')?.content?.replace(/\/$/,"")||"https://avatar-api-5i2l.onrender.com";
+  const style=document.createElement("style");
+  style.textContent=`
+    #avatar-chat-toggle{position:fixed;right:22px;bottom:22px;z-index:1100;display:flex;align-items:center;gap:9px;min-height:52px;padding:0 19px;border:1px solid rgba(255,255,255,.2);border-radius:999px;background:linear-gradient(135deg,#0b2d50,#124b59);color:#fff;font:800 14px/1 system-ui,sans-serif;box-shadow:0 15px 36px rgba(6,29,54,.28);cursor:pointer}
+    #avatar-chat-toggle::before{content:"";width:10px;height:10px;border-radius:50%;background:#58d6a0;box-shadow:0 0 0 5px rgba(88,214,160,.14)}
+    #avatar-chat-panel{position:fixed;right:22px;bottom:86px;z-index:1100;width:min(390px,calc(100vw - 28px));height:min(540px,calc(100vh - 120px));display:flex;flex-direction:column;overflow:hidden;border:1px solid #d5e1e7;border-radius:20px;background:#fff;color:#082b4c;font:14px/1.45 system-ui,sans-serif;box-shadow:0 26px 70px rgba(6,29,54,.28)}
+    #avatar-chat-panel[hidden]{display:none}.avatar-chat-head{display:flex;align-items:center;justify-content:space-between;padding:17px 18px;background:linear-gradient(135deg,#082b4c,#124b59);color:#fff}.avatar-chat-head small{display:block;margin-top:3px;color:#aee6cb;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.avatar-chat-close{border:0;background:transparent;color:#fff;font-size:27px;line-height:1;cursor:pointer}
+    #avatar-chat-log{flex:1;display:flex;flex-direction:column;gap:10px;overflow-y:auto;padding:17px;background:#f6f9f8}.avatar-chat-message{max-width:86%;padding:10px 12px;border-radius:14px;white-space:pre-wrap;overflow-wrap:anywhere}.avatar-chat-bot{align-self:flex-start;border:1px solid #dce7e3;background:#fff}.avatar-chat-user{align-self:flex-end;background:#0b2d50;color:#fff}
+    #avatar-chat-form{display:flex;gap:8px;padding:12px;border-top:1px solid #dbe5e9;background:#fff}#avatar-chat-input{min-width:0;flex:1;padding:11px 12px;border:1px solid #bfcfd7;border-radius:11px;color:#082b4c;font:inherit}#avatar-chat-form button{padding:0 15px;border:0;border-radius:11px;background:#2e8b57;color:#fff;font-weight:800;cursor:pointer}#avatar-chat-form button:disabled,#avatar-chat-input:disabled{opacity:.65}
+    @media(max-width:520px){#avatar-chat-toggle{right:14px;bottom:14px}#avatar-chat-panel{right:14px;bottom:76px}}
+  `;
+  document.head.appendChild(style);
+  const toggle=document.createElement("button");toggle.id="avatar-chat-toggle";toggle.type="button";toggle.setAttribute("aria-expanded","false");toggle.textContent="Ask AVATAR AI";
+  const panel=document.createElement("section");panel.id="avatar-chat-panel";panel.hidden=true;panel.setAttribute("aria-label","AVATAR AI chat");
+  panel.innerHTML=`<header class="avatar-chat-head"><div><strong>AVATAR AI</strong><small>Campus energy guide</small></div><button class="avatar-chat-close" type="button" aria-label="Close chat">&times;</button></header><div id="avatar-chat-log" aria-live="polite"></div><form id="avatar-chat-form"><input id="avatar-chat-input" maxlength="500" placeholder="Ask about campus energy…" autocomplete="off" required><button type="submit">Send</button></form>`;
+  document.body.append(toggle,panel);
+  const closeButton=panel.querySelector(".avatar-chat-close"),log=panel.querySelector("#avatar-chat-log"),form=panel.querySelector("#avatar-chat-form"),input=panel.querySelector("#avatar-chat-input"),send=form.querySelector("button");
+  let history=[];try{history=JSON.parse(sessionStorage.getItem("avatarChat"))||[];}catch(error){history=[];}
+  const save=()=>{try{sessionStorage.setItem("avatarChat",JSON.stringify(history.slice(-10)));}catch(error){}};
+  const addMessage=(role,message)=>{const item=document.createElement("div");item.className=`avatar-chat-message avatar-chat-${role}`;item.textContent=message;log.appendChild(item);log.scrollTop=log.scrollHeight;return item;};
+  const setOpen=open=>{panel.hidden=!open;toggle.setAttribute("aria-expanded",String(open));if(open){input.focus();log.scrollTop=log.scrollHeight;}};
+  addMessage("bot","Hi! I’m AVATAR AI. Ask me about campus energy, forecasting, solar power, batteries, or sustainability.");history.forEach(message=>addMessage(message.role==="user"?"user":"bot",message.content));
+  toggle.addEventListener("click",()=>setOpen(panel.hidden));closeButton.addEventListener("click",()=>setOpen(false));
+  form.addEventListener("submit",async event=>{
+    event.preventDefault();const question=input.value.trim();if(!question)return;input.value="";addMessage("user",question);history.push({role:"user",content:question});const pending=addMessage("bot","Thinking…");input.disabled=true;send.disabled=true;
+    try{const response=await fetch(`${apiBase}/api/chat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:history.slice(-10)})});const data=await response.json();if(response.status===429)throw new Error("You’re sending messages too quickly. Please wait a minute and try again.");if(!response.ok)throw new Error(data.reply||"AVATAR AI is unavailable right now.");pending.textContent=data.reply;history.push({role:"assistant",content:data.reply});save();}
+    catch(error){pending.textContent=error.message||"Network error. Please try again.";history.pop();save();}
+    finally{input.disabled=false;send.disabled=false;input.focus();log.scrollTop=log.scrollHeight;}
+  });
+})();
