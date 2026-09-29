@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AVATAR helps the Villanova community understand campus energy, forecasting, sustainability, and resiliency.">
+  <title>Fun Facts | AVATAR</title>
+  <link rel="stylesheet" href="static/styles.css?v=20260928-1">
+</head>
+<body>
+<div class="site-shell">
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="AVATAR homepage">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span><strong>AVATAR</strong><small>Advancing Villanova to Energy Autonomy and Resiliency</small></span>
+    </a>
+    <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">Menu</button>
+    <nav id="main-navigation" class="main-nav" aria-label="Main navigation">
+      <a href="dashboard.html" class="">Dashboard</a>
+      <a href="energy-usage.html" class="">Energy Usage</a>
+      <a href="load-forecasting.html" class="">Load Forecasting</a>
+      <a href="what-ifs.html" class="">What-Ifs</a>
+      <a href="power-basics.html" class="">Power Basics</a>
+      <a href="fun-facts.html" class="active">Fun Facts</a>
+      <a href="dorm-facts.html" class="">Dorm Facts</a>
+    </nav>
+  </header>
+
+  <main>
+<section class="page-hero">
+  <p class="eyebrow">Fun Facts</p>
+  <h1>Energy by the numbers</h1>
+  <p>Stats about AI, showers, solar, and dorm life that put Villanova's energy footprint in perspective.</p>
+</section>
+
+<!-- SHOWER SECTION -->
+<section class="content-section">
+  <div class="section-heading">
+    <p class="eyebrow">Biggest opportunity</p>
+    <h2>The shower problem</h2>
+  </div>
+  <div class="metric-grid">
+    <article class="metric-card">
+      <span>Energy per 10-min shower</span>
+      <strong>2–5 kWh</strong>
+      <p>Equivalent to leaving a light bulb on for an entire day.</p>
+    </article>
+    <article class="metric-card">
+      <span>Villanova spends on showers</span>
+      <strong>~$900,000/yr</strong>
+      <p>Hot water is one of the largest energy line items across all residence halls combined.</p>
+    </article>
+    <article class="metric-card">
+      <span>Savings from 2 fewer minutes</span>
+      <strong>~$200,000/yr</strong>
+      <p>If every on-campus student cut their daily shower by just 2 minutes.</p>
+    </article>
+  </div>
+  <div class="info-panel">
+    <strong>The single highest-impact behavioral change on campus</strong>
+    <p>No infrastructure required — just awareness. That's what AVATAR is built to create.</p>
+  </div>
+</section>
+
+<!-- AI & TECH -->
+<section class="content-section">
+  <div class="section-heading">
+    <p class="eyebrow">AI & technology</p>
+    <h2>The hidden cost of digital life</h2>
+  </div>
+  <div class="metric-grid">
+    <article class="metric-card">
+      <span>AI query vs. Google search</span>
+      <strong>10× more energy</strong>
+      <p>One ChatGPT prompt uses roughly 10 times the energy of a standard web search.</p>
+    </article>
+    <article class="metric-card">
+      <span>Global data centers by 2030</span>
+      <strong>~1,000 TWh/yr</strong>
+      <p>Projected annual consumption — comparable to Japan's entire national grid.</p>
+    </article>
+    <article class="metric-card">
+      <span>Streaming video for 1 hour</span>
+      <strong>~0.08 kWh</strong>
+      <p>Equal to leaving an LED bulb on for 3 hours. Small per stream, enormous at scale.</p>
+    </article>
+  </div>
+</section>
+
+<!-- DORM LIFE -->
+<section class="content-section">
+  <div class="section-heading">
+    <p class="eyebrow">Dorm life</p>
+    <h2>What's draining your room</h2>
+  </div>
+  <div class="metric-grid">
+    <article class="metric-card">
+      <span>Mini-fridge annual draw</span>
+      <strong>~350 kWh/yr</strong>
+      <p>One of the biggest single energy draws in any dorm room — running 24/7 all semester.</p>
+    </article>
+    <article class="metric-card">
+      <span>Idle charger "vampire load"</span>
+      <strong>Up to 10%</strong>
+      <p>Phone and laptop chargers left plugged in but unused can account for up to 10% of your room's total usage.</p>
+    </article>
+    <article class="metric-card">
+      <span>PC left on overnight all semester</span>
+      <strong>= 3 months of hallway LEDs</strong>
+      <p>Leaving a desktop on overnight every night uses as much energy as lighting an entire hallway for 3 months.</p>
+    </article>
+  </div>
+  <div class="info-panel">
+    <strong>Small habits, large collective impact</strong>
+    <p>Villanova has over 3,000 on-campus residents. A 2-minute shower reduction, unplugged chargers, and powered-down PCs — multiplied by 3,000 people — adds up to hundreds of thousands of dollars in savings annually.</p>
+  </div>
+</section>
+
+<!-- INTERACTIVE ENERGY CALCULATOR -->
+<section class="content-section interactive-energy">
+  <div class="section-heading">
+    <p class="eyebrow">Make it personal</p>
+    <h2>Build your energy day</h2>
+    <p>
+      How much energy does a typical day of dorm life use?
+      Adjust the sliders to see how your everyday habits add up.
+    </p>
+  </div>
+
+  <div class="energy-calculator">
+
+    <!-- SHOWER -->
+    <div class="energy-input">
+      <div class="input-header">
+        <span>🚿 Shower</span>
+        <strong><span id="showerValue">10</span> min</strong>
+      </div>
+
+      <small>Hot-water energy use</small>
+    
+    <div class="range-wrap">
+      <input
+        type="range"
+        id="shower"
+        min="0"
+        max="30"
+        value="10"
+        step="1"
+      >
+    </div>
+    </div>
+
+    <!-- LAPTOP -->
+    <div class="energy-input">
+      <div class="input-header">
+        <span>💻 Laptop</span>
+        <strong><span id="laptopValue">5</span> hrs</strong>
+      </div>
+
+      <small>Time spent using your laptop</small>
+
+    <div class="range-wrap">
+      <input
+        type="range"
+        id="laptop"
+        min="0"
+        max="16"
+        value="5"
+        step="1"
+      >
+    </div>
+    </div>
+
+    <!-- DESKTOP -->
+    <div class="energy-input">
+      <div class="input-header">
+        <span>🖥️ Desktop / Gaming PC</span>
+        <strong><span id="desktopValue">2</span> hrs</strong>
+      </div>
+
+      <small>Gaming, studying, or other desktop use</small>
+
+    <div class="range-wrap">
+      <input
+        type="range"
+        id="desktop"
+        min="0"
+        max="12"
+        value="2"
+        step="1"
+      >
+    </div>
+    </div>
+
+    <!-- STREAMING -->
+    <div class="energy-input">
+      <div class="input-header">
+        <span>📺 Streaming</span>
+        <strong><span id="streamingValue">2</span> hrs</strong>
+      </div>
+
+      <small>Netflix, YouTube, Twitch, etc.</small>
+
+    <div class="range-wrap">
+      <input
+        type="range"
+        id="streaming"
+        min="0"
+        max="12"
+        value="2"
+        step="1"
+      >
+    </div>
+    </div>
+
+    <!-- AI -->
+    <div class="energy-input">
+      <div class="input-header">
+        <span>🤖 AI prompts</span>
+        <strong><span id="aiValue">10</span></strong>
+      </div>
+
+      <small>ChatGPT, Gemini, Claude, and other AI tools</small>
+
+    <div class="range-wrap">
+      <input
+        type="range"
+        id="ai"
+        min="0"
+        max="100"
+        value="10"
+        step="1"
+      >
+    </div>
+    </div>
+
+    <!-- LIGHTS -->
+    <div class="energy-input">
+      <div class="input-header">
+        <span>💡 Lights</span>
+        <strong><span id="lightsValue">5</span> hrs</strong>
+      </div>
+
+      <small>Approximate time your room lights are on</small>
+
+    <div class="range-wrap">
+      <input
+        type="range"
+        id="lights"
+        min="0"
+        max="16"
+        value="5"
+        step="1"
+      >
+    </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="energy-result">
+      <p class="eyebrow">Your estimated daily energy</p>
+
+      <div class="energy-total">
+        <span id="totalEnergy">4.02</span>
+        <small>kWh</small>
+      </div>
+
+      <p id="energyComparison">
+        That's your estimated electricity use from the activities above.
+      </p>
+
+      <div class="energy-breakdown">
+        <div>
+          <span>🚿 Shower</span>
+          <strong id="showerResult">3.50 kWh</strong>
+        </div>
+
+        <div>
+          <span>💻 Laptop</span>
+          <strong id="laptopResult">0.25 kWh</strong>
+        </div>
+
+        <div>
+          <span>🖥️ Desktop</span>
+          <strong id="desktopResult">0.40 kWh</strong>
+        </div>
+
+        <div>
+          <span>📺 Streaming</span>
+          <strong id="streamingResult">0.16 kWh</strong>
+        </div>
+
+        <div>
+          <span>🤖 AI</span>
+          <strong id="aiResult">0.00 kWh</strong>
+        </div>
+
+        <div>
+          <span>💡 Lights</span>
+          <strong id="lightsResult">0.05 kWh</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- VILLANOVA SCALE -->
+    <div class="energy-scale">
+      <p class="eyebrow">Now multiply it</p>
+
+      <h3>What if 3,000 students did the same thing?</h3>
+
+      <p>
+        Multiply your estimated daily energy use by 3,000
+        on-campus residents.
+      </p>
+
+      <strong>
+        <span id="campusEnergy">12,060</span> kWh/day
+      </strong>
+
+      <p>
+        That's why small individual choices can become significant
+        when thousands of people make them every day.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- SOLAR -->
+<section class="content-section">
+  <div class="section-heading">
+    <p class="eyebrow">Solar potential</p>
+    <h2>What PV panels can do</h2>
+  </div>
+  <div class="metric-grid">
+    <article class="metric-card">
+      <span>One solar panel generates</span>
+      <strong>300–400 kWh/yr</strong>
+      <p>Enough to power a full-size refrigerator for an entire year.</p>
+    </article>
+    <article class="metric-card">
+      <span>CO₂ saved per panel lifetime</span>
+      <strong>~1 ton</strong>
+      <p>Each panel prevents approximately one metric ton of CO₂ emissions over its 25-year lifespan.</p>
+    </article>
+    <article class="metric-card">
+      <span>AVATAR's projected PV savings</span>
+      <strong>~$62k/yr</strong>
+      <p>Our modeled rooftop PV proposal accounts for 86% of total projected annual savings once implemented.</p>
+    </article>
+  </div>
+</section>
+
+<!-- LINK OUT -->
+<section class="content-section page-return">
+  <div class="info-panel">
+    <strong>Want to see how your dorm compares?</strong>
+    <p>The Dorm Facts page breaks down energy use by category for every Villanova residence hall — and tells you exactly what you can do about it.</p>
+  </div>
+  <div class="button-row" style="margin-top:1.5rem;">
+    <a class="button button-primary" href="dorm-facts.html">Explore dorm facts</a>
+    <a class="button button-secondary" href="index.html">Return to homepage</a>
+  </div>
+</section>
+
+<script>
+  const inputs = {
+    shower: document.getElementById("shower"),
+    laptop: document.getElementById("laptop"),
+    desktop: document.getElementById("desktop"),
+    streaming: document.getElementById("streaming"),
+    ai: document.getElementById("ai"),
+    lights: document.getElementById("lights")
+  };
+
+  const values = {
+    shower: document.getElementById("showerValue"),
+    laptop: document.getElementById("laptopValue"),
+    desktop: document.getElementById("desktopValue"),
+    streaming: document.getElementById("streamingValue"),
+    ai: document.getElementById("aiValue"),
+    lights: document.getElementById("lightsValue")
+  };
+
+  function updateCalculator() {
+
+    // Get user inputs
+    const showerMinutes = Number(inputs.shower.value);
+    const laptopHours = Number(inputs.laptop.value);
+    const desktopHours = Number(inputs.desktop.value);
+    const streamingHours = Number(inputs.streaming.value);
+    const aiPrompts = Number(inputs.ai.value);
+    const lightHours = Number(inputs.lights.value);
+
+    // Update displayed slider values
+    values.shower.textContent = showerMinutes;
+    values.laptop.textContent = laptopHours;
+    values.desktop.textContent = desktopHours;
+    values.streaming.textContent = streamingHours;
+    values.ai.textContent = aiPrompts;
+    values.lights.textContent = lightHours;
+
+    /*
+      These are illustrative estimates.
+
+      Shower:
+      Current page states 2–5 kWh per 10-minute shower.
+      We use the midpoint: 3.5 kWh / 10 minutes.
+
+      Laptop:
+      ~50 watts
+
+      Desktop:
+      ~200 watts
+
+      Streaming:
+      Uses the estimate already shown on your page:
+      ~0.08 kWh/hour
+
+      AI:
+      Illustrative value only. AI energy use varies significantly
+      by model, hardware, task, and data center.
+
+      Lights:
+      10W LED bulb
+    */
+
+    const showerEnergy = showerMinutes * 0.35;
+    const laptopEnergy = laptopHours * 0.05;
+    const desktopEnergy = desktopHours * 0.20;
+    const streamingEnergy = streamingHours * 0.08;
+    const aiEnergy = aiPrompts * 0.00024;
+    const lightEnergy = lightHours * 0.01;
+
+    const totalEnergy =
+      showerEnergy +
+      laptopEnergy +
+      desktopEnergy +
+      streamingEnergy +
+      aiEnergy +
+      lightEnergy;
+
+    // Update total
+    document.getElementById("totalEnergy").textContent =
+      totalEnergy.toFixed(2);
+
+    // Update breakdown
+    document.getElementById("showerResult").textContent =
+      showerEnergy.toFixed(2) + " kWh";
+
+    document.getElementById("laptopResult").textContent =
+      laptopEnergy.toFixed(2) + " kWh";
+
+    document.getElementById("desktopResult").textContent =
+      desktopEnergy.toFixed(2) + " kWh";
+
+    document.getElementById("streamingResult").textContent =
+      streamingEnergy.toFixed(2) + " kWh";
+
+    document.getElementById("aiResult").textContent =
+      aiEnergy.toFixed(3) + " kWh";
+
+    document.getElementById("lightsResult").textContent =
+      lightEnergy.toFixed(2) + " kWh";
+
+    // Villanova scale
+    const campusEnergy = totalEnergy * 3000;
+
+    document.getElementById("campusEnergy").textContent =
+      campusEnergy.toLocaleString(undefined, {
+        maximumFractionDigits: 0
+      });
+
+    // Comparison
+    const comparison = document.getElementById("energyComparison");
+
+    if (totalEnergy < 1) {
+      comparison.textContent =
+        "That's a relatively small amount of electricity — but daily habits add up over time.";
+    } else if (totalEnergy < 3) {
+      comparison.textContent =
+        "That's several kilowatt-hours from just the activities you selected.";
+    } else if (totalEnergy < 6) {
+      comparison.textContent =
+        "Your shower and other daily activities are adding up to several kWh per day.";
+    } else {
+      comparison.textContent =
+        "That's a substantial amount of energy from only a handful of everyday activities.";
+    }
+
+    document.querySelectorAll('.range-wrap input[type="range"]').forEach(slider => {
+      const min = Number(slider.min);
+      const max = Number(slider.max);
+      const value = Number(slider.value);
+
+      const percent = ((value - min) / (max - min)) * 100;
+
+      slider.parentElement.style.setProperty(
+        '--range-percent',
+        `${percent}%`
+      );
+    });
+  }
+
+  // Update calculator whenever a slider moves
+  Object.values(inputs).forEach(input => {
+    input.addEventListener("input", updateCalculator);
+  });
+
+  // Initial calculation
+  updateCalculator();
+</script>
+  </main>
+
+  <footer class="site-footer">
+    <strong>AVATAR</strong>
+    <div class="footer-links">
+      <a href="data.html">Data</a>
+      <a href="campus-map.html">Campus Map</a>
+      <a href="why-avatar.html">Why AVATAR?</a>
+      <a href="sustainability-resources.html">Sustainability Resources</a>
+      <a href="acknowledgements.html">Acknowledgements</a>
+      <a href="about.html?v=mission-20260917">About</a>
+      <a href="meet-the-team.html">Meet the Team</a>
+    </div>
+  </footer>
+</div>
+<script src="static/script.js?v=20260928-1"></script>
+</body>
+</html>
