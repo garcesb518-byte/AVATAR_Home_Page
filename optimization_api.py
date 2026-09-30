@@ -50,16 +50,23 @@ OPENROUTER_MODEL = os.getenv(
 )
 
 SITE_ROOT = Path(__file__).resolve().parent
-KNOWLEDGE_PAGES = (
-    ("Home", "index.html"),
-    ("Energy Usage", "energy-usage.html"),
-    ("Load Forecasting", "load-forecasting.html"),
-    ("What-Ifs", "what-ifs.html"),
-    ("Power Basics", "power-basics.html"),
-    ("Data", "data.html"),
-    ("About", "about.html"),
-)
 MAX_CHARS_PER_PAGE = 3_500
+
+# Pages that exist on disk but shouldn't be fed to the bot (nothing useful to
+# read, or duplicate/legacy content). Add a filename here to exclude it.
+EXCLUDED_PAGES = {"contact.html"}
+
+
+def discover_knowledge_pages() -> list[tuple[str, str]]:
+    """Find every root-level HTML page automatically, so a new page is picked
+    up the next time this service restarts, with nothing to edit by hand."""
+    pages = []
+    for path in sorted(SITE_ROOT.glob("*.html")):
+        if path.name in EXCLUDED_PAGES:
+            continue
+        title = path.stem.replace("-", " ").title()
+        pages.append((title, path.name))
+    return pages
 
 SYSTEM_PROMPT_BASE = (
     "You are AVATAR AI, the assistant for AVATAR (Advancing Villanova to Energy "
@@ -78,7 +85,7 @@ SYSTEM_PROMPT_BASE = (
 def _site_knowledge() -> str:
     """Read the deployed static pages without requiring a second website server."""
     sections: list[str] = []
-    for title, filename in KNOWLEDGE_PAGES:
+    for title, filename in discover_knowledge_pages():
         path = SITE_ROOT / filename
         if not path.exists():
             continue
