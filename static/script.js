@@ -9,6 +9,26 @@ const displayDate=value=>{
   return new Intl.DateTimeFormat("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"}).format(new Date(parts[0],parts[1]-1,parts[2]));
 };
 
+const SITE_PAGES = [
+  ["energy-usage.html", "Energy Usage"],
+  ["load-forecasting.html", "Load Forecasting"],
+  ["what-ifs.html", "What-Ifs"],
+  ["power-basics.html", "Power Basics"],
+  ["fun-facts.html", "Fun Facts"],
+  ["dorm-facts.html", "Dorm Facts"],
+  ["campus-map.html", "Campus Map"],
+  // Add a new tab here — one line, and it shows up on every page.
+];
+
+(function renderNav() {
+  const nav = document.getElementById("main-navigation");
+  if (!nav) return;
+  const current = location.pathname.split("/").pop() || "index.html";
+  nav.innerHTML = SITE_PAGES.map(([href, label]) =>
+    `<a href="${href}"${href === current ? ' class="active"' : ''}>${label}</a>`
+  ).join("");
+})();
+
 async function requestForecastData(){
   const apiBase=document.querySelector('meta[name="avatar-api-url"]')?.content?.replace(/\/$/,"");
   if(apiBase){
