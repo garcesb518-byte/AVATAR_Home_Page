@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="View AVATAR's estimated 24-hour Villanova campus load profile.">
   <meta name="avatar-api-url" content="https://avatar-api-5i2l.onrender.com">
+  <meta name="avatar-control-url" content="disabled">
+  <link rel="stylesheet" href="static/load-control.css">
   <title>Load Forecasting | AVATAR</title>
   <link rel="stylesheet" href="static/styles.css">
   <style>
@@ -73,7 +75,7 @@
     <div class="forecast-horizon">
       <div class="horizon-top">
         <div><small>Day-ahead view</small><strong>Campus load horizon</strong></div>
-        <span class="horizon-badge">24 hourly estimates</span>
+        <span class="horizon-badge">Hourly estimates</span>
       </div>
       <div class="horizon-chart">
         <svg viewBox="0 0 430 150" preserveAspectRatio="none">
@@ -108,7 +110,7 @@
       <article class="metric-card">
         <span>Estimated daily energy</span>
         <strong id="forecast-daily-energy">—</strong>
-        <p>The 24 hourly values sum to the campus daily estimate.</p>
+        <p>Each hourly demand value contributes to the daily energy estimate (23 or 25 hours on daylight-saving transition days).</p>
       </article>
       <article class="metric-card">
         <span>Average campus load</span>
@@ -170,6 +172,63 @@
   <div id="forecast-error" class="forecast-error" hidden>
     The estimated load profile could not be loaded. Please try refreshing the page.
   </div>
+
+  <section id="load-control" class="load-control" aria-labelledby="control-title" data-state="UNKNOWN">
+    <span class="control-badge">SIMULATION ONLY · NO PHYSICAL RELAY</span>
+    <h2 id="control-title">Forecast-driven load control</h2>
+    <div id="control-local-setup" class="control-card" hidden>
+      <strong>Run the Python demonstration on your computer</strong>
+      <p>This public page shows the demonstration interface. The working controls run with the Python backend on your computer.</p>
+      <p><a href="https://github.com/garcesb518-byte/AVATAR_Home_Page/archive/refs/heads/main.zip">Download the latest project ZIP</a> · <a href="https://github.com/garcesb518-byte/AVATAR_Home_Page/blob/main/docs/SIMULATED_LOAD_CONTROL.md">Setup and demonstration instructions</a></p>
+      <p>After setup, run <code>python server.py</code> and open <code>http://127.0.0.1:8000/load-forecasting</code>.</p>
+    </div>
+    <p>Use the campus demand forecast to switch one virtual demonstration load. The 60 W lamp is illustrative; it is not a measurement or a model of campus demand reduction.</p>
+    <div class="control-grid">
+      <article class="control-card">
+        <strong id="control-connection">Checking backend…</strong>
+        <span id="control-state" class="control-lamp" aria-live="polite">Unknown</span>
+        <p>Simulated load state · 60 W illustrative load</p>
+        <p class="control-small">Last commanded state: <strong id="control-commanded">—</strong></p>
+        <p id="control-mode" class="control-badge">—</p>
+        <div class="control-buttons">
+          <button type="button" data-action="on" disabled>Turn ON (manual)</button>
+          <button type="button" data-action="off" disabled>Turn OFF (manual)</button>
+        </div>
+      </article>
+      <article class="control-card">
+        <strong>Control mode</strong>
+        <div class="control-buttons">
+          <button type="button" data-action="manual" data-mode="manual" disabled>Manual</button>
+          <button type="button" data-action="automatic" data-mode="automatic" disabled>Automatic (real time)</button>
+          <button type="button" data-action="replay" data-mode="replay" disabled>Replay forecast (120×)</button>
+        </div>
+        <p class="control-small">Automatic follows the current Eastern-time interval. Replay starts at the forecast’s first interval: one forecast hour passes every 30 seconds. Manual stops automatic decisions.</p>
+        <p><strong id="control-value">—</strong> · <span id="control-forecast-status">Awaiting forecast</span></p>
+        <p id="control-interval" class="control-small"></p>
+        <p class="control-small">Controller clock: <span id="control-clock">—</span></p>
+        <p id="control-source" class="control-small"></p>
+        <p id="control-decision" aria-live="polite"></p>
+      </article>
+    </div>
+    <h3>Automatic switching rules</h3>
+    <p id="control-rules">Default demo rules: OFF at 250 kW or higher, ON at 230 kW or lower, otherwise hold. Minimum 60 seconds between automatic switches.</p>
+    <p class="control-small">These are editable demonstration thresholds for the proxy, not approved campus operating limits. Edit in Manual mode.</p>
+    <div class="control-form">
+      <label>OFF threshold (kW)<input id="rule-off" type="number" min="0.01" step="any" value="250" required></label>
+      <label>ON threshold (kW)<input id="rule-on" type="number" min="0" step="any" value="230" required></label>
+      <label>Minimum interval (seconds)<input id="rule-minimum" type="number" min="1" max="3600" value="60" required></label>
+      <button type="button" data-action="configure" disabled>Apply rules</button>
+    </div>
+    <div class="control-buttons">
+      <button type="button" data-action="disconnect" disabled>Simulate disconnection</button>
+      <button type="button" data-action="reconnect" disabled>Reconnect simulator</button>
+    </div>
+    <p id="control-message" role="status">Connecting to the local simulation backend…</p>
+    <p id="control-fetch" class="control-small"></p>
+    <p id="control-warning" class="control-small control-warning"></p>
+    <details><summary>Controller event log</summary><ol id="control-events" class="control-events"></ol></details>
+  </section>
+
 </section>  <section class="content-section page-return">
     <div class="button-row">
       <a class="button button-primary" href="index.html">Return to homepage</a>
@@ -188,6 +247,7 @@
     </div>
   </footer>
 </div>
-<script src="static/script.js?v=weather2"></script>
+<script src="static/script.js?v=control1"></script>
+<script src="static/load-control.js"></script>
 </body>
 </html>
