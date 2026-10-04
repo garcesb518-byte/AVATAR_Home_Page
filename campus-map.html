@@ -340,6 +340,7 @@
         <button class="filter-pill" onclick="filterType('Residence',this)">Residence</button>
         <button class="filter-pill" onclick="filterType('Academic',this)">Academic</button>
         <button class="filter-pill" onclick="filterType('Athletics',this)">Athletics</button>
+        <button class="filter-pill" onclick="filterType('Dining',this)">Dining</button>
         <button class="filter-pill" onclick="filterType('Admin',this)">Admin</button>
       </div>
       <div class="bldg-list" id="bldg-list"></div>
@@ -465,7 +466,7 @@
     { id:19, name:"Villanova Stadium",   type:"Athletics", lat:40.0331, lng:-75.3367, kwhDay:1200,
       breakdown:{HVAC:20,Lighting:45,Appliances:18,"Hot water":10,Other:7},
       tip:"Field lighting accounts for nearly half of energy use. Switching to LED stadium lights would cut this by 40–50%." },
-    { id:20, name:"Jake Nevin Field House",type:"Athletics",lat:40.0352,lng:-75.3374, kwhDay:850,
+    { id:20, name:"Jake Nevin Field House",type:"Athletics",lat:40.033740,lng:-75.338183, kwhDay:850,
       breakdown:{HVAC:32,Lighting:33,Appliances:20,"Hot water":10,Other:5},
       tip:"Shower and locker room hot water use is higher here than most buildings. Low-flow fixtures would reduce this noticeably." },
     { id:50, name:"Davis Center",type:"Athletics",lat:40.034684,lng:-75.336683,kwhDay:980,
@@ -473,23 +474,85 @@
       tip:"Home to the basketball practice courts and the campus's largest fitness center — rows of cardio machines and strength equipment run most of the day. Scheduling equipment into low-power mode during off-peak hours would help most here." },
 
     // ADMIN / OTHER
-    { id:21, name:"St. Thomas of Villanova Church",type:"Admin",lat:40.0376,lng:-75.3430,kwhDay:420,
+    { id:21, name:"St. Thomas of Villanova Church",type:"Admin",lat:40.035847,lng:-75.343344,kwhDay:420,
       breakdown:{HVAC:35,Lighting:40,Appliances:10,"Hot water":8,Other:7},
       tip:"Lighting dominates here due to tall ceilings and stained glass. LED fixture upgrades compatible with the historic interior are worth exploring." },
-    { id:22, name:"Dougherty Hall",      type:"Admin",     lat:40.0397, lng:-75.3447, kwhDay:760,
-      breakdown:{HVAC:38,Lighting:29,Appliances:20,"Hot water":6,Other:7},
-      tip:"Administrative offices that sit empty overnight — enable auto-off for HVAC zones after hours to reduce waste." },
-    { id:51, name:"Mullen Center for the Performing Arts",type:"Other",lat:40.033079,lng:-75.339125,kwhDay:1750,
-      breakdown:{HVAC:34,Lighting:38,Appliances:20,"Hot water":3,Other:5},
-      tip:"Home to the Topper and Court Theatres, where stage lighting rigs and tight humidity control for instruments and costumes drive most of the load. Dimming house and rehearsal-room lighting when spaces are unbooked would be the biggest win." }
-  ];
 
+
+    // DINING AREAS
+{
+  id: 37,
+  name: "Dougherty Hall",
+  type: "Dining",
+  lat: 40.03540424515611,
+  lng: -75.34122060915857,
+  kwhDay: 760,
+  breakdown: {
+    HVAC: 25,
+    Lighting: 15,
+    Appliances: 40,
+    "Hot water": 15,
+    Other: 5
+  },
+  tip: "Kitchen equipment and refrigeration can contribute heavily to dining energy use. Turn off idle cooking equipment when safe and appropriate."
+},
+
+{
+  id: 38,
+  name: "Donahue Hall",
+  type: "Dining",
+  lat: 40.03084214752718,
+  lng: -75.3422895086328,
+  kwhDay: 650,
+  breakdown: {
+    HVAC: 25,
+    Lighting: 15,
+    Appliances: 35,
+    "Hot water": 20,
+    Other: 5
+  },
+  tip: "Run dishwashers with full loads and report leaking hot-water fixtures to help reduce energy and water use."
+},
+{
+  id: 39,
+  name: "Connelly Center",
+  type: "Dining",
+  lat: 40.03576736984493,
+  lng: -75.34015121264912,
+  kwhDay: 900,
+  breakdown: {
+    HVAC: 30,
+    Lighting: 20,
+    Appliances: 30,
+    "Hot water": 15,
+    Other: 5
+  },
+  tip: "Match lighting and ventilation schedules to dining and event hours to reduce unnecessary energy use."
+},
+    {
+      id: 51,
+      name: "Mullen Center for the Performing Arts",
+      type: "Other",
+      lat: 40.033079,
+      lng: -75.339125,
+      kwhDay: 1750,
+      breakdown: {
+        HVAC: 34,
+        Lighting: 38,
+        Appliances: 20,
+        "Hot water": 3,
+        Other: 5
+      },
+      tip: "Home to the Topper and Court Theatres, where stage lighting rigs and tight humidity control for instruments and costumes drive most of the load. Dimming house and rehearsal-room lighting when spaces are unbooked would be the biggest win."
+    },
+  ];
   var COLOR = {
     Residence: "#7F77DD",
     Academic:  "#0057b8",
     Lab:       "#087e8b",
     Athletics: "#1D9E75",
     Admin:     "#EF9F27",
+    Dining: "#D97706",
     Other:     "#888780"
   };
 
@@ -544,6 +607,7 @@
     Lab: '<path d="M9 3h6M10 3v7L4 19a1.3 1.3 0 0 0 1 2h14a1.3 1.3 0 0 0 1-2l-6-9V3M7 15h10"/><circle cx="11" cy="18" r=".7" fill="currentColor" stroke="none"/>',
     Academic: '<path d="m3 8 9-5 9 5M4 9h16M5 9v11m5-11v11m4-11v11m5-11v11M3 21h18"/>',
     Athletics: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3v18M6 5c7 4 7 10 0 14M18 5c-7 4-7 10 0 14"/>',
+    Dining: '<path d="M3 3v5a3 3 0 0 0 6 0V3M6 3v18M17 3c-2 2-3 5-3 9h5V3h-2ZM19 12v9"/>',
     Admin: '<rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h1m4 0h1M9 11h1m4 0h1M10 21v-6h4v6"/>',
     Other: '<rect x="4" y="6" width="16" height="15" rx="1"/><path d="M8 6V3h8v3M8 10h8M8 14h8M10 21v-3h4v3"/>'
   };
@@ -559,7 +623,7 @@
   document.getElementById("legend-items").innerHTML = [
     ["Residence", "Residence"], ["Lab", "Lab / Science"],
     ["Academic", "Academic / School"], ["Athletics", "Athletics"],
-    ["Admin", "Admin"], ["Other", "Other"]
+    ["Admin", "Admin"], ["Dining", "Dining"], ["Other", "Other"]
   ].map(function(item) {
     return '<div class="legend-row">'+typeIcon(item[0])+item[1]+'</div>';
   }).join("");
