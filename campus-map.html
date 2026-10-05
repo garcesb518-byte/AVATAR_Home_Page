@@ -61,6 +61,15 @@
       line-height: 1.5;
     }
 
+    .map-search { padding: 12px 20px 0; flex-shrink: 0; }
+    .map-search label { display: block; margin-bottom: 5px; font-size: 12px; font-weight: 600; }
+    .map-search input { box-sizing: border-box; width: 100%; min-width: 0; padding: 9px 10px; border: 1px solid #aeb9c8; border-radius: 6px; font: inherit; font-size: 14px; }
+    .search-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .search-actions button { flex: 1; padding: 8px; border: 1px solid #002855; border-radius: 6px; background: #002855; color: #fff; font: inherit; font-size: 12px; cursor: pointer; }
+    .search-actions .reset-map { background: #fff; color: #002855; }
+    .map-search :focus-visible, .bldg-item:focus-visible { outline: 3px solid #087e8b; outline-offset: 2px; }
+    .search-status { margin: 8px 20px; font-size: 12px; color: #526174; flex-shrink: 0; }
+
     /* filter pills */
     .filter-row {
       flex-shrink: 0;
@@ -310,7 +319,11 @@
 
     @media (max-width: 700px) {
       .map-shell { flex-direction: column; }
-      .sidebar { width: 100%; height: 32%; max-height: 220px; border-right: none; border-bottom: 1px solid #e2e5ea; }
+      .sidebar { width: 100%; height: 45%; max-height: 330px; overflow-y: auto; border-right: none; border-bottom: 1px solid #e2e5ea; }
+      .sidebar-header { padding: 10px 16px; }
+      .map-search { padding: 8px 16px 0; }
+      .filter-row { padding: 8px 16px; }
+      .bldg-list { flex-shrink: 0; min-height: 60px; }
       .map-legend { padding: 6px 8px; font-size: 10px; }
       .legend-row { margin-bottom: 0; }
     }
@@ -335,6 +348,14 @@
         <p class="sidebar-title">Campus Energy Map</p>
         <p class="sidebar-sub">Click a building to see its energy profile. Figures are illustrative estimates.</p>
       </div>
+      <form class="map-search" id="building-search-form" role="search">
+        <label for="building-search">Find a building</label>
+        <input id="building-search" type="search" placeholder="Try Connelly or Mendel" autocomplete="off" aria-controls="bldg-list" aria-describedby="search-status" />
+        <div class="search-actions">
+          <button type="submit">Search</button>
+          <button type="button" class="reset-map" id="reset-map">Reset Map</button>
+        </div>
+      </form>
       <div class="filter-row" id="filter-row">
         <button class="filter-pill on" onclick="filterType('All',this)">All</button>
         <button class="filter-pill" onclick="filterType('Residence',this)">Residence</button>
@@ -343,6 +364,7 @@
         <button class="filter-pill" onclick="filterType('Dining',this)">Dining</button>
         <button class="filter-pill" onclick="filterType('Admin',this)">Admin</button>
       </div>
+      <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
       <div class="bldg-list" id="bldg-list"></div>
     </div>
 
@@ -670,7 +692,7 @@
       m.setIcon(makeIcon(iconType(b), false));
       var el = document.querySelector(".bldg-item[data-id='"+b.id+"']");
       if (el) el.classList.remove("active");
-      activeId = null;
+      if (activeId === b.id) activeId = null;
     });
     markers[b.id] = m;
   });
@@ -690,37 +712,85 @@
     if (el) { el.classList.add("active"); el.scrollIntoView({block:"nearest"}); }
   }
 
-  // ── SIDEBAR LIST ──
-  function renderList(filter) {
+  // Search and categories share one predicate so pins and results stay in sync.
+  var searchInput = document.getElementById("building-search");
+  function normalizedName(value) {
+    return value.toLowerCase().replace(/[.’']/g, "").replace(/\s+/g, " ").trim();
+  }
+  function matchingBuildings() {
+    var query = normalizedName(searchInput.value);
+    return BUILDINGS.filter(function(b) {
+      return (currentFilter === "All" || b.type === currentFilter)
+        && normalizedName(b.name).indexOf(query) !== -1;
+    });
+  }
+  function selectBuilding(id) {
+    var b = BUILDINGS.find(function(item) { return item.id === id; });
+    map.setView([b.lat, b.lng], 17);
+    setActive(id);
+  }
+  function renderList(filtered) {
     var list = document.getElementById("bldg-list");
-    var filtered = filter === "All" ? BUILDINGS : BUILDINGS.filter(function(b){ return b.type === filter; });
-    // sort by kWhDay desc
-    filtered = filtered.slice().sort(function(a,b){ return b.kwhDay - a.kwhDay; });
+    filtered = filtered.slice().sort(function(a,b) { return b.kwhDay - a.kwhDay; });
     list.innerHTML = filtered.map(function(b) {
-      return '<div class="bldg-item" data-id="'+b.id+'" onclick="setActive('+b.id+'); map.setView(['+b.lat+','+b.lng+'],17);">'
+      return '<div class="bldg-item'+(activeId === b.id ? ' active' : '')+'" role="button" tabindex="0" data-id="'+b.id+'" onclick="selectBuilding('+b.id+');" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();selectBuilding('+b.id+');}">'
         + typeIcon(iconType(b))
         + '<div class="bldg-item-info"><p class="bldg-item-name">'+b.name+'</p><p class="bldg-item-type">'+typeLabel(b)+'</p></div>'
-        + '<div class="bldg-item-kwh">'+b.kwhDay.toLocaleString()+'<span>kWh/day</span></div>'
-        + '</div>';
+        + '<div class="bldg-item-kwh">'+b.kwhDay.toLocaleString()+'<span>kWh/day</span></div></div>';
     }).join("");
   }
-
-  function filterType(type, el) {
-    currentFilter = type;
-    document.querySelectorAll(".filter-pill").forEach(function(p){ p.classList.remove("on"); });
-    el.classList.add("on");
-    // show/hide markers
+  function applyFilters() {
+    var filtered = matchingBuildings();
     BUILDINGS.forEach(function(b) {
-      if (type === "All" || b.type === type) {
+      var visible = filtered.some(function(result) { return result.id === b.id; });
+      if (visible) {
         if (!map.hasLayer(markers[b.id])) markers[b.id].addTo(map);
-      } else {
-        if (map.hasLayer(markers[b.id])) map.removeLayer(markers[b.id]);
+      } else if (map.hasLayer(markers[b.id])) {
+        if (activeId === b.id) map.closePopup();
+        map.removeLayer(markers[b.id]);
       }
     });
-    renderList(type);
+    renderList(filtered);
+    document.getElementById("search-status").textContent = filtered.length
+      ? filtered.length + (filtered.length === 1 ? " building" : " buildings") + " found" + (currentFilter === "All" ? "." : " in " + currentFilter + ".")
+      : "No buildings found. Try another name or select All.";
+    return filtered;
   }
-
-  renderList("All");
+  function filterType(type, el) {
+    currentFilter = type;
+    document.querySelectorAll(".filter-pill").forEach(function(p) {
+      p.classList.toggle("on", p === el);
+      p.setAttribute("aria-pressed", p === el ? "true" : "false");
+    });
+    applyFilters();
+  }
+  function fitBuildings(buildings) {
+    if (!buildings.length) return;
+    map.stop();
+    map.invalidateSize({pan: false});
+    var bounds = L.latLngBounds(buildings.map(function(b) { return [b.lat, b.lng]; }));
+    var legend = document.querySelector(".map-legend");
+    var leftPadding = map.getSize().x > 500 ? legend.offsetWidth + 28 : 30;
+    map.fitBounds(bounds, {paddingTopLeft: [leftPadding, 55], paddingBottomRight: [30, 30], maxZoom: 17});
+  }
+  function searchBuildings(event) {
+    event.preventDefault();
+    var results = applyFilters();
+    var exact = results.find(function(b) { return normalizedName(b.name) === normalizedName(searchInput.value); });
+    if (exact || results.length === 1) selectBuilding((exact || results[0]).id);
+    else if (results.length) { map.closePopup(); fitBuildings(results); }
+  }
+  function resetMap() {
+    map.closePopup();
+    activeId = null;
+    searchInput.value = "";
+    filterType("All", document.querySelector(".filter-pill"));
+    fitBuildings(BUILDINGS);
+  }
+  searchInput.addEventListener("input", applyFilters);
+  document.getElementById("building-search-form").addEventListener("submit", searchBuildings);
+  document.getElementById("reset-map").addEventListener("click", resetMap);
+  filterType("All", document.querySelector(".filter-pill"));
   </script>
 
   <script src="static/script.js"></script>
