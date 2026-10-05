@@ -6,6 +6,7 @@
   <meta name="description" content="AVATAR helps the Villanova community understand campus energy, forecasting, sustainability, and resiliency.">
   <title>Why AVATAR?</title>
   <link rel="stylesheet" href="static/styles.css?v=20260928-1">
+  <link rel="stylesheet" href="static/why-avatar.css?v=20261002-1">
 </head>
 <body>
 <div class="site-shell">
@@ -25,28 +26,66 @@
     </nav>
   </header>
 
-  <main>
+  <main class="why-page">
 <section class="page-hero">
     <p class="eyebrow">Why AVATAR?</p>
     <h1>Make campus energy easier to see, understand, and improve</h1>
-    <p>AVATAR stands for Advancing Villanova to Energy Autonomy and Resiliency. It is a student-led effort focused on energy transparency, sustainability, resiliency, and better access to information.</p>
 </section>
 
-<section class="content-section">
-    <div class="feature-grid">
-        <article class="feature-card static-card">
-            <span class="feature-icon" aria-hidden="true">◉</span>
-            <div><h3>Transparency</h3><p>Turn complex campus energy data into information people can understand.</p></div>
-        </article>
-        <article class="feature-card static-card">
-            <span class="feature-icon" aria-hidden="true">↗</span>
-            <div><h3>Planning</h3><p>Use forecasting and scenario analysis to explore where campus energy may be headed.</p></div>
-        </article>
-        <article class="feature-card static-card">
-            <span class="feature-icon" aria-hidden="true">◆</span>
-            <div><h3>Resiliency</h3><p>Support informed conversations about a stronger and more adaptable energy system.</p></div>
-        </article>
+<section class="why-values" aria-label="AVATAR values">
+    <div class="why-values-grid">
+        <button class="why-value" type="button" aria-label="Transparency" aria-describedby="transparency-description" aria-expanded="false">
+            <span class="why-value-inner" aria-hidden="true">
+                <span class="why-value-front">
+                    <svg class="why-value-icon" viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 40s12-21 34-21 34 21 34 21-12 21-34 21S6 40 6 40Z"/><circle cx="40" cy="40" r="11"/><path d="M40 6v5M15 13l4 5M65 13l-4 5"/></svg>
+                    <span class="why-value-title">Transparency</span>
+                    <span class="why-value-hint">Explore this value <span aria-hidden="true">↗</span></span>
+                </span>
+                <span class="why-value-back"><span class="why-back-label">Transparency</span><span>Make campus energy information easier to find, understand, and discuss through the website and its data tools.</span></span>
+            </span>
+        </button>
+        <span class="why-sr-only" id="transparency-description">Make campus energy information easier to find, understand, and discuss through the website and its data tools.</span>
+        <button class="why-value" type="button" aria-label="Sustainability" aria-describedby="sustainability-description" aria-expanded="false">
+            <span class="why-value-inner" aria-hidden="true">
+                <span class="why-value-front">
+                    <svg class="why-value-icon" viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 52C7 26 35 12 66 10c4 31-2 52-26 54-10 1-18-3-23-12Z"/><path d="M12 72 53 29M27 56l-1-17M38 44l18 1"/></svg>
+                    <span class="why-value-title">Sustainability</span>
+                    <span class="why-value-hint">Explore this value <span aria-hidden="true">↗</span></span>
+                </span>
+                <span class="why-value-back"><span class="why-back-label">Sustainability</span><span>Use energy data and forecasts to help the Villanova community explore more efficient choices and their possible effects.</span></span>
+            </span>
+        </button>
+        <span class="why-sr-only" id="sustainability-description">Use energy data and forecasts to help the Villanova community explore more efficient choices and their possible effects.</span>
+        <button class="why-value" type="button" aria-label="Resilience" aria-describedby="resilience-description" aria-expanded="false">
+            <span class="why-value-inner" aria-hidden="true">
+                <span class="why-value-front">
+                    <svg class="why-value-icon" viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="m40 7 27 11v22c0 17-16 29-27 34C29 69 13 57 13 40V18L40 7Z"/><path d="m43 22-16 22h13l-3 16 17-25H41l2-13Z"/></svg>
+                    <span class="why-value-title">Resilience</span>
+                    <span class="why-value-hint">Explore this value <span aria-hidden="true">↗</span></span>
+                </span>
+                <span class="why-value-back"><span class="why-back-label">Resilience</span><span>Help the university understand and plan for energy demand, with the long-term goal of supporting reliable campus operations.</span></span>
+            </span>
+        </button>
+        <span class="why-sr-only" id="resilience-description">Help the university understand and plan for energy demand, with the long-term goal of supporting reliable campus operations.</span>
     </div>
+</section>
+
+<section class="why-story" aria-labelledby="energy-future-title">
+    <div class="why-story-copy">
+        <p class="eyebrow">The future of energy</p>
+        <h2 id="energy-future-title">A changing energy future.<br>A shared responsibility.</h2>
+        <p>The future of energy calls for reliable power with a lower environmental impact. Burning fossil fuels releases greenhouse gases, making energy efficiency and cleaner sources of power important parts of that future. Understanding how and when buildings use energy helps communities explore those choices. At Villanova, that begins with making campus energy information accessible and useful.</p>
+    </div>
+    <figure class="why-story-image"><img src="static/images/villanova-campus.jpg" alt="Aerial view of Villanova University buildings, green spaces, and St. Thomas of Villanova Church" width="516" height="387" loading="lazy"><figcaption>Villanova University campus</figcaption></figure>
+</section>
+
+<section class="why-story why-story-mission" aria-labelledby="avatar-mission-title">
+    <div class="why-story-copy">
+        <p class="eyebrow">Our mission</p>
+        <h2 id="avatar-mission-title">Understanding today.<br>Empowering tomorrow.</h2>
+        <p>AVATAR stands for Advancing Villanova to Energy Autonomy and Resiliency. Our mission is to make campus energy easier to understand and use that knowledge to support a more sustainable, resilient Villanova. Through accessible data, load forecasting, and scenario exploration, our student-led project aims to connect students, faculty, and campus partners with information that supports informed energy decisions and long-term planning.</p>
+    </div>
+    <figure class="why-story-image why-story-logo"><img src="static/images/villanova-logo.webp" alt="Villanova University — Ignite Change. Go Nova." width="960" height="960" loading="lazy"></figure>
 </section>
   </main>
 
@@ -63,5 +102,7 @@
   </footer>
 </div>
 <script src="static/script.js?v=20260928-1"></script>
+<script src="static/why-avatar.js?v=20261002-1"></script>
+<noscript><style>.why-value{cursor:default}.why-value-inner{display:grid;transform:none}.why-value-front,.why-value-back{position:static;transform:none}.why-value-front{padding:28px}.why-value-back{padding:24px}.why-value-hint{display:none}</style></noscript>
 </body>
 </html>

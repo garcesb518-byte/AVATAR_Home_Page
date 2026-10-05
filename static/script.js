@@ -31,9 +31,9 @@ const SITE_PAGES = [
 
 async function requestForecastData(){
   const apiBase=document.querySelector('meta[name="avatar-api-url"]')?.content?.replace(/\/$/,"");
-  if(apiBase){
+  if(document.querySelector('meta[name="avatar-api-url"]')){
     try{
-      const response=await fetch(apiBase+"/api/forecast",{cache:"no-store"});
+      const response=await fetch((apiBase||"")+"/api/forecast",{cache:"no-store",signal:AbortSignal.timeout(45000)});
       if(!response.ok)throw new Error("Live forecast request failed");
       const liveData=await response.json();
       if(liveData.status==="error")throw new Error(liveData.message||"Live forecast request failed");
@@ -74,7 +74,8 @@ async function renderForecast(){
   const errorPanel=document.querySelector("#forecast-error");
   try{
     const data=await requestForecastData();
-    if(!Array.isArray(data.hourly)||data.hourly.length!==24)throw new Error("Forecast data is incomplete");
+    if(!Array.isArray(data.hourly)||![23,24,25].includes(data.hourly.length))throw new Error("Forecast data is incomplete");
+    chart.style.gridTemplateColumns=`repeat(${data.hourly.length},minmax(27px,1fr))`;
     const maximum=Math.max(...data.hourly.map(row=>Number(row.forecast_kw)),1);
     chart.innerHTML=data.hourly.map(row=>{
       const value=Number(row.forecast_kw);

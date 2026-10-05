@@ -55,3 +55,13 @@ python app.py
 ## Homepage image
 
 The homepage references an official Villanova University campus image hosted on Villanova's website. For a production deployment, the project team should use a Villanova-approved image asset and host it locally in `static/images/` if appropriate.
+
+## Forecast-driven simulated load
+
+Run `python server.py` and open `http://127.0.0.1:8000/load-forecasting` for the
+integrated current AVATAR page, forecast API and virtual load controller.
+This entry point is separate from the legacy `app.py` starter described above.
+See [the setup, rules and forecast contract](docs/SIMULATED_LOAD_CONTROL.md).
+The public GitHub Pages site includes the demonstration interface and setup links.
+Run the Python server locally to use the controls; GitHub Pages does not execute Python.
+No physical relay is connected.

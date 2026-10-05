@@ -7,6 +7,7 @@ import json
 import math
 import re
 from dataclasses import dataclass
+from datetime import timedelta
 from pathlib import Path
 from typing import Iterable
 
@@ -638,8 +639,8 @@ def create_proxy_forecast(
 ) -> ForecastResult:
     """Create a temporary campus forecast from a scaled town reference shape.
 
-    The returned 24 hourly average-power values sum numerically to the requested
-    daily MWh because each interval is exactly one hour.
+    The hourly average-power values integrate to the requested daily MWh.
+    Eastern calendar days contain 23 or 25 intervals at daylight-saving changes.
     """
     if daily_energy_mwh <= 0:
         raise ValueError("daily_energy_mwh must be greater than zero.")
@@ -651,10 +652,13 @@ def create_proxy_forecast(
             start = start.tz_convert(timezone)
         start = start.normalize()
     else:
-        start = pd.Timestamp.now(tz=timezone).normalize() + pd.Timedelta(days=1)
+        tomorrow = pd.Timestamp.now(tz=timezone).date() + timedelta(days=1)
+        start = pd.Timestamp(tomorrow).tz_localize(timezone)
 
-    index = pd.date_range(start=start, periods=24, freq="1h")
-    normalized_shape = BRYN_MAWR_PROXY_SHAPE / BRYN_MAWR_PROXY_SHAPE.sum()
+    end = pd.Timestamp(start.date() + timedelta(days=1)).tz_localize(timezone)
+    index = pd.date_range(start=start, end=end, inclusive="left", freq="1h")
+    shape = BRYN_MAWR_PROXY_SHAPE[index.hour]
+    normalized_shape = shape / shape.sum()
     forecast_mw = daily_energy_mwh * normalized_shape
     forecast = pd.DataFrame(
         {
