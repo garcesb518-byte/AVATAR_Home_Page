@@ -7,9 +7,34 @@
   <title>Meet the Team | AVATAR</title>
   <link rel="stylesheet" href="static/styles.css?v=20260917-2">
   <style>
-    .team-placeholder{max-width:760px;margin:0 auto;text-align:center}
-    .team-placeholder .feature-icon{margin:0 auto 20px}
-    .team-placeholder p{color:#607080;font-size:17px;line-height:1.7}
+    .team-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; }
+    .team-card { min-width: 0; border: 1px solid var(--line); border-radius: 16px; background: #fff; overflow: hidden; }
+    .team-card[open] { border-color: #90b5a0; box-shadow: 0 8px 24px rgba(8,39,68,.06); }
+    .team-summary { display: flex; align-items: flex-start; gap: 20px; padding: 28px; cursor: pointer; list-style: none; }
+    .team-summary::-webkit-details-marker { display: none; }
+    .team-summary:hover { background: #f5f9f6; }
+    .team-summary:focus-visible, .team-contact a:focus-visible { outline: 3px solid var(--green); outline-offset: -3px; }
+    .team-avatar { width: 96px; height: 96px; flex: 0 0 96px; object-fit: cover; object-position: center 25%; border-radius: 50%; display: grid; place-items: center; background: var(--navy); color: white; font-size: 25px; font-weight: 700; letter-spacing: .03em; }
+    .team-card:nth-child(even) .team-avatar { background: #266648; }
+    .team-heading { min-width: 0; }
+    .content-section .team-heading h2 { font-size: 23px; line-height: 1.2; margin-bottom: 8px; }
+    .team-role { margin: 0 0 12px; color: var(--green); font-size: 13px; font-weight: 700; line-height: 1.5; min-height: 39px; }
+    .team-meta { display: block; color: var(--muted); font-size: 12px; line-height: 1.8; }
+    .team-toggle { display: inline-block; margin-top: 16px; color: var(--navy); font-weight: 700; font-size: 12px; text-decoration: underline; text-underline-offset: 4px; }
+    .team-toggle-close, .team-card[open] .team-toggle-open { display: none; }
+    .team-card[open] .team-toggle-close { display: inline; }
+    .team-profile { padding: 0 28px 28px; border-top: 1px solid var(--line); }
+    .team-profile h3 { margin: 24px 0 10px; color: var(--navy); font-size: 16px; }
+    .team-profile p, .team-profile li { color: var(--muted); font-size: 14px; line-height: 1.75; }
+    .team-profile p { margin: 0 0 12px; }
+    .team-profile ul { padding-left: 20px; margin: 0; }
+    .team-profile li + li { margin-top: 12px; }
+    .team-contact { display: flex; flex-wrap: wrap; gap: 12px 20px; }
+    .team-contact a { color: var(--navy); font-size: 13px; font-weight: 650; overflow-wrap: anywhere; text-underline-offset: 3px; }
+    .team-intro { margin: 0 0 24px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    @media (max-width: 760px) { .team-grid { grid-template-columns: 1fr; } .team-role { min-height: 0; } }
+    @media (max-width: 420px) { .team-summary { padding: 20px; gap: 14px; } .team-avatar { width: 52px; height: 52px; flex-basis: 52px; font-size: 19px; } .content-section .team-heading h2 { font-size: 21px; } .team-profile { padding: 0 20px 24px; } }
+    @media print { .team-grid { display: block; } .team-card { margin-bottom: 20px; } .team-card > .team-profile { display: block; } .team-toggle { display: none; } }
   </style>
 </head>
 <body>
@@ -27,6 +52,8 @@
       <a href="power-basics.html">Power Basics</a>
       <a href="fun-facts.html">Fun Facts</a>
       <a href="dorm-facts.html">Dorm Facts</a>
+      <a href="campus-map.html">Campus Map</a>
+      <a href="meet-the-team.html" class="active">Meet the Team</a>
     </nav>
   </header>
 
@@ -37,13 +64,120 @@
       <p>AVATAR is being developed by Villanova students and collaborators committed to a clearer, more resilient campus energy future.</p>
     </section>
 
-    <section class="content-section">
-      <div class="info-panel team-placeholder">
-        <span class="feature-icon" aria-hidden="true">+</span>
-        <h2>Team profiles are coming soon</h2>
-        <p>This page is ready for team member photos, roles, biographies, project contributions, and contact links. We will add that information next.</p>
-        <a class="button button-primary" href="index.html">Return to homepage</a>
+    <section class="content-section" aria-label="AVATAR team profiles">
+      <p class="team-intro">Meet our Electrical Engineering team, Class of 2027. Select a card to learn about each member’s work and what brought them to AVATAR.</p>
+      <div class="team-grid">
+        <details class="team-card" id="andrew-lis">
+          <summary class="team-summary">
+            <img class="team-avatar" src="static/images/andrew.png" alt="Andrew Lis" width="96" height="96" loading="lazy">
+            <div class="team-heading">
+              <h2>Andrew Lis</h2>
+              <p class="team-role">Campus Map and Web Development Specialist</p>
+              <span class="team-meta"><strong>Major:</strong> Electrical Engineering</span>
+              <span class="team-meta"><strong>Class Year:</strong> 2027</span>
+              <span class="team-toggle"><span class="team-toggle-open">Read profile +</span><span class="team-toggle-close">Close profile −</span></span>
+            </div>
+          </summary>
+          <div class="team-profile">
+            <h3>About Me</h3>
+            <p>I am an Electrical Engineering student at Villanova University from Coatesville, PA, with interests in power systems, embedded systems, and sustainable engineering.</p>
+            <p>Through the AVATAR project, I am interested in helping make Villanova’s energy information easier for students, faculty, and staff to understand and use.</p>
+            <h3>My Work on AVATAR</h3>
+            <p>My work on AVATAR includes fixing website bugs, researching campus energy systems, improving the visual layout of the tabs, and implementing an interactive 2D campus map with Koda.</p>
+            <h3>Why AVATAR?</h3>
+            <p>I joined AVATAR because I am interested in sustainable engineering and Villanova’s commitment to becoming a more sustainable campus. I hope the information we provide helps students build more sustainable habits around energy use.</p>
+            <h3>Connect</h3>
+            <div class="team-contact">
+              <a href="https://www.linkedin.com/in/andrewlis05" target="_blank" rel="noopener noreferrer" aria-label="Andrew Lis on LinkedIn (opens in a new tab)">LinkedIn ↗</a>
+              <a href="mailto:lisandres15@gmail.com">lisandres15@gmail.com</a>
+            </div>
+          </div>
+        </details>
+        <details class="team-card" id="liam-rooney">
+          <summary class="team-summary">
+            <img class="team-avatar" src="static/images/liam.png" alt="Liam Rooney" width="96" height="96" loading="lazy">
+            <div class="team-heading">
+              <h2>Liam Rooney</h2>
+              <p class="team-role">AVATAR Team Lead</p>
+              <span class="team-meta"><strong>Major:</strong> Electrical Engineering</span>
+              <span class="team-meta"><strong>Class Year:</strong> 2027</span>
+              <span class="team-toggle"><span class="team-toggle-open">Read profile +</span><span class="team-toggle-close">Close profile −</span></span>
+            </div>
+          </summary>
+          <div class="team-profile">
+            <h3>About Me</h3>
+            <p>Hi there! My name is Liam Rooney, and I am an Electrical Engineering student at Villanova University with an interest in power analysis and modeling. I am from Long Island, New York, and I have had the pleasure of serving as the AVATAR team’s project lead.</p>
+            <p>Through AVATAR, I apply my power modeling skills using methods such as economic dispatch, unit commitment, and load forecasting, similar to those used by regional transmission organizations like PJM. Through these efforts, I hope to show students and faculty the work that goes into supplying energy and understanding how we use it.</p>
+            <h3>My Work on AVATAR</h3>
+            <ul>
+              <li>Lead the development of AVATAR, an interactive campus energy platform designed to integrate real-time and historical building energy data, demand and cost forecasting, energy visualization, sustainability benchmarking, and tools that improve campus energy transparency and engagement.</li>
+              <li>Develop power-system optimization and economic analysis tools to evaluate solar photovoltaic (PV) and battery energy storage system (BESS) deployment. This work incorporates generator dispatch, day-ahead demand forecasting, energy costs, and system operating constraints to identify cost-effective campus energy strategies.</li>
+            </ul>
+            <h3>Why AVATAR?</h3>
+            <p>I joined AVATAR in the hope that we can encourage Villanova’s administration to invest in more sustainable solutions on campus and move toward a new era of campus energy autonomy.</p>
+            <h3>Connect</h3>
+            <div class="team-contact">
+              <a href="https://www.linkedin.com/in/liam-rooney-2b85a12b6" target="_blank" rel="noopener noreferrer" aria-label="Liam Rooney on LinkedIn (opens in a new tab)">LinkedIn ↗</a>
+              <a href="mailto:Liamborooney22@gmail.com">Liamborooney22@gmail.com</a>
+            </div>
+          </div>
+        </details>
+        <details class="team-card" id="byron-garces">
+          <summary class="team-summary">
+            <img class="team-avatar" src="static/images/Byron_Picture.jpg" alt="Byron Garces" width="96" height="96" loading="lazy">
+            <div class="team-heading">
+              <h2>Byron Garces</h2>
+              <p class="team-role">Web Development and User Interface Lead</p>
+              <span class="team-meta"><strong>Major:</strong> Electrical Engineering</span>
+              <span class="team-meta"><strong>Class Year:</strong> 2027</span>
+              <span class="team-toggle"><span class="team-toggle-open">Read profile +</span><span class="team-toggle-close">Close profile −</span></span>
+            </div>
+          </summary>
+          <div class="team-profile">
+            <h3>About Me</h3>
+            <p>Hello, my name is Byron Garces, and I am currently a senior at Villanova University majoring in Electrical Engineering with a concentration in Power and Energy. I am from Queens, New York, and I strive to turn ideas into reality while overcoming challenges in unique and efficient ways. Being part of the AVATAR team has helped me continue pursuing that goal.</p>
+            <p>Through my work on the AVATAR project, I have gained a deeper understanding of energy systems and developed a growing passion for helping guide Villanova toward a more sustainable future. With the work we do, I hope to bring greater awareness and a more open-minded perspective on energy usage to students and faculty alike.</p>
+            <h3>My Work on AVATAR</h3>
+            <p>My work on AVATAR focuses on developing the website and designing a clear, user-friendly interface. I organize and present campus energy information in an accessible way while researching sustainable solutions that could improve energy efficiency at Villanova.</p>
+            <h3>Why AVATAR?</h3>
+            <p>AVATAR combines energy, technology, and sustainability, which directly aligns with my interests in power and energy. I joined to apply my skills and help guide Villanova toward a more sustainable campus.</p>
+            <h3>Connect</h3>
+            <div class="team-contact">
+              <a href="https://www.linkedin.com/in/byron-garces-862310306/" target="_blank" rel="noopener noreferrer" aria-label="Byron Garces on LinkedIn (opens in a new tab)">LinkedIn ↗</a>
+              <a href="mailto:Garcesb518@gmail.com">Garcesb518@gmail.com</a>
+            </div>
+          </div>
+        </details>
+        <details class="team-card" id="koda-jones">
+          <summary class="team-summary">
+            <img class="team-avatar" src="static/images/Koda_Picture.jpg" alt="Koda Jones" width="96" height="96" loading="lazy">
+            <div class="team-heading">
+              <h2>Koda Jones</h2>
+              <p class="team-role">AVATAR Website Builder</p>
+              <span class="team-meta"><strong>Major:</strong> Electrical Engineering</span>
+              <span class="team-meta"><strong>Class Year:</strong> 2027</span>
+              <span class="team-toggle"><span class="team-toggle-open">Read profile +</span><span class="team-toggle-close">Close profile −</span></span>
+            </div>
+          </summary>
+          <div class="team-profile">
+            <h3>About Me</h3>
+            <p>I am an Electrical Engineering student at Villanova University with minors in Business and Mathematics, originally from Queensbury, New York. I am interested in power systems, sustainability, circuit integration, and hardware design.</p>
+            <p>Working on the AVATAR project has allowed me to better understand energy systems and how they can support Villanova’s sustainability goals. Through the development of our website, I am proud to have contributed to an informational tool that can help move Villanova toward energy autonomy.</p>
+            <h3>My Work on AVATAR</h3>
+            <p>I have contributed to AVATAR by researching and implementing an AI model, developing the Fun Facts and Dormitory tabs, and helping create the interactive 2D campus map.</p>
+            <h3>Why AVATAR?</h3>
+            <p>I joined AVATAR to explore interconnected energy systems and behind-the-meter energy use, aiming to apply these sustainability practices to my daily life and career.</p>
+            <h3>Connect</h3>
+            <div class="team-contact">
+              <a href="https://www.linkedin.com/in/koda-jones-249123307/" target="_blank" rel="noopener noreferrer" aria-label="Koda Jones on LinkedIn (opens in a new tab)">LinkedIn ↗</a>
+              <a href="mailto:koda.jones33@gmail.com">koda.jones33@gmail.com</a>
+            </div>
+          </div>
+        </details>
       </div>
+    </section>
+    <section class="content-section page-return" aria-label="Return to homepage">
+      <a class="button button-secondary" href="index.html">Return to homepage</a>
     </section>
   </main>
 
@@ -59,6 +193,6 @@
     </div>
   </footer>
 </div>
-<script src="static/script.js?v=20260917-2"></script>
+<script src="static/script.js?v=20261005-team-photos"></script>
 </body>
 </html>
