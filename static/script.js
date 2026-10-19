@@ -1,6 +1,3 @@
-const menuButton=document.querySelector(".menu-button");
-const navigation=document.querySelector(".main-nav");
-if(menuButton&&navigation){menuButton.addEventListener("click",()=>{const open=navigation.classList.toggle("open");menuButton.setAttribute("aria-expanded",String(open));});navigation.querySelectorAll("a").forEach(link=>link.addEventListener("click",()=>{navigation.classList.remove("open");menuButton.setAttribute("aria-expanded","false");}));}
 const number=value=>new Intl.NumberFormat("en-US",{maximumFractionDigits:1}).format(value);
 const displayDate=value=>{
   if(!value)return "Date unavailable";
@@ -9,24 +6,33 @@ const displayDate=value=>{
   return new Intl.DateTimeFormat("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"}).format(new Date(parts[0],parts[1]-1,parts[2]));
 };
 
-const SITE_PAGES = [
-  ["energy-usage.html", "Energy Usage"],
-  ["load-forecasting.html", "Load Forecasting"],
-  ["what-ifs.html", "What-Ifs"],
-  ["power-basics.html", "Power Basics"],
-  ["fun-facts.html", "Fun Facts"],
-  ["dorm-facts.html", "Dorm Facts"],
-  ["campus-map.html", "Campus Map"],
-  // Add a new tab here — one line, and it shows up on every page.
+const NAV_GROUPS = [
+  {label:'Campus Energy', links:[['energy-usage.html','Energy Usage'],['load-forecasting.html','Load Forecasting'],['what-ifs.html','What-Ifs'],['data.html','Data']]},
+  {label:'Learn & Explore', links:[['power-basics.html','Power Basics'],['fun-facts.html','Fun Facts'],['dorm-facts.html','Dorm Facts'],['campus-map.html','Campus Map'],['sustainability-resources.html','Sustainability Resources']]},
+  {label:'About AVATAR', links:[['why-avatar.html','Why AVATAR?'],['meet-the-team.html','Meet the Team'],['acknowledgements.html','Acknowledgements']]}
 ];
-
-(function renderNav() {
-  const nav = document.getElementById("main-navigation");
-  if (!nav) return;
-  const current = location.pathname.split("/").pop() || "index.html";
-  nav.innerHTML = SITE_PAGES.map(([href, label]) =>
-    `<a href="${href}"${href === current ? ' class="active"' : ''}>${label}</a>`
-  ).join("");
+(function renderNav(){
+ const nav=document.getElementById('main-navigation');
+ if(!nav)return;
+ const menu=document.querySelector('.menu-button');
+ const current=location.pathname.split('/').pop()||'index.html';
+ nav.innerHTML=NAV_GROUPS.map((group,i)=>`<div class="nav-group"><button type="button" class="nav-group-button${group.links.some(([href])=>href===current)?' current-group':''}" aria-expanded="false" aria-controls="nav-panel-${i}">${group.label}<span class="nav-chevron" aria-hidden="true"></span></button><div class="nav-panel" id="nav-panel-${i}" hidden>${group.links.map(([href,label])=>`<a href="${href}"${href===current?' class="active" aria-current="page"':''}>${label}</a>`).join('')}</div></div>`).join('');
+ const groups=[...nav.querySelectorAll('.nav-group')];
+ function show(target){groups.forEach(g=>{const open=g===target;g.querySelector('button').setAttribute('aria-expanded',String(open));g.querySelector('.nav-panel').hidden=!open;});}
+ const desktop=matchMedia('(min-width:1081px)');
+ groups.forEach(g=>{
+  const button=g.querySelector('button');
+  button.addEventListener('click',()=>show(button.getAttribute('aria-expanded')==='true'?null:g));
+  g.addEventListener('pointerenter',e=>{if(desktop.matches&&e.pointerType==='mouse')show(g);});
+  g.addEventListener('pointerleave',()=>{if(desktop.matches&&!g.contains(document.activeElement))show(null);});
+  button.addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();show(g);g.querySelector('a').focus();}});
+  g.addEventListener('focusout',()=>{setTimeout(()=>{if(!g.contains(document.activeElement)&&button.getAttribute('aria-expanded')==='true')show(null);},0);});
+ });
+ nav.addEventListener('keydown',e=>{if(e.key==='Escape'){const open=groups.find(g=>g.querySelector('button').getAttribute('aria-expanded')==='true');if(open){open.querySelector('button').focus();show(null);}else{nav.classList.remove('open');menu?.setAttribute('aria-expanded','false');menu?.focus();}}});
+ menu?.addEventListener('click',()=>{const open=nav.classList.toggle('open');menu.setAttribute('aria-expanded',String(open));if(!open)show(null);});
+ nav.addEventListener('click',e=>{if(e.target.closest('a')){show(null);nav.classList.remove('open');menu?.setAttribute('aria-expanded','false');}});
+ document.addEventListener('click',e=>{if(!nav.contains(e.target)&&!menu?.contains(e.target)){show(null);nav.classList.remove('open');menu?.setAttribute('aria-expanded','false');}});
+ desktop.addEventListener('change',()=>{show(null);nav.classList.remove('open');menu?.setAttribute('aria-expanded','false');});
 })();
 
 async function requestForecastData(){
@@ -254,3 +260,4 @@ renderForecast();
     finally{input.disabled=false;send.disabled=false;input.focus();log.scrollTop=log.scrollHeight;}
   });
 })();
+
