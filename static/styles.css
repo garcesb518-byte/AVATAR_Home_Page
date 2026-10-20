@@ -610,3 +610,28 @@ input:focus {
 .main-nav .nav-panel a:hover,.main-nav .nav-panel a.active{background:var(--green-light);color:#226d44}
 .nav-group-button:focus-visible,.main-nav .nav-panel a:focus-visible{outline:2px solid var(--green);outline-offset:2px}
 @media(max-width:1080px){.main-nav{align-items:stretch;gap:4px}.nav-group{padding:0;width:100%}.nav-group-button{width:100%;text-align:left;min-height:48px}.nav-panel{position:static;min-width:0;box-shadow:none;border:0;border-left:2px solid #b7d8c5;border-radius:0;margin:0 0 8px 16px;padding:2px 6px}.main-nav .nav-panel a{white-space:normal}}
+
+
+/* AVATAR wordmark and navy-to-teal brand treatment */
+body{background:linear-gradient(125deg,#0b2446 0%,#143e61 56%,#278f88 100%);background-attachment:fixed}
+.site-header .brand{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:205px}
+.avatar-wordmark{display:block;font-size:38px;line-height:1.1;letter-spacing:.055em;font-weight:650;color:#102e56}
+.avatar-leaf-a{position:relative}
+.avatar-leaf-a svg{position:absolute;width:27px;height:24px;bottom:0;left:1px}
+.avatar-brand-caption{font-size:9px;color:#607080;letter-spacing:.02em}
+.nav-group-button{border-color:#cfe3dd;background:#fbfdfc}
+.main-nav .nav-panel a{display:flex;align-items:center;gap:13px}
+.nav-link-icon{width:21px;height:21px;flex:0 0 21px;color:#45a58c}
+#home .hero{background:linear-gradient(125deg,#0b2446,#143e61 56%,#278f88);position:relative}
+#home .hero-copy{background:transparent;position:relative}
+#home .hero h1{color:#fff}
+#home .hero-description{color:#d6e5ee}
+#home .hero .eyebrow{color:#91e9bc}
+#home .hero .button-primary{background:#91e9bc;color:#0b2d50;border-color:#91e9bc}
+#home .hero .button-secondary{background:transparent;color:#fff;border-color:#b8d2de}
+#home .hero-image::before{background:linear-gradient(90deg,#143e61bb,transparent 36%)}
+.site-footer{justify-content:space-between;gap:16px}
+.back-to-top{display:inline-flex;align-items:center;gap:14px;padding:12px 18px;border:1px solid #b7d8c5;border-radius:9px;background:#eaf5ee;color:#0b2d50;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.back-to-top:hover{background:#d6eddf}
+.back-to-top:focus-visible{outline:2px solid #2e8b57;outline-offset:4px}
+@media(max-width:680px){.avatar-wordmark{font-size:32px}.site-header .brand{min-width:0}.avatar-brand-caption{font-size:8px}.site-footer{display:flex;flex-direction:row;align-items:center}}

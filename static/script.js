@@ -261,3 +261,35 @@ renderForecast();
   });
 })();
 
+
+
+(function applyAvatarBranding(){
+ const brand=document.querySelector('.site-header .brand');
+ if(brand){
+  brand.innerHTML='<span class="avatar-wordmark" aria-hidden="true">AVAT<span class="avatar-leaf-a">A<svg viewBox="0 0 32 28"><path d="M3 24C3 8 18 3 29 3c0 13-9 23-26 21Z" fill="#45a58c"/><path d="M3 25 25 7" stroke="white" stroke-width="2"/></svg></span>R</span><span class="avatar-brand-caption">Campus energy. Shared possibilities.</span>';
+  brand.setAttribute('aria-label','AVATAR homepage');
+ }
+ const icons=[
+ '<path d="M4 20V12h3v8m4 0V7h3v13m4 0V3h3v17"/>',
+ '<path d="m3 17 6-6 4 3 8-10m-5 0h5v5"/>',
+ '<path d="M3 6h18M3 12h18M3 18h18M7 3v6m10 0v6M9 15v6"/>',
+ '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 4 16 4 16 0V5M4 12c0 4 16 4 16 0"/>',
+ '<path d="M12 5C8 3 5 3 2 4v16c4-1 7-1 10 1 3-2 6-2 10-1V4c-3-1-6-1-10 1v16"/>',
+ '<path d="M8 17c0-4-4-4-4-9a8 8 0 0 1 16 0c0 5-4 5-4 9ZM8 21h8"/>',
+ '<path d="m2 8 10-5 10 5-10 5-10-5Zm4 3v6c4 3 8 3 12 0v-6M22 8v10"/>',
+ '<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+ '<path d="M3 21C3 6 14 3 22 3c0 12-7 18-19 18Zm0 0L18 7"/>',
+ '<circle cx="8" cy="7" r="3"/><circle cx="18" cy="8" r="2"/><path d="M2 21v-4a6 6 0 0 1 12 0v4m2-7a5 5 0 0 1 6 5v2"/>',
+ '<circle cx="12" cy="7" r="4"/><path d="M4 22v-4a8 8 0 0 1 16 0v4"/>',
+ '<path d="M6 2h9l5 5v15H6ZM14 2v6h6M9 12h8m-8 4h8"/>'
+ ];
+ document.querySelectorAll('.nav-panel a').forEach((link,i)=>{if(icons[i])link.insertAdjacentHTML('afterbegin','<svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[i]+'</svg>');});
+ document.querySelectorAll('.site-footer').forEach(footer=>{
+  footer.innerHTML='<strong>AVATAR</strong><button class="back-to-top" type="button">Back to top <span aria-hidden="true">↑</span></button>';
+  footer.querySelector('button').addEventListener('click',()=>{
+   const target=document.querySelector('.site-header .brand');
+   target?.focus({preventScroll:true});
+   window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+  });
+ });
+})();
