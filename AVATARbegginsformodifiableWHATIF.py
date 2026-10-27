@@ -23,6 +23,7 @@ from scipy.sparse import coo_array
 class AvatarInputs:
     displayed_season: str = "winter"
     daily_energy_kwh: float = 104_000.0
+    project_budget: float = 2_500_000.0
 
     selected_panels: int = 250
     selected_bess_units: int = 5
@@ -30,12 +31,14 @@ class AvatarInputs:
     max_bess_units: int = 30
 
     peco_rate_per_kwh: float = 0.10236
+    off_peak_rate_per_kwh: float = 0.07
+    peak_rate_per_kwh: float = 0.13
     energy_conservation_percent: float = 0.0
     occupancy_load_change_percent: float = 0.0
     temperature_load_change_percent: float = 0.0
 
     allow_solar_curtailment: bool = False
-    allow_grid_bess_charging: bool = False
+    allow_grid_bess_charging: bool = True
     solver_output: bool = False
     forecast_date: str | None = None
 
@@ -59,6 +62,7 @@ BESS_ROUNDTRIP_EFFICIENCY = 0.90
 BESS_CHARGE_EFFICIENCY = BESS_ROUNDTRIP_EFFICIENCY**0.5
 BESS_DISCHARGE_EFFICIENCY = BESS_ROUNDTRIP_EFFICIENCY**0.5
 BESS_MIN_SOC_FRACTION = 0.10
+OFF_PEAK_HOURS = frozenset([0, 1, 2, 3, 4, 5, 6, 22, 23])
 # Apply the project-provided Elementa 3 quote basis to the adjustable KuBank unit.
 BESS_COST_PER_KWH = 135.0
 BESS_UNIT_COST = BESS_ENERGY_KWH * BESS_COST_PER_KWH
@@ -174,6 +178,12 @@ def validate_inputs(inputs: AvatarInputs) -> None:
         raise ValueError("daily_energy_kwh must be greater than zero.")
     if inputs.peco_rate_per_kwh <= 0:
         raise ValueError("The PECO rate must be positive.")
+    if inputs.project_budget < 0:
+        raise ValueError("The project budget cannot be negative.")
+    if inputs.off_peak_rate_per_kwh <= 0 or inputs.peak_rate_per_kwh <= 0:
+        raise ValueError("The illustrative grid rates must be positive.")
+    if inputs.peak_rate_per_kwh < inputs.off_peak_rate_per_kwh:
+        raise ValueError("The peak grid rate cannot be lower than the off-peak rate.")
     if inputs.selected_panels < 0 or inputs.selected_bess_units < 0:
         raise ValueError("Selected equipment quantities cannot be negative.")
     if inputs.max_solar_panels < 0 or inputs.max_bess_units < 0:
@@ -190,11 +200,19 @@ def validate_inputs(inputs: AvatarInputs) -> None:
     }.items():
         if not -100 <= value <= 100:
             raise ValueError(f"{name} must be between -100 and 100.")
-    if inputs.allow_grid_bess_charging:
-        raise ValueError(
-            "Grid BESS charging is not implemented because the confirmed project "
-            "assumption is solar-only charging."
-        )
+
+
+def grid_rate_for_hour(inputs: AvatarInputs, hour: int) -> float:
+    """Return the editable illustrative two-tier energy rate for one hour."""
+    return (
+        inputs.off_peak_rate_per_kwh
+        if hour in OFF_PEAK_HOURS
+        else inputs.peak_rate_per_kwh
+    )
+
+
+def grid_rate_multiplier(inputs: AvatarInputs, hour: int) -> float:
+    return grid_rate_for_hour(inputs, hour) / inputs.peco_rate_per_kwh
 
 
 def _fallback_forecast(inputs: AvatarInputs) -> tuple[list[float], dict[str, Any]]:
@@ -461,6 +479,7 @@ def solve_case(
     gen_output: dict[tuple[str, int, int], int] = {}
     solar_to_load: dict[tuple[str, int], int] = {}
     solar_to_battery: dict[tuple[str, int], int] = {}
+    grid_to_battery: dict[tuple[str, int], int] = {}
     battery_discharge: dict[tuple[str, int], int] = {}
     soc: dict[tuple[str, int], int] = {}
     battery_charging: dict[tuple[str, int], int] = {}
@@ -491,12 +510,17 @@ def solve_case(
                 )
                 gen_output[key] = model.add_variable(
                     f"Generator_Output_{season}_{g}_{t}",
-                    objective=weight * generator_costs.variable_per_kwh[g],
+                    objective=(
+                        weight
+                        * generator_costs.variable_per_kwh[g]
+                        * grid_rate_multiplier(inputs, t)
+                    ),
                 )
         for t in hours:
             key = (season, t)
             solar_to_load[key] = model.add_variable(f"Solar_To_Load_{season}_{t}")
             solar_to_battery[key] = model.add_variable(f"Solar_To_Battery_{season}_{t}")
+            grid_to_battery[key] = model.add_variable(f"Grid_To_Battery_{season}_{t}")
             battery_discharge[key] = model.add_variable(f"Battery_Discharge_{season}_{t}")
             soc[key] = model.add_variable(f"Battery_State_Of_Charge_{season}_{t}")
             battery_charging[key] = model.add_variable(
@@ -556,16 +580,31 @@ def solve_case(
             model.add_constraint(
                 _terms(
                     (solar_to_battery[st], 1),
+                    (grid_to_battery[st], 1),
                     (num_bess_units, -BESS_POWER_KW),
                 ),
                 upper=0,
-                name=f"Solar_To_Battery_Capacity_{season}_{t}",
+                name=f"Battery_Charge_Capacity_{season}_{t}",
+            )
+            # Directly serve campus load with available solar before storing any
+            # excess. At the current campus scale, this normally leaves grid
+            # off-peak charging as the BESS charging source.
+            selected_solar_available = (
+                inputs.selected_panels * PANEL_POWER_KW * solar_profiles[season][t]
+                if case_type == "scenario"
+                else 0.0
+            )
+            model.add_constraint(
+                _terms((solar_to_battery[st], 1)),
+                upper=max(0.0, selected_solar_available - load_kw[t]),
+                name=f"Solar_Serves_Load_First_{season}_{t}",
             )
             model.add_constraint(
                 _terms(
                     *[(gen_output[season, g, t], 1) for g in gens],
                     (solar_to_load[st], 1),
                     (battery_discharge[st], 1),
+                    (grid_to_battery[st], -1),
                 ),
                 lower=load_kw[t],
                 upper=load_kw[t],
@@ -574,11 +613,26 @@ def solve_case(
             model.add_constraint(
                 _terms(
                     (solar_to_battery[st], 1),
+                    (grid_to_battery[st], 1),
                     (battery_charging[st], -max_charge_power),
                 ),
                 upper=0,
                 name=f"Battery_Charge_Mode_{season}_{t}",
             )
+            if not inputs.allow_grid_bess_charging or t not in OFF_PEAK_HOURS:
+                model.add_constraint(
+                    _terms((grid_to_battery[st], 1)),
+                    lower=0,
+                    upper=0,
+                    name=f"Grid_Charge_Off_Peak_Only_{season}_{t}",
+                )
+            if inputs.allow_grid_bess_charging and t in OFF_PEAK_HOURS:
+                model.add_constraint(
+                    _terms((battery_discharge[st], 1)),
+                    lower=0,
+                    upper=0,
+                    name=f"No_Off_Peak_Discharge_{season}_{t}",
+                )
             model.add_constraint(
                 _terms(
                     (battery_discharge[st], 1),
@@ -619,6 +673,7 @@ def solve_case(
             soc_terms = [
                 (soc[st], 1),
                 (solar_to_battery[st], -BESS_CHARGE_EFFICIENCY),
+                (grid_to_battery[st], -BESS_CHARGE_EFFICIENCY),
                 (battery_discharge[st], 1 / BESS_DISCHARGE_EFFICIENCY),
             ]
             if t == 0:
@@ -756,6 +811,7 @@ def solve_case(
         "solar_available_kwh": 0.0,
         "solar_to_load_kwh": 0.0,
         "solar_to_battery_kwh": 0.0,
+        "grid_to_battery_kwh": 0.0,
         "solar_curtailed_kwh": 0.0,
         "battery_discharge_kwh": 0.0,
     }
@@ -777,15 +833,18 @@ def solve_case(
                 "Solar_Available_kW": float(solar_available_value),
                 "Solar_To_Load_kW": value(solar_to_load[season, t]),
                 "Solar_To_Battery_kW": value(solar_to_battery[season, t]),
+                "Grid_To_Battery_kW": value(grid_to_battery[season, t]),
                 "Solar_Curtailed_kW": float(curtailed),
                 "Battery_Discharge_kW": value(battery_discharge[season, t]),
                 "Battery_SOC_kWh": value(soc[season, t]),
                 "Grid_Supply_kW": grid_supply,
+                "Grid_Rate_$_per_kWh": grid_rate_for_hour(inputs, t),
             }
             row["Load_Balance_Error_kW"] = (
                 row["Grid_Supply_kW"]
                 + row["Solar_To_Load_kW"]
                 + row["Battery_Discharge_kW"]
+                - row["Grid_To_Battery_kW"]
                 - row["Load_kW"]
             )
             row["Solar_Balance_Error_kW"] = (
@@ -814,6 +873,7 @@ def solve_case(
         annual_totals["solar_available_kwh"] += weight * frame["Solar_Available_kW"].sum()
         annual_totals["solar_to_load_kwh"] += weight * frame["Solar_To_Load_kW"].sum()
         annual_totals["solar_to_battery_kwh"] += weight * frame["Solar_To_Battery_kW"].sum()
+        annual_totals["grid_to_battery_kwh"] += weight * frame["Grid_To_Battery_kW"].sum()
         annual_totals["solar_curtailed_kwh"] += weight * frame["Solar_Curtailed_kW"].sum()
         annual_totals["battery_discharge_kwh"] += weight * frame["Battery_Discharge_kW"].sum()
 
@@ -824,7 +884,16 @@ def solve_case(
             * sum(value(gen_output[season, g, t]) for t in hours)
             for season in seasons
         )
-        energy_cost = energy_kwh * generator_costs.variable_per_kwh[g]
+        energy_cost = sum(
+            SEASON_DAY_WEIGHTS[season]
+            * sum(
+                value(gen_output[season, g, t])
+                * generator_costs.variable_per_kwh[g]
+                * grid_rate_multiplier(inputs, t)
+                for t in hours
+            )
+            for season in seasons
+        )
         fixed = sum(
             SEASON_DAY_WEIGHTS[season]
             * sum(value(gen_on[season, g, t]) for t in hours)
@@ -847,7 +916,7 @@ def solve_case(
             {
                 "Generator": name,
                 "Annual_Energy_kWh": float(energy_kwh),
-                "Variable_Rate_$_per_kWh": generator_costs.variable_per_kwh[g],
+                "Base_Variable_Rate_$_per_kWh": generator_costs.variable_per_kwh[g],
                 "Energy_Cost_$": float(energy_cost),
                 "Fixed_Cost_$": float(fixed),
                 "Startup_Cost_$": float(startup),
@@ -992,9 +1061,13 @@ def run_avatar(
     avatar_cost = avatar["annual_totals"]["operating_cost_$"]
     annual_load = avatar["annual_totals"]["load_kwh"]
     annual_grid = avatar["annual_totals"]["grid_supply_kwh"]
+    annual_solar_from_battery = min(
+        avatar["annual_totals"]["battery_discharge_kwh"],
+        avatar["annual_totals"]["solar_to_battery_kwh"]
+        * BESS_ROUNDTRIP_EFFICIENCY,
+    )
     annual_solar_delivered = (
-        avatar["annual_totals"]["solar_to_load_kwh"]
-        + avatar["annual_totals"]["battery_discharge_kwh"]
+        avatar["annual_totals"]["solar_to_load_kwh"] + annual_solar_from_battery
     )
 
     all_hourly = list(avatar["hourly_by_season"].values())
@@ -1012,7 +1085,7 @@ def run_avatar(
         "status": "optimal",
         "optimization_solver": "SciPy milp / HiGHS (open source)",
         "optimization_basis": "four weighted representative seasonal days",
-        "operating_objective": "evaluate the selected PV and BESS scenario while minimizing calibrated annual supply cost",
+        "operating_objective": "evaluate the selected PV and BESS scenario with off-peak grid charging and daytime discharge while minimizing calibrated annual supply cost",
         "peco_reference_rate_$_per_kwh": inputs.peco_rate_per_kwh,
         "calibrated_baseline_effective_rate_$_per_kwh": (
             baseline_cost / raw_baseline["annual_totals"]["grid_supply_kwh"]
@@ -1029,6 +1102,16 @@ def run_avatar(
         "bess_power_capacity_kw": avatar["bess_capacity_kw"],
         "bess_minimum_reserve_percent": 100 * BESS_MIN_SOC_FRACTION,
         "project_cost_$": avatar["project_cost_$"],
+        "project_budget_$": inputs.project_budget,
+        "budget_difference_$": inputs.project_budget - avatar["project_cost_$"],
+        "budget_status": (
+            "within_budget"
+            if avatar["project_cost_$"] <= inputs.project_budget
+            else "over_budget"
+        ),
+        "off_peak_rate_$_per_kwh": inputs.off_peak_rate_per_kwh,
+        "peak_rate_$_per_kwh": inputs.peak_rate_per_kwh,
+        "off_peak_hours": sorted(OFF_PEAK_HOURS),
         "annual_baseline_operating_cost_$": baseline_cost,
         "annual_adjusted_load_cost_without_der_$": adjusted_no_der_cost,
         "annual_avatar_operating_cost_$": avatar_cost,
@@ -1037,6 +1120,7 @@ def run_avatar(
         "annual_total_operating_savings_$": baseline_cost - avatar_cost,
         "annual_load_kwh": annual_load,
         "annual_grid_supply_kwh": annual_grid,
+        "annual_grid_to_battery_kwh": avatar["annual_totals"]["grid_to_battery_kwh"],
         "annual_grid_energy_reduction_kwh": (
             raw_baseline["annual_totals"]["grid_supply_kwh"] - annual_grid
         ),
@@ -1061,7 +1145,11 @@ def run_avatar(
             avatar["annual_totals"]["solar_available_kwh"] - expected_annual_solar
         ),
         "annual_load_supply_reconciliation_error_kwh": (
-            annual_grid + annual_solar_delivered - annual_load
+            annual_grid
+            + avatar["annual_totals"]["solar_to_load_kwh"]
+            + avatar["annual_totals"]["battery_discharge_kwh"]
+            - avatar["annual_totals"]["grid_to_battery_kwh"]
+            - annual_load
         ),
     }
 

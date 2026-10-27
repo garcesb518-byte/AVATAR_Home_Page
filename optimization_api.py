@@ -11,6 +11,7 @@ require server-side Python or a protected credential:
 from __future__ import annotations
 
 import os
+import math
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -156,6 +157,18 @@ def _number(
     return value
 
 
+def _nonnegative_number(
+    payload: dict[str, Any], key: str, default: float
+) -> float:
+    try:
+        value = float(payload.get(key, default))
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{key} must be a number.") from exc
+    if not math.isfinite(value) or value < 0:
+        raise ValueError(f"{key} must be a finite, nonnegative number.")
+    return value
+
+
 def inputs_from_request(payload: dict[str, Any]) -> AvatarInputs:
     """Convert the small public request schema into validated model inputs."""
     season = str(payload.get("displayed_season", "winter")).strip().lower()
@@ -175,11 +188,18 @@ def inputs_from_request(payload: dict[str, Any]) -> AvatarInputs:
     return AvatarInputs(
         displayed_season=season,
         daily_energy_kwh=104_000.0,
+        project_budget=_nonnegative_number(payload, "project_budget", 2_500_000),
         selected_panels=selected_panels,
         selected_bess_units=selected_bess,
         max_solar_panels=max_panels,
         max_bess_units=max_bess,
         peco_rate_per_kwh=0.10236,
+        off_peak_rate_per_kwh=float(
+            _number(payload, "off_peak_rate_per_kwh", 0.07, 0.00001, 10)
+        ),
+        peak_rate_per_kwh=float(
+            _number(payload, "peak_rate_per_kwh", 0.13, 0.00001, 10)
+        ),
         energy_conservation_percent=float(
             _number(payload, "energy_conservation_percent", 0, 0, 100)
         ),
@@ -190,7 +210,7 @@ def inputs_from_request(payload: dict[str, Any]) -> AvatarInputs:
             _number(payload, "temperature_load_change_percent", 0, -100, 100)
         ),
         allow_solar_curtailment=False,
-        allow_grid_bess_charging=False,
+        allow_grid_bess_charging=True,
         solver_output=False,
     )
 

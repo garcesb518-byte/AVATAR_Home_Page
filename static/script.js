@@ -105,6 +105,7 @@ async function renderForecast(){
   }
 }
 const currency=value=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(value);
+const energyRate=value=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2,maximumFractionDigits:5}).format(value);
 const integer=value=>new Intl.NumberFormat("en-US",{maximumFractionDigits:0}).format(value);
 
 function scenarioValue(selector){return Number(document.querySelector(selector)?.value);}
@@ -112,8 +113,11 @@ function scenarioValue(selector){return Number(document.querySelector(selector)?
 function scenarioRequest(){
   return {
     displayed_season:document.querySelector("#displayed-season")?.value,
+    project_budget:scenarioValue("#project-budget"),
     selected_panels:scenarioValue("#selected-panels"),
     selected_bess_units:scenarioValue("#selected-bess"),
+    off_peak_rate_per_kwh:scenarioValue("#off-peak-rate"),
+    peak_rate_per_kwh:scenarioValue("#peak-rate"),
     energy_conservation_percent:scenarioValue("#conservation"),
     occupancy_load_change_percent:scenarioValue("#occupancy-change"),
     temperature_load_change_percent:scenarioValue("#temperature-change")
@@ -134,19 +138,22 @@ function showScenarioState(state,message=""){
 function renderBessOperation(rows){
   const chart=document.querySelector("#bess-operation-chart");
   if(!chart||!Array.isArray(rows))return;
-  const maximumPower=Math.max(...rows.flatMap(row=>[Number(row.Solar_To_Battery_kW),Number(row.Battery_Discharge_kW)]),1);
+  const maximumPower=Math.max(...rows.flatMap(row=>[Number(row.Grid_To_Battery_kW),Number(row.Solar_To_Battery_kW),Number(row.Battery_Discharge_kW)]),1);
   const maximumSoc=Math.max(...rows.map(row=>Number(row.Battery_SOC_kWh)),1);
+  const height=(value,maximum)=>value>0?Math.max(2,value/maximum*100):0;
   chart.innerHTML=rows.map(row=>{
-    const charge=Number(row.Solar_To_Battery_kW)||0;
+    const gridCharge=Number(row.Grid_To_Battery_kW)||0;
+    const solarCharge=Number(row.Solar_To_Battery_kW)||0;
     const discharge=Number(row.Battery_Discharge_kW)||0;
     const soc=Number(row.Battery_SOC_kWh)||0;
     const hour=Number(row.Hour);
     const label=String(hour).padStart(2,"0");
     return '<div class="bess-hour">'+
       '<span class="bess-soc-label">'+number(soc)+' kWh</span>'+
-      '<div class="bess-bar charge" title="'+label+':00 charge: '+number(charge)+' kW" style="height:'+Math.max(charge?2:0,charge/maximumPower*100)+'%"></div>'+
-      '<div class="bess-bar discharge" title="'+label+':00 discharge: '+number(discharge)+' kW" style="height:'+Math.max(discharge?2:0,discharge/maximumPower*100)+'%"></div>'+
-      '<div class="bess-bar soc" title="'+label+':00 state of charge: '+number(soc)+' kWh" style="height:'+Math.max(soc?2:0,soc/maximumSoc*100)+'%"></div>'+
+      '<div class="bess-bar grid-charge" title="'+label+':00 grid charge: '+number(gridCharge)+' kW" style="height:'+height(gridCharge,maximumPower)+'%"></div>'+
+      '<div class="bess-bar solar-charge" title="'+label+':00 excess-solar charge: '+number(solarCharge)+' kW" style="height:'+height(solarCharge,maximumPower)+'%"></div>'+
+      '<div class="bess-bar discharge" title="'+label+':00 discharge: '+number(discharge)+' kW" style="height:'+height(discharge,maximumPower)+'%"></div>'+
+      '<div class="bess-bar soc" title="'+label+':00 state of charge: '+number(soc)+' kWh" style="height:'+height(soc,maximumSoc)+'%"></div>'+
       '<span class="load-label">'+(hour%2===0?label:"")+'</span></div>';
   }).join("");
 }
@@ -184,10 +191,15 @@ function renderScenarioResults(data){
   document.querySelector("#result-panels").textContent=integer(summary.panels_selected);
   document.querySelector("#result-bess").textContent=integer(summary.bess_units_selected);
   document.querySelector("#result-project-cost").textContent=currency(summary["project_cost_$"]);
+  document.querySelector("#result-project-budget").textContent=currency(summary["project_budget_$"]);
+  const budgetDifference=Number(summary["budget_difference_$"]);
+  document.querySelector("#result-budget-position").textContent=budgetDifference>=0
+    ?currency(budgetDifference)+" remaining"
+    :currency(Math.abs(budgetDifference))+" over";
   document.querySelector("#result-savings").textContent=currency(summary["annual_total_operating_savings_$"])+"/yr";
   document.querySelector("#result-grid-reduction").textContent=integer(summary.annual_grid_energy_reduction_kwh)+" kWh/yr";
   document.querySelector("#result-renewable-share").textContent=number(summary.renewable_share_of_load_percent)+"%";
-  document.querySelector("#scenario-summary").textContent="Adjusted daily demand is "+number(summary.adjusted_daily_energy_kwh)+" kWh with an estimated peak of "+number(summary.adjusted_peak_kw)+" kW. The selected equipment has an estimated project cost of "+currency(summary["project_cost_$"])+".";
+  document.querySelector("#scenario-summary").textContent="Adjusted daily demand is "+number(summary.adjusted_daily_energy_kwh)+" kWh with an estimated peak of "+number(summary.adjusted_peak_kw)+" kW. The battery uses the editable "+energyRate(summary["off_peak_rate_$_per_kwh"])+"/kWh off-peak and "+energyRate(summary["peak_rate_$_per_kwh"])+"/kWh peak planning rates.";
   renderLoadComparison(whatIf.load_comparison,whatIf.selected_season_hourly);
   renderBessOperation(whatIf.selected_season_hourly);
   renderModelTable("commitment-table",whatIf.unit_commitment);
