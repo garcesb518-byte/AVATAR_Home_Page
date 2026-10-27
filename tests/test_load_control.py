@@ -117,7 +117,7 @@ class ForecastTests(unittest.TestCase):
             now=datetime.fromisoformat(today+'T12:00:00+00:00'); service=ForecastService()
             data=service.get(now); validate_forecast(data,now)
             self.assertEqual(len(data['predictions']),count)
-            self.assertEqual(data['daily_energy_kwh'],5500)
+            self.assertEqual(data['daily_energy_kwh'],104000)
             self.assertEqual(instant(data['valid_until']).astimezone(EASTERN).hour,0)
             self.assertEqual(service.get(now+timedelta(minutes=10))['generated_at'],data['generated_at'])
             self.assertEqual(len(set(x['interval_start'] for x in data['predictions'])),count)

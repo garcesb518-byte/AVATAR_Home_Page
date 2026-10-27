@@ -633,7 +633,7 @@ def train_and_forecast(
 
 
 def create_proxy_forecast(
-    daily_energy_mwh: float = 5.5,
+    daily_energy_mwh: float = 104.0,
     forecast_date: str | None = None,
     timezone: str = DEFAULT_TIMEZONE,
 ) -> ForecastResult:
@@ -817,8 +817,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--daily-energy-mwh",
         type=float,
-        default=5.5,
-        help="Villanova daily energy used by proxy mode (default: 5.5 MWh/day)",
+        default=104.0,
+        help="Villanova daily energy used by proxy mode (default: 104 MWh/day)",
     )
     parser.add_argument(
         "--forecast-date", help="Proxy forecast date in YYYY-MM-DD format"

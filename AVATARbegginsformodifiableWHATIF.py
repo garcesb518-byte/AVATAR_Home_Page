@@ -21,10 +21,8 @@ from scipy.sparse import coo_array
 
 @dataclass
 class AvatarInputs:
-    mode: str = "scenario"  # "optimize" or "scenario"
     displayed_season: str = "winter"
-    daily_energy_kwh: float = 5_500.0
-    project_budget: float = 2_500_000.0
+    daily_energy_kwh: float = 104_000.0
 
     selected_panels: int = 250
     selected_bess_units: int = 5
@@ -60,6 +58,7 @@ BESS_POWER_KW = 125.0
 BESS_ROUNDTRIP_EFFICIENCY = 0.90
 BESS_CHARGE_EFFICIENCY = BESS_ROUNDTRIP_EFFICIENCY**0.5
 BESS_DISCHARGE_EFFICIENCY = BESS_ROUNDTRIP_EFFICIENCY**0.5
+BESS_MIN_SOC_FRACTION = 0.10
 # Apply the project-provided Elementa 3 quote basis to the adjustable KuBank unit.
 BESS_COST_PER_KWH = 135.0
 BESS_UNIT_COST = BESS_ENERGY_KWH * BESS_COST_PER_KWH
@@ -79,12 +78,18 @@ GENERATOR_NAMES = [
     "G5 Peaker",
     "G6 Emergency Import",
 ]
-GENERATOR_MIN_KW = [40, 30, 25, 10, 5, 0]
-GENERATOR_MAX_KW = [120, 100, 90, 75, 60, 150]
-GENERATOR_RAMP_UP_KW = [40, 35, 50, 75, 60, 150]
-GENERATOR_RAMP_DOWN_KW = [40, 35, 50, 75, 60, 150]
+LEGACY_DAILY_ENERGY_KWH = 5_500.0
+CAMPUS_DAILY_ENERGY_KWH = 104_000.0
+SUPPLY_CAPACITY_SCALE = CAMPUS_DAILY_ENERGY_KWH / LEGACY_DAILY_ENERGY_KWH
+
+# Preserve the educational fleet's relative sizes and ramp behavior while scaling
+# its magnitude to the updated 104 MWh/day campus baseline.
+GENERATOR_MIN_KW = [value * SUPPLY_CAPACITY_SCALE for value in [40, 30, 25, 10, 5, 0]]
+GENERATOR_MAX_KW = [value * SUPPLY_CAPACITY_SCALE for value in [120, 100, 90, 75, 60, 150]]
+GENERATOR_RAMP_UP_KW = [value * SUPPLY_CAPACITY_SCALE for value in [40, 35, 50, 75, 60, 150]]
+GENERATOR_RAMP_DOWN_KW = [value * SUPPLY_CAPACITY_SCALE for value in [40, 35, 50, 75, 60, 150]]
 GENERATOR_INITIAL_ON = [1, 1, 0, 0, 0, 0]
-GENERATOR_INITIAL_OUTPUT_KW = [80, 60, 0, 0, 0, 0]
+GENERATOR_INITIAL_OUTPUT_KW = [value * SUPPLY_CAPACITY_SCALE for value in [80, 60, 0, 0, 0, 0]]
 
 # Relative educational cost functions. A calibration solve scales every term by
 # one common factor so the full baseline cost, including commitment costs, equals
@@ -163,14 +168,12 @@ RAW_GENERATOR_COSTS = GeneratorCosts(
 
 
 def validate_inputs(inputs: AvatarInputs) -> None:
-    if inputs.mode not in {"optimize", "scenario"}:
-        raise ValueError("mode must be 'optimize' or 'scenario'.")
     if inputs.displayed_season not in SEASON_DAY_WEIGHTS:
         raise ValueError("displayed_season must be winter, spring, summer, or fall.")
     if inputs.daily_energy_kwh <= 0:
         raise ValueError("daily_energy_kwh must be greater than zero.")
-    if inputs.project_budget < 0 or inputs.peco_rate_per_kwh <= 0:
-        raise ValueError("Project budget cannot be negative and the PECO rate must be positive.")
+    if inputs.peco_rate_per_kwh <= 0:
+        raise ValueError("The PECO rate must be positive.")
     if inputs.selected_panels < 0 or inputs.selected_bess_units < 0:
         raise ValueError("Selected equipment quantities cannot be negative.")
     if inputs.max_solar_panels < 0 or inputs.max_bess_units < 0:
@@ -192,15 +195,6 @@ def validate_inputs(inputs: AvatarInputs) -> None:
             "Grid BESS charging is not implemented because the confirmed project "
             "assumption is solar-only charging."
         )
-    scenario_cost = (
-        inputs.selected_panels * INSTALLED_PANEL_COST
-        + inputs.selected_bess_units * BESS_UNIT_COST
-    )
-    if inputs.mode == "scenario" and scenario_cost > inputs.project_budget:
-        raise ValueError(
-            f"Selected scenario costs ${scenario_cost:,.2f}, exceeding the "
-            f"${inputs.project_budget:,.2f} budget."
-        )
 
 
 def _fallback_forecast(inputs: AvatarInputs) -> tuple[list[float], dict[str, Any]]:
@@ -216,7 +210,7 @@ def _fallback_forecast(inputs: AvatarInputs) -> tuple[list[float], dict[str, Any
         "peak_hour": peak_hour,
         "warning": (
             "Bryn Mawr supplies only the normalized shape. Villanova magnitude is "
-            "5.5 MWh/day, and hours 16-23 are inferred."
+            "104 MWh/day, and hours 16-23 are inferred."
         ),
     }
 
@@ -440,8 +434,8 @@ def solve_case(
     generator_costs: GeneratorCosts,
 ) -> dict[str, Any]:
     """Solve one annual weighted case with a shared system size."""
-    if case_type not in {"baseline", "scenario", "optimize"}:
-        raise ValueError("case_type must be baseline, scenario, or optimize.")
+    if case_type not in {"baseline", "scenario"}:
+        raise ValueError("case_type must be baseline or scenario.")
     if len(load_kw) != 24:
         raise ValueError("load_kw must contain exactly 24 hourly values.")
 
@@ -516,14 +510,6 @@ def solve_case(
                     f"Solar_Curtailed_{season}_{t}"
                 )
 
-    model.add_constraint(
-        _terms(
-            (num_panels, INSTALLED_PANEL_COST),
-            (num_bess_units, BESS_UNIT_COST),
-        ),
-        upper=inputs.project_budget,
-        name="Project_Budget",
-    )
     if case_type == "baseline":
         model.add_constraint(
             _terms((num_panels, 1)), lower=0, upper=0, name="Baseline_No_Solar"
@@ -622,13 +608,26 @@ def solve_case(
                 upper=0,
                 name=f"SOC_Capacity_{season}_{t}",
             )
+            model.add_constraint(
+                _terms(
+                    (soc[st], 1),
+                    (num_bess_units, -BESS_MIN_SOC_FRACTION * BESS_ENERGY_KWH),
+                ),
+                lower=0,
+                name=f"SOC_Minimum_Reserve_{season}_{t}",
+            )
             soc_terms = [
                 (soc[st], 1),
                 (solar_to_battery[st], -BESS_CHARGE_EFFICIENCY),
                 (battery_discharge[st], 1 / BESS_DISCHARGE_EFFICIENCY),
             ]
             if t == 0:
-                soc_terms.append((num_bess_units, -0.50 * BESS_ENERGY_KWH))
+                soc_terms.append(
+                    (
+                        num_bess_units,
+                        -BESS_MIN_SOC_FRACTION * BESS_ENERGY_KWH,
+                    )
+                )
             else:
                 soc_terms.append((soc[season, t - 1], -1))
             model.add_constraint(
@@ -641,7 +640,10 @@ def solve_case(
         model.add_constraint(
             _terms(
                 (soc[season, 23], 1),
-                (num_bess_units, -0.50 * BESS_ENERGY_KWH),
+                (
+                    num_bess_units,
+                    -BESS_MIN_SOC_FRACTION * BESS_ENERGY_KWH,
+                ),
             ),
             lower=0,
             upper=0,
@@ -974,9 +976,8 @@ def run_avatar(
     if adjusted_baseline["status"] != "optimal":
         return _case_error(adjusted_baseline)
 
-    avatar_case_type = "optimize" if inputs.mode == "optimize" else "scenario"
     avatar = solve_case(
-        avatar_case_type,
+        "scenario",
         "avatar_pv_bess",
         adjusted_load_kw,
         solar_profiles,
@@ -1011,7 +1012,7 @@ def run_avatar(
         "status": "optimal",
         "optimization_solver": "SciPy milp / HiGHS (open source)",
         "optimization_basis": "four weighted representative seasonal days",
-        "operating_objective": "minimize calibrated annual supply cost under project budget",
+        "operating_objective": "evaluate the selected PV and BESS scenario while minimizing calibrated annual supply cost",
         "peco_reference_rate_$_per_kwh": inputs.peco_rate_per_kwh,
         "calibrated_baseline_effective_rate_$_per_kwh": (
             baseline_cost / raw_baseline["annual_totals"]["grid_supply_kwh"]
@@ -1026,8 +1027,8 @@ def run_avatar(
         "bess_units_selected": avatar["bess_selected"],
         "bess_energy_capacity_kwh": avatar["bess_capacity_kwh"],
         "bess_power_capacity_kw": avatar["bess_capacity_kw"],
+        "bess_minimum_reserve_percent": 100 * BESS_MIN_SOC_FRACTION,
         "project_cost_$": avatar["project_cost_$"],
-        "budget_remaining_$": inputs.project_budget - avatar["project_cost_$"],
         "annual_baseline_operating_cost_$": baseline_cost,
         "annual_adjusted_load_cost_without_der_$": adjusted_no_der_cost,
         "annual_avatar_operating_cost_$": avatar_cost,
@@ -1263,7 +1264,6 @@ def print_summary(result: dict[str, Any]) -> None:
     summary = result["summary"]
     print("\nAVATAR FOUR-SEASON PV + BESS RESULTS")
     print("=" * 55)
-    print(f"Mode: {result['what_if_tab']['inputs']['mode']}")
     print(f"Campus baseline: {summary['baseline_daily_energy_kwh']:,.1f} kWh/day")
     print(
         f"Estimated peak: {summary['baseline_peak_kw']:,.1f} kW "

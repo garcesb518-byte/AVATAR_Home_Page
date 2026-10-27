@@ -109,22 +109,9 @@ const integer=value=>new Intl.NumberFormat("en-US",{maximumFractionDigits:0}).fo
 
 function scenarioValue(selector){return Number(document.querySelector(selector)?.value);}
 
-function toggleScenarioMode(){
-  const mode=document.querySelector("#system-mode")?.value;
-  const optimizeFields=document.querySelector("#optimize-equipment");
-  const scenarioFields=document.querySelector("#scenario-equipment");
-  if(!optimizeFields||!scenarioFields)return;
-  optimizeFields.hidden=mode!=="optimize";
-  scenarioFields.hidden=mode!=="scenario";
-}
-
 function scenarioRequest(){
   return {
-    mode:document.querySelector("#system-mode")?.value,
     displayed_season:document.querySelector("#displayed-season")?.value,
-    project_budget:scenarioValue("#project-budget"),
-    max_solar_panels:scenarioValue("#max-panels"),
-    max_bess_units:scenarioValue("#max-bess"),
     selected_panels:scenarioValue("#selected-panels"),
     selected_bess_units:scenarioValue("#selected-bess"),
     energy_conservation_percent:scenarioValue("#conservation"),
@@ -139,8 +126,29 @@ function showScenarioState(state,message=""){
   if(state==="scenario-error")document.querySelector("#scenario-error-message").textContent=message;
   if(state!=="scenario-results"){
     document.querySelector("#comparison-card")?.setAttribute("hidden","");
+    document.querySelector("#bess-card")?.setAttribute("hidden","");
     document.querySelector("#model-details")?.setAttribute("hidden","");
   }
+}
+
+function renderBessOperation(rows){
+  const chart=document.querySelector("#bess-operation-chart");
+  if(!chart||!Array.isArray(rows))return;
+  const maximumPower=Math.max(...rows.flatMap(row=>[Number(row.Solar_To_Battery_kW),Number(row.Battery_Discharge_kW)]),1);
+  const maximumSoc=Math.max(...rows.map(row=>Number(row.Battery_SOC_kWh)),1);
+  chart.innerHTML=rows.map(row=>{
+    const charge=Number(row.Solar_To_Battery_kW)||0;
+    const discharge=Number(row.Battery_Discharge_kW)||0;
+    const soc=Number(row.Battery_SOC_kWh)||0;
+    const hour=Number(row.Hour);
+    const label=String(hour).padStart(2,"0");
+    return '<div class="bess-hour">'+
+      '<span class="bess-soc-label">'+number(soc)+' kWh</span>'+
+      '<div class="bess-bar charge" title="'+label+':00 charge: '+number(charge)+' kW" style="height:'+Math.max(charge?2:0,charge/maximumPower*100)+'%"></div>'+
+      '<div class="bess-bar discharge" title="'+label+':00 discharge: '+number(discharge)+' kW" style="height:'+Math.max(discharge?2:0,discharge/maximumPower*100)+'%"></div>'+
+      '<div class="bess-bar soc" title="'+label+':00 state of charge: '+number(soc)+' kWh" style="height:'+Math.max(soc?2:0,soc/maximumSoc*100)+'%"></div>'+
+      '<span class="load-label">'+(hour%2===0?label:"")+'</span></div>';
+  }).join("");
 }
 
 function renderLoadComparison(rows,seasonRows){
@@ -169,22 +177,24 @@ function renderModelTable(targetId,rows){
   target.innerHTML='<table class="model-table"><thead><tr>'+columns.map(column=>'<th>'+column.replaceAll("_"," ")+'</th>').join("")+'</tr></thead><tbody>'+rows.map(row=>'<tr>'+columns.map(column=>'<td>'+formatted(row[column])+'</td>').join("")+'</tr>').join("")+'</tbody></table>';
 }
 
-function renderScenarioResults(data,mode){
+function renderScenarioResults(data){
   const whatIf=data.what_if_tab;
   const summary=whatIf.summary;
-  document.querySelector("#scenario-result-title").textContent=mode==="optimize"?"Recommended AVATAR system":"Selected-system result";
+  document.querySelector("#scenario-result-title").textContent="Your selected scenario";
   document.querySelector("#result-panels").textContent=integer(summary.panels_selected);
   document.querySelector("#result-bess").textContent=integer(summary.bess_units_selected);
   document.querySelector("#result-project-cost").textContent=currency(summary["project_cost_$"]);
   document.querySelector("#result-savings").textContent=currency(summary["annual_total_operating_savings_$"])+"/yr";
   document.querySelector("#result-grid-reduction").textContent=integer(summary.annual_grid_energy_reduction_kwh)+" kWh/yr";
   document.querySelector("#result-renewable-share").textContent=number(summary.renewable_share_of_load_percent)+"%";
-  document.querySelector("#scenario-summary").textContent="Adjusted daily demand is "+number(summary.adjusted_daily_energy_kwh)+" kWh with an estimated peak of "+number(summary.adjusted_peak_kw)+" kW. Remaining project budget: "+currency(summary["budget_remaining_$"])+".";
+  document.querySelector("#scenario-summary").textContent="Adjusted daily demand is "+number(summary.adjusted_daily_energy_kwh)+" kWh with an estimated peak of "+number(summary.adjusted_peak_kw)+" kW. The selected equipment has an estimated project cost of "+currency(summary["project_cost_$"])+".";
   renderLoadComparison(whatIf.load_comparison,whatIf.selected_season_hourly);
+  renderBessOperation(whatIf.selected_season_hourly);
   renderModelTable("commitment-table",whatIf.unit_commitment);
   renderModelTable("dispatch-table",whatIf.economic_dispatch);
   showScenarioState("scenario-results");
   document.querySelector("#comparison-card")?.removeAttribute("hidden");
+  document.querySelector("#bess-card")?.removeAttribute("hidden");
   document.querySelector("#model-details")?.removeAttribute("hidden");
 }
 
@@ -206,7 +216,7 @@ async function runScenario(event){
     });
     const data=await response.json().catch(()=>({}));
     if(!response.ok||data.status!=="optimal")throw new Error(data.message||"The optimization service returned an error.");
-    renderScenarioResults(data,payload.mode);
+    renderScenarioResults(data);
   }catch(error){
     const message=error instanceof TypeError
       ?"The webpage could not reach the optimization service. Confirm that the Python API is running and that its URL is correct."
@@ -217,9 +227,29 @@ async function runScenario(event){
   }
 }
 
-document.querySelector("#system-mode")?.addEventListener("change",toggleScenarioMode);
 document.querySelector("#scenario-form")?.addEventListener("submit",runScenario);
-toggleScenarioMode();
+
+function updateStudentActions(){
+  const population=8000;
+  const participation=Number(document.querySelector("#student-participation")?.value||0);
+  const participants=Math.round(population*participation/100);
+  let perStudentKwh=0;
+  document.querySelectorAll(".action-card").forEach(card=>{
+    if(card.querySelector("[data-action-toggle]")?.checked){
+      perStudentKwh+=Math.max(0,Number(card.querySelector("[data-action-kwh]")?.value)||0);
+    }
+  });
+  const dailyKwh=participants*perStudentKwh;
+  const set=(selector,value)=>{const target=document.querySelector(selector);if(target)target.textContent=value;};
+  set("#student-participation-label",participation+"%");
+  set("#action-participants",integer(participants));
+  set("#action-daily-mwh",number(dailyKwh/1000)+" MWh");
+  set("#action-baseline-percent",number(dailyKwh/104000*100)+"%");
+  set("#action-average-kw",number(dailyKwh/24)+" kW");
+}
+document.querySelector("#student-action-list")?.addEventListener("input",updateStudentActions);
+document.querySelector("#student-participation")?.addEventListener("input",updateStudentActions);
+updateStudentActions();
 renderForecast();
 
 // Shared static-site chatbot. The provider key remains server-side on Render.
