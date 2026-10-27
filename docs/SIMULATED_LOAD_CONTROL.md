@@ -46,7 +46,8 @@ for a working demonstration. Publishing these files does not host the Python pro
 | Reconnection | Remain in Manual; resuming automation requires an explicit action |
 
 250/230 kW and 60 seconds are editable demonstration settings, not approved campus
-operating limits. The proxy is approximately 199–270 kW from the assumed 5.5 MWh/day.
+operating limits. The proxy preserves the same hourly shape while scaling to the
+current assumed campus total of 104 MWh/day (approximately 3.76–5.11 MW).
 The 60 W virtual lamp is separate from those campus kW thresholds; no savings are
 subtracted from the campus forecast. Rules can be changed in Manual mode; ON must
 be lower than OFF and minimum time must be 1–3600 seconds. Settings reset at restart.
@@ -94,7 +95,7 @@ retaining its original generation timestamp for repeated requests. HTTP 500 is
 The calendar day has 24 intervals normally, 23 in spring and 25 in autumn. Absolute
 one-hour intervals and UTC offsets disambiguate the repeated autumn hour. This
 corrects the former fixed-24-hour proxy at DST transitions. Energy remains the
-assumed 5.5 MWh daily total after normalization.
+assumed 104 MWh daily total after normalization.
 
 Weather failures do not invalidate a load forecast. The existing weather service
 cache remains available; the new day-ahead payload captures context when generated.

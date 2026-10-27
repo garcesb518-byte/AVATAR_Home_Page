@@ -158,10 +158,6 @@ def _number(
 
 def inputs_from_request(payload: dict[str, Any]) -> AvatarInputs:
     """Convert the small public request schema into validated model inputs."""
-    mode = str(payload.get("mode", "optimize")).strip().lower()
-    if mode not in {"optimize", "scenario"}:
-        raise ValueError("mode must be optimize or scenario.")
-
     season = str(payload.get("displayed_season", "winter")).strip().lower()
     if season not in {"winter", "spring", "summer", "fall"}:
         raise ValueError("displayed_season must be winter, spring, summer, or fall.")
@@ -169,26 +165,16 @@ def inputs_from_request(payload: dict[str, Any]) -> AvatarInputs:
     max_panels = int(_number(payload, "max_solar_panels", 450, 0, 450, integer=True))
     max_bess = int(_number(payload, "max_bess_units", 30, 0, 30, integer=True))
 
-    if mode == "scenario":
-        selected_panels = int(
-            _number(payload, "selected_panels", 250, 0, max_panels, integer=True)
-        )
-        selected_bess = int(
-            _number(payload, "selected_bess_units", 5, 0, max_bess, integer=True)
-        )
-    else:
-        # These fields are ignored by optimize mode, but zeroing them also keeps
-        # the model-level selected-versus-maximum validation unambiguous.
-        selected_panels = 0
-        selected_bess = 0
+    selected_panels = int(
+        _number(payload, "selected_panels", 250, 0, max_panels, integer=True)
+    )
+    selected_bess = int(
+        _number(payload, "selected_bess_units", 5, 0, max_bess, integer=True)
+    )
 
     return AvatarInputs(
-        mode=mode,
         displayed_season=season,
-        daily_energy_kwh=5_500.0,
-        project_budget=float(
-            _number(payload, "project_budget", 2_500_000, 0, 2_500_000)
-        ),
+        daily_energy_kwh=104_000.0,
         selected_panels=selected_panels,
         selected_bess_units=selected_bess,
         max_solar_panels=max_panels,
@@ -229,7 +215,7 @@ def _tomorrows_proxy_and_weather() -> dict[str, Any]:
     forecast_date = local_now.date() + timedelta(days=1)
 
     proxy = create_proxy_forecast(
-        daily_energy_mwh=5.5,
+        daily_energy_mwh=104.0,
         forecast_date=forecast_date.isoformat(),
         timezone=weather_config.timezone_name,
     )
@@ -340,7 +326,7 @@ def forecast():
 
 
 @app.route("/api/optimize", methods=["POST", "OPTIONS"])
-def optimize():
+def calculate_scenario():
     if request.method == "OPTIONS":
         return ("", 204)
 

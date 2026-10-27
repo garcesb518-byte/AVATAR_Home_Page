@@ -1,10 +1,10 @@
 {
   "status": "temporary_proxy",
   "method": "scaled_bryn_mawr_reference_shape",
-  "daily_energy_mwh": 5.5,
-  "daily_energy_kwh": 5500.0,
-  "average_load_kw": 229.2,
-  "peak_load_kw": 270.0,
+  "daily_energy_mwh": 104,
+  "daily_energy_kwh": 104000,
+  "average_load_kw": 4333.3,
+  "peak_load_kw": 5105.05,
   "peak_hour": 14,
   "peak_label": "2 PM",
   "warning": "The magnitude is the user-supplied Villanova daily energy target. The shape is a temporary Bryn Mawr proxy, and hours 16-23 are inferred.",
@@ -12,122 +12,122 @@
     {
       "hour": 0,
       "label": "12 AM",
-      "forecast_kw": 203.38
+      "forecast_kw": 3845.8
     },
     {
       "hour": 1,
       "label": "1 AM",
-      "forecast_kw": 200.14
+      "forecast_kw": 3784.54
     },
     {
       "hour": 2,
       "label": "2 AM",
-      "forecast_kw": 199.06
+      "forecast_kw": 3764.12
     },
     {
       "hour": 3,
       "label": "3 AM",
-      "forecast_kw": 198.7
+      "forecast_kw": 3757.31
     },
     {
       "hour": 4,
       "label": "4 AM",
-      "forecast_kw": 199.42
+      "forecast_kw": 3770.93
     },
     {
       "hour": 5,
       "label": "5 AM",
-      "forecast_kw": 200.5
+      "forecast_kw": 3791.35
     },
     {
       "hour": 6,
       "label": "6 AM",
-      "forecast_kw": 203.02
+      "forecast_kw": 3838.99
     },
     {
       "hour": 7,
       "label": "7 AM",
-      "forecast_kw": 209.5
+      "forecast_kw": 3961.52
     },
     {
       "hour": 8,
       "label": "8 AM",
-      "forecast_kw": 218.86
+      "forecast_kw": 4138.49
     },
     {
       "hour": 9,
       "label": "9 AM",
-      "forecast_kw": 228.58
+      "forecast_kw": 4322.27
     },
     {
       "hour": 10,
       "label": "10 AM",
-      "forecast_kw": 238.3
+      "forecast_kw": 4506.05
     },
     {
       "hour": 11,
       "label": "11 AM",
-      "forecast_kw": 247.66
+      "forecast_kw": 4683.03
     },
     {
       "hour": 12,
       "label": "12 PM",
-      "forecast_kw": 255.58
+      "forecast_kw": 4832.78
     },
     {
       "hour": 13,
       "label": "1 PM",
-      "forecast_kw": 263.5
+      "forecast_kw": 4982.53
     },
     {
       "hour": 14,
       "label": "2 PM",
-      "forecast_kw": 269.98
+      "forecast_kw": 5105.05
     },
     {
       "hour": 15,
       "label": "3 PM",
-      "forecast_kw": 267.1
+      "forecast_kw": 5050.59
     },
     {
       "hour": 16,
       "label": "4 PM",
-      "forecast_kw": 262.06
+      "forecast_kw": 4955.3
     },
     {
       "hour": 17,
       "label": "5 PM",
-      "forecast_kw": 256.3
+      "forecast_kw": 4846.39
     },
     {
       "hour": 18,
       "label": "6 PM",
-      "forecast_kw": 250.18
+      "forecast_kw": 4730.68
     },
     {
       "hour": 19,
       "label": "7 PM",
-      "forecast_kw": 243.34
+      "forecast_kw": 4601.35
     },
     {
       "hour": 20,
       "label": "8 PM",
-      "forecast_kw": 234.7
+      "forecast_kw": 4437.99
     },
     {
       "hour": 21,
       "label": "9 PM",
-      "forecast_kw": 225.34
+      "forecast_kw": 4261.01
     },
     {
       "hour": 22,
       "label": "10 PM",
-      "forecast_kw": 215.98
+      "forecast_kw": 4084.04
     },
     {
       "hour": 23,
       "label": "11 PM",
-      "forecast_kw": 208.78
+      "forecast_kw": 3947.89
     }
   ]
 }
