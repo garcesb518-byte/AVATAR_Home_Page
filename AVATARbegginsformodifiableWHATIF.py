@@ -104,34 +104,65 @@ RAW_GENERATOR_FIXED_COST = [8, 7, 6, 4, 2, 0]
 RAW_GENERATOR_STARTUP_COST = [60, 50, 40, 30, 20, 10]
 RAW_GENERATOR_SHUTDOWN_COST = [20, 20, 15, 10, 8, 5]
 
-# Relative shape only. The Bryn Mawr town magnitude is never used. The visible
-# screenshot covers hours 00-15; hours 16-23 remain an explicit estimate.
-FALLBACK_PROXY_SHAPE = np.array(
+# Relative shapes only. These mirror the normalized Bartley Hall weekday and
+# weekend profiles in avatar_load_forecasting.py so the what-if calculator keeps
+# a consistent baseline if that module cannot be imported.
+FALLBACK_WEEKDAY_PROXY_SHAPE = np.array(
     [
-        5.65,
-        5.56,
-        5.53,
-        5.52,
-        5.54,
-        5.57,
-        5.64,
-        5.82,
-        6.08,
-        6.35,
-        6.62,
-        6.88,
-        7.10,
-        7.32,
-        7.50,
-        7.42,
-        7.28,
-        7.12,
-        6.95,
-        6.76,
-        6.52,
-        6.26,
-        6.00,
-        5.80,
+        0.03995482,
+        0.03940973,
+        0.03892719,
+        0.03892613,
+        0.03884826,
+        0.03870690,
+        0.03914490,
+        0.04023276,
+        0.04123195,
+        0.04252713,
+        0.04369739,
+        0.04417818,
+        0.04469163,
+        0.04489485,
+        0.04469916,
+        0.04389482,
+        0.04349820,
+        0.04305318,
+        0.04270927,
+        0.04212540,
+        0.04181299,
+        0.04146007,
+        0.04095752,
+        0.04041759,
+    ],
+    dtype=float,
+)
+
+FALLBACK_WEEKEND_PROXY_SHAPE = np.array(
+    [
+        0.04122622,
+        0.04065350,
+        0.04040942,
+        0.04012103,
+        0.03990527,
+        0.04003008,
+        0.04000657,
+        0.04032938,
+        0.04099047,
+        0.04115471,
+        0.04130738,
+        0.04169091,
+        0.04238428,
+        0.04293875,
+        0.04305206,
+        0.04303750,
+        0.04283575,
+        0.04316026,
+        0.04286989,
+        0.04291279,
+        0.04272435,
+        0.04255970,
+        0.04203243,
+        0.04166730,
     ],
     dtype=float,
 )
@@ -216,19 +247,35 @@ def grid_rate_multiplier(inputs: AvatarInputs, hour: int) -> float:
 
 
 def _fallback_forecast(inputs: AvatarInputs) -> tuple[list[float], dict[str, Any]]:
-    normalized = FALLBACK_PROXY_SHAPE / FALLBACK_PROXY_SHAPE.sum()
+    forecast_day = (
+        pd.Timestamp(inputs.forecast_date)
+        if inputs.forecast_date
+        else pd.Timestamp.now() + pd.Timedelta(days=1)
+    )
+    day_type = "weekend" if forecast_day.dayofweek >= 5 else "weekday"
+    shape = (
+        FALLBACK_WEEKEND_PROXY_SHAPE
+        if day_type == "weekend"
+        else FALLBACK_WEEKDAY_PROXY_SHAPE
+    )
+    normalized = shape / shape.sum()
     load_kw = (normalized * inputs.daily_energy_kwh).tolist()
     peak_hour = int(np.argmax(load_kw))
     return load_kw, {
-        "method": "scaled_bryn_mawr_reference_shape",
-        "forecast_status": "temporary_proxy_not_trained_model",
+        "method": f"scaled_bartley_hall_{day_type}_shape",
+        "forecast_status": "bartley_shape_proxy_not_campus_model",
+        "shape_source": "Bartley Hall SEL present-demand data",
+        "shape_data_start": "2025-12-25",
+        "shape_data_end": "2026-10-22",
+        "shape_day_type": day_type,
         "daily_energy_kwh": round(float(sum(load_kw)), 3),
         "average_load_kw": round(float(np.mean(load_kw)), 3),
         "peak_load_kw": round(float(max(load_kw)), 3),
         "peak_hour": peak_hour,
         "warning": (
-            "Bryn Mawr supplies only the normalized shape. Villanova magnitude is "
-            "104 MWh/day, and hours 16-23 are inferred."
+            "The Villanova daily-energy baseline sets the magnitude. The normalized "
+            f"Bartley Hall {day_type} profile supplies timing only and is not a "
+            "measured campuswide profile."
         ),
     }
 

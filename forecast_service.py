@@ -43,6 +43,10 @@ class ForecastService:
                 'valid_until': predictions[-1]['interval_end'], 'forecast_date': tomorrow.isoformat(),
                 'predictions': predictions, 'hourly': hourly, 'weather': weather,
                 'method': result.summary['method'], 'warning': result.summary['warning'],
+                'shape_source': result.summary['shape_source'],
+                'shape_data_start': result.summary['shape_data_start'],
+                'shape_data_end': result.summary['shape_data_end'],
+                'shape_day_type': result.summary['shape_day_type'],
                 'daily_energy_kwh': round(total, 2), 'daily_energy_mwh': round(total / 1000, 3),
                 'average_load_kw': total / len(hourly), 'peak_load_kw': peak['forecast_kw'],
                 'peak_hour': peak['hour'], 'peak_label': peak['label'],
@@ -63,5 +67,5 @@ def load_weather(forecast_date):
         'temperature_high_f': float(frame['temp_f'].max()),
         'average_humidity_pct': float(frame['humidity_pct'].mean()),
         'precipitation_total_in': float(frame['precipitation_in'].sum()),
-        'note': 'Weather is context only. The temporary proxy is not weather-adjusted.',
+        'note': 'Weather is context only. The Bartley timing proxy is not weather-adjusted.',
     }
