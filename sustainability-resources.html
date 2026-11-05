@@ -3,48 +3,111 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="AVATAR helps the Villanova community understand campus energy, forecasting, sustainability, and resiliency.">
+  <meta name="description" content="Explore Villanova sustainability programs, research, campus initiatives, and trusted energy-learning resources.">
   <title>Sustainability Resources | AVATAR</title>
   <link rel="stylesheet" href="static/styles.css?v=20261020-brand-1">
+  <style>
+    .resources-page{--resource-ink:#071f3b;--resource-green:#2d9368;--resource-mint:#64d7a2;--resource-blue:#67bde6;--resource-line:#d8e5e0;background:#fff;color:var(--resource-ink)}
+    .resources-hero{position:relative;min-height:500px;padding:68px 52px;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);align-items:center;gap:54px;overflow:hidden;background:radial-gradient(circle at 9% 10%,rgba(100,215,162,.17),transparent 28%),linear-gradient(135deg,#fbfdfc 0%,#f0f8f4 55%,#edf6fb 100%)}
+    .resources-hero::before{content:"";position:absolute;inset:0;opacity:.35;background-image:linear-gradient(rgba(7,31,59,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(7,31,59,.05) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(90deg,#000,transparent 72%)}
+    .resources-hero-copy,.resource-map{position:relative;z-index:1}.resources-hero .eyebrow{color:var(--resource-green)}
+    .resources-hero h1{max-width:730px;margin:0;color:var(--resource-ink);font-size:clamp(46px,6.2vw,76px);line-height:.97;letter-spacing:-.058em}.resources-hero h1 span{display:block;color:var(--resource-green)}
+    .resources-hero-copy>p:last-of-type{max-width:640px;margin:25px 0 0;color:#516777;font-size:17px;line-height:1.7}
+    .hero-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}.hero-links a{padding:11px 14px;border:1px solid #c9ddd4;border-radius:999px;color:var(--resource-ink);background:rgba(255,255,255,.78);font-size:11px;font-weight:800;text-decoration:none;box-shadow:0 7px 18px rgba(7,31,59,.05)}.hero-links a:hover{border-color:var(--resource-green);color:var(--resource-green)}
+    .resource-map{min-height:365px;padding:27px;border:1px solid #174767;border-radius:24px;background:radial-gradient(circle at 92% 7%,rgba(100,215,162,.2),transparent 31%),var(--resource-ink);box-shadow:0 27px 60px rgba(7,31,59,.22)}
+    .resource-map::before{content:"";position:absolute;inset:0;opacity:.12;background-image:linear-gradient(rgba(255,255,255,.25) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.2) 1px,transparent 1px);background-size:58px 58px;border-radius:inherit}
+    .map-heading,.map-grid,.map-footer{position:relative;z-index:1}.map-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:15px}.map-heading span{color:#91aabd;font-size:9px;font-weight:850;letter-spacing:.13em;text-transform:uppercase}.map-heading strong{display:block;margin-top:6px;color:#fff;font-size:20px}.map-badge{padding:7px 10px;border:1px solid rgba(100,215,162,.3);border-radius:999px;color:#9beac5!important;background:rgba(100,215,162,.08);white-space:nowrap}
+    .map-grid{margin-top:28px;display:grid;grid-template-columns:1fr 1fr;gap:12px}.map-node{min-height:103px;padding:18px;border:1px solid rgba(255,255,255,.11);border-radius:14px;background:rgba(255,255,255,.06)}.map-node:nth-child(1){grid-column:1/-1;background:linear-gradient(135deg,rgba(100,215,162,.17),rgba(255,255,255,.05))}.map-node small{display:block;color:#8fa8ba;font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.map-node strong{display:block;margin-top:9px;color:#fff;font-size:17px}.map-node p{margin:7px 0 0;color:#b7c8d4;font-size:10px;line-height:1.5}.map-footer{margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:#91aabd;font-size:10px}.map-footer b{color:var(--resource-mint)}
+    .resources-content{padding:68px 48px;background:linear-gradient(180deg,#f5f9f7 0,#fff 340px)}
+    .section-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:25px;margin-bottom:25px}.section-heading .eyebrow{color:var(--resource-green)}.section-heading h2{max-width:720px;margin:4px 0 0;color:var(--resource-ink);font-size:clamp(31px,4vw,45px);letter-spacing:-.045em;line-height:1.04}.section-heading>p{max-width:460px;margin:0;color:#607483;font-size:12px;line-height:1.65}
+    .path-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:17px;margin-bottom:66px}.path-card{position:relative;min-height:245px;padding:27px;overflow:hidden;border:1px solid #d2e0da;border-radius:18px;background:#fff;box-shadow:0 15px 38px rgba(7,31,59,.065)}.path-card::before{content:"";position:absolute;left:0;top:0;width:100%;height:4px;background:linear-gradient(90deg,var(--resource-mint),var(--resource-blue))}.path-number{position:absolute;right:20px;top:14px;color:#e8efec;font-size:53px;font-weight:900;line-height:1}.path-card span:not(.path-number){display:inline-block;color:var(--resource-green);font-size:9px;font-weight:850;letter-spacing:.1em;text-transform:uppercase}.path-card h3{position:relative;margin:22px 0 11px;color:var(--resource-ink);font-size:24px;letter-spacing:-.03em}.path-card p{position:relative;margin:0;color:#617382;font-size:12px;line-height:1.65}.path-card button{position:absolute;left:27px;bottom:25px;padding:0;border:0;color:var(--resource-green);background:none;font:inherit;font-size:11px;font-weight:850;cursor:pointer}.path-card button:hover{text-decoration:underline}
+    .library-shell{padding:31px;border:1px solid #d6e3dd;border-radius:21px;background:#fff;box-shadow:0 20px 48px rgba(7,31,59,.07)}
+    .library-toolbar{display:grid;grid-template-columns:minmax(240px,1fr) auto;gap:20px;align-items:end;margin:25px 0 28px}.resource-search label{display:block;margin-bottom:8px;color:#657987;font-size:9px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.resource-search input{width:100%;padding:13px 15px;border:1px solid #c8d7d1;border-radius:10px;color:var(--resource-ink);background:#fbfdfc;font:inherit;font-size:13px}.resource-search input:focus{outline:3px solid rgba(100,215,162,.2);border-color:var(--resource-green)}
+    .filter-buttons{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}.filter-button{padding:10px 12px;border:1px solid #cad9d3;border-radius:999px;color:#536b79;background:#fff;font:inherit;font-size:10px;font-weight:800;cursor:pointer}.filter-button:hover,.filter-button.active{border-color:var(--resource-green);color:#fff;background:var(--resource-green)}
+    .resource-count{margin:0 0 17px;color:#71828d;font-size:10px}.resource-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.resource-card{position:relative;min-height:267px;padding:21px;display:flex;flex-direction:column;border:1px solid #d9e4df;border-radius:15px;background:linear-gradient(180deg,#fff,#fbfdfc)}.resource-card[hidden]{display:none}.resource-card:hover{transform:translateY(-3px);border-color:#afd6c1;box-shadow:0 14px 30px rgba(7,31,59,.08)}
+    .resource-card-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.resource-icon{width:43px;height:43px;display:grid;place-items:center;border-radius:12px;color:#fff;background:linear-gradient(135deg,var(--resource-green),#1f6b67);font-size:12px;font-weight:900;letter-spacing:.03em}.resource-tag{padding:6px 8px;border-radius:999px;color:#577061;background:#edf6f0;font-size:8px;font-weight:850;letter-spacing:.06em;text-transform:uppercase}.resource-card h3{margin:18px 0 9px;color:var(--resource-ink);font-size:19px;letter-spacing:-.025em}.resource-card p{margin:0 0 20px;color:#607380;font-size:11px;line-height:1.65}.resource-card a{margin-top:auto;color:var(--resource-green);font-size:11px;font-weight:850;text-decoration:none}.resource-card a:hover{text-decoration:underline}.resource-card a span{margin-left:4px}.no-results{padding:35px;text-align:center;color:#627582;border:1px dashed #cbd9d3;border-radius:13px;background:#fafcfb}
+    .connection-panel{margin-top:62px;padding:37px;overflow:hidden;border-radius:21px;color:#fff;background:radial-gradient(circle at 92% 10%,rgba(100,215,162,.18),transparent 30%),var(--resource-ink);box-shadow:0 24px 55px rgba(7,31,59,.16)}.connection-panel .eyebrow{color:#8ee8bb}.connection-panel h2{max-width:700px;margin:4px 0 0;color:#fff;font-size:37px;letter-spacing:-.04em}.connection-panel>p{max-width:690px;color:#bed0db;font-size:12px;line-height:1.7}.connection-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:27px}.connection-card{padding:20px;border:1px solid rgba(255,255,255,.11);border-radius:13px;background:rgba(255,255,255,.055)}.connection-card span{display:block;color:#8fa9ba;font-size:8px;font-weight:850;letter-spacing:.09em;text-transform:uppercase}.connection-card strong{display:block;margin:9px 0 8px;font-size:17px}.connection-card p{min-height:51px;margin:0;color:#b9cad5;font-size:10px;line-height:1.6}.connection-card a{display:inline-block;margin-top:14px;color:var(--resource-mint);font-size:10px;font-weight:850;text-decoration:none}.connection-card a:hover{text-decoration:underline}
+    @media(max-width:940px){.resources-hero{grid-template-columns:1fr}.resource-map{max-width:680px;width:100%}.path-grid,.resource-grid,.connection-grid{grid-template-columns:1fr 1fr}.library-toolbar{grid-template-columns:1fr}.filter-buttons{justify-content:flex-start}}
+    @media(max-width:650px){.resources-hero{padding:48px 23px}.resources-hero h1{font-size:45px}.resources-content{padding:48px 22px}.section-heading{display:block}.section-heading>p{margin-top:13px}.path-grid,.resource-grid,.connection-grid{grid-template-columns:1fr}.path-card{min-height:245px}.library-shell{padding:21px}.resource-map{padding:21px}.map-grid{grid-template-columns:1fr}.map-node:nth-child(1){grid-column:auto}.connection-panel{padding:27px}}
+  </style>
 </head>
 <body>
 <div class="site-shell">
   <header class="site-header">
-    <a class="brand" href="index.html" aria-label="AVATAR homepage">
-      <span class="brand-mark" aria-hidden="true"></span>
-      <span><strong>AVATAR</strong><small>Advancing Villanova to Energy Autonomy and Resiliency</small></span>
-    </a>
+    <a class="brand" href="index.html" aria-label="AVATAR homepage"><span class="brand-mark" aria-hidden="true"></span><span><strong>AVATAR</strong><small>Advancing Villanova to Energy Autonomy and Resiliency</small></span></a>
     <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">Menu</button>
-    <nav id="main-navigation" class="main-nav" aria-label="Main navigation">
-      <a href="energy-usage.html">Energy Usage</a>
-      <a href="load-forecasting.html">Load Forecasting</a>
-      <a href="what-ifs.html">What-Ifs</a>
-      <a href="power-basics.html">Power Basics</a>
-      <a href="fun-facts.html">Fun Facts</a>
-      <a href="dorm-facts.html">Dorm Facts</a>
-    </nav>
+    <nav id="main-navigation" class="main-nav" aria-label="Main navigation"></nav>
   </header>
-
-  <main>
-<section class="page-hero">
-    <p class="eyebrow">AVATAR</p>
-    <h1>Sustainability Resources</h1>
-    <p>Use this section for approved Villanova sustainability resources, reports, campus initiatives, and external references.</p>
-</section>
+  <main class="resources-page">
+    <section class="resources-hero">
+      <div class="resources-hero-copy">
+        <p class="eyebrow">Sustainability Resources</p>
+        <h1>Find your place in a <span>more sustainable campus.</span></h1>
+        <p>Explore Villanova programs, campus initiatives, research opportunities, and trusted energy-learning resources—all organized to help you find what matters to you.</p>
+        <div class="hero-links" aria-label="Jump to page sections"><a href="#start">Choose a starting point</a><a href="#library">Browse the library</a><a href="#connect">Get involved</a></div>
+      </div>
+      <div class="resource-map" aria-label="Sustainability resource map">
+        <div class="map-heading"><div><span>Resource map</span><strong>One campus, many entry points</strong></div><span class="map-badge">Official links</span></div>
+        <div class="map-grid">
+          <div class="map-node"><small>Villanova</small><strong>Campus sustainability</strong><p>Plans, programs, energy initiatives, and progress across campus.</p></div>
+          <div class="map-node"><small>Community</small><strong>People and programs</strong><p>Student groups, faculty initiatives, and interdisciplinary connections.</p></div>
+          <div class="map-node"><small>Energy</small><strong>Grid learning</strong><p>Understand the regional systems and organizations behind campus electricity.</p></div>
+        </div>
+        <div class="map-footer"><b>Start anywhere.</b> Use the filters below to narrow the collection.</div>
+      </div>
+    </section>
+    <section class="resources-content">
+      <div id="start" class="section-heading"><div><p class="eyebrow">Choose your path</p><h2>Start with the part of sustainability that connects to you.</h2></div><p>Each path opens the same curated collection with a different filter, so you can explore without digging through an unorganized list of links.</p></div>
+      <div class="path-grid">
+        <article class="path-card"><span class="path-number" aria-hidden="true">01</span><span>Campus</span><h3>Explore Villanova's work</h3><p>See the University's sustainability plan, campus programs, energy initiatives, and long-term commitments.</p><button type="button" data-path-filter="villanova">View Villanova resources →</button></article>
+        <article class="path-card"><span class="path-number" aria-hidden="true">02</span><span>Community</span><h3>Find people and programs</h3><p>Connect with student organizations, interdisciplinary initiatives, campus research, and sustainability staff.</p><button type="button" data-path-filter="community">View community resources →</button></article>
+        <article class="path-card"><span class="path-number" aria-hidden="true">03</span><span>Energy</span><h3>Understand the larger grid</h3><p>Learn how electricity reaches campus and how PECO, PJM, renewables, and regional markets fit together.</p><button type="button" data-path-filter="energy">View energy resources →</button></article>
+      </div>
+      <div id="library" class="library-shell">
+        <div class="section-heading"><div><p class="eyebrow">Resource library</p><h2>Explore trusted places to learn and connect.</h2></div><p>Every card opens the original Villanova, PJM, PECO, or AVATAR resource in a new tab.</p></div>
+        <div class="library-toolbar">
+          <div class="resource-search"><label for="resource-search">Search resources</label><input id="resource-search" type="search" placeholder="Try energy, research, students…" autocomplete="off"></div>
+          <div class="filter-buttons" aria-label="Filter resources">
+            <button class="filter-button active" type="button" data-filter="all" aria-pressed="true">All</button><button class="filter-button" type="button" data-filter="villanova" aria-pressed="false">Villanova</button><button class="filter-button" type="button" data-filter="community" aria-pressed="false">Community</button><button class="filter-button" type="button" data-filter="research" aria-pressed="false">Research</button><button class="filter-button" type="button" data-filter="energy" aria-pressed="false">Energy &amp; Grid</button>
+          </div>
+        </div>
+        <p id="resource-count" class="resource-count" aria-live="polite">Showing 10 resources</p>
+        <div id="resource-grid" class="resource-grid">
+          <article class="resource-card" data-tags="villanova campus plan"><div class="resource-card-top"><span class="resource-icon">VU</span><span class="resource-tag">Villanova</span></div><h3>Villanova Sustainability</h3><p>The University's central hub for sustainability priorities, campus work, events, and community resources.</p><a href="https://www.villanova.edu/university/sustainability.html" target="_blank" rel="noopener noreferrer">Visit the sustainability hub <span aria-hidden="true">↗</span></a></article>
+          <article class="resource-card" data-tags="villanova campus plan climate"><div class="resource-card-top"><span class="resource-icon">30</span><span class="resource-tag">Campus plan</span></div><h3>Sustainability Plan 2020–2030</h3><p>Explore Villanova's ten-year framework for environmental stewardship, inclusion, education, and measurable campus progress.</p><a href="https://www.villanova.edu/university/president/sustainability-plan.html" target="_blank" rel="noopener noreferrer">Explore the plan <span aria-hidden="true">↗</span></a></article>
+          <article class="resource-card" data-tags="villanova campus energy renewables efficiency"><div class="resource-card-top"><span class="resource-icon">EN</span><span class="resource-tag">Campus energy</span></div><h3>Energy at Villanova</h3><p>Learn about the University's renewable-energy agreements, efficiency work, and campus energy project funding.</p><a href="https://www.villanova.edu/university/sustainability/around-campus/energy.html" target="_blank" rel="noopener noreferrer">Explore campus energy <span aria-hidden="true">↗</span></a></article>
+          <article class="resource-card" data-tags="villanova community students groups garden"><div class="resource-card-top"><span class="resource-icon">ST</span><span class="resource-tag">Students</span></div><h3>Sustainability for Students</h3><p>Find the Student Sustainability Committee, student groups, learning communities, and the research and education garden.</p><a href="https://www.villanova.edu/university/sustainability/resources/students.html" target="_blank" rel="noopener noreferrer">See student opportunities <span aria-hidden="true">↗</span></a></article>
+          <article class="resource-card" data-tags="villanova research climate justice sustainability interdisciplinary"><div class="resource-card-top"><span class="resource-icon">CJ</span><span class="resource-tag">Research</span></div><h3>Climate, Justice and Sustainability</h3><p>Discover Villanova's interdisciplinary initiative connecting climate research, education, environmental justice, and engagement.</p><a href="https://www.villanova.edu/university/institutes-centers/climate-justice-sustainability.html" target="_blank" rel="noopener noreferrer">Explore the initiative <span aria-hidden="true">↗</span></a></article>
+          <article class="resource-card" data-tags="villanova community students organizations clubs"><div class="resource-card-top"><span class="resource-icon">ORG</span><span class="resource-tag">Community</span></div><h3>Student Organization Directory</h3><p>Browse student-run organizations, including groups centered on environmental responsibility and sustainability.</p><a href="https://www.villanova.edu/university/student-life/student-involvement/organizations.html" target="_blank" rel="noopener noreferrer">Browse organizations <span aria-hidden="true">↗</span></a></article>
+          <article class="resource-card" data-tags="villanova campus buildings food water waste transportation"><div class="resource-card-top"><span class="resource-icon">VU</span><span class="resource-tag">Around campus</span></div><h3>Sustainability Around Campus</h3><p>Explore University initiatives involving buildings, recycling, water, transportation, dining, landscapes, and campus operations.</p><a href="https://www.villanova.edu/university/sustainability/around-campus.html" target="_blank" rel="noopener noreferrer">Explore campus initiatives <span aria-hidden="true">↗</span></a></article>
+          <article class="resource-card" data-tags="energy grid pjm markets reliability electricity learning"><div class="resource-card-top"><span class="resource-icon">PJM</span><span class="resource-tag">Regional grid</span></div><h3>PJM Learning Center</h3><p>Learn how the regional power grid, wholesale electricity markets, reliability, and long-term system planning work.</p><a href="https://learn.pjm.com/" target="_blank" rel="noopener noreferrer">Visit PJM Learning Center <span aria-hidden="true">↗</span></a></article>
+          <article class="resource-card" data-tags="energy grid peco utility electricity education safety"><div class="resource-card-top"><span class="resource-icon">PECO</span><span class="resource-tag">Local utility</span></div><h3>PECO Energy Education</h3><p>Explore electricity and natural-gas basics, energy management, safety information, and educational materials.</p><a href="https://www.peco.com/safety-community/education" target="_blank" rel="noopener noreferrer">Visit PECO education <span aria-hidden="true">↗</span></a></article>
+          <article class="resource-card" data-tags="energy grid avatar electricity basics economic dispatch unit commitment"><div class="resource-card-top"><span class="resource-icon">AV</span><span class="resource-tag">AVATAR learning</span></div><h3>Power Basics</h3><p>Use AVATAR's visual introduction to power flow, campus electricity, PECO, PJM, economic dispatch, and unit commitment.</p><a href="power-basics.html">Open Power Basics <span aria-hidden="true">→</span></a></article>
+        </div>
+        <div id="no-results" class="no-results" hidden>No resources match that search. Try a different keyword or choose “All.”</div>
+      </div>
+      <section id="connect" class="connection-panel">
+        <p class="eyebrow">Connect at Villanova</p><h2>Continue through the people already doing the work.</h2><p>Villanova's sustainability network spans student leadership, interdisciplinary research, campus operations, and the Office of Sustainability.</p>
+        <div class="connection-grid">
+          <article class="connection-card"><span>Student leadership</span><strong>Student Sustainability Committee</strong><p>Work with students, faculty, and staff on projects and initiatives with campus-wide reach.</p><a href="https://www.villanova.edu/university/sustainability/resources/students.html" target="_blank" rel="noopener noreferrer">Learn about student involvement ↗</a></article>
+          <article class="connection-card"><span>Research and education</span><strong>Climate, Justice and Sustainability</strong><p>Connect with interdisciplinary scholarship, events, faculty work, and environmental-justice initiatives.</p><a href="https://www.villanova.edu/university/institutes-centers/climate-justice-sustainability.html" target="_blank" rel="noopener noreferrer">Explore the initiative ↗</a></article>
+          <article class="connection-card"><span>University support</span><strong>Office of Sustainability</strong><p>Reach the team coordinating Villanova sustainability programs, planning, and campus partnerships.</p><a href="mailto:sustainability@villanova.edu">Email sustainability@villanova.edu →</a></article>
+        </div>
+      </section>
+    </section>
   </main>
-
-  <footer class="site-footer">
-    <strong>AVATAR</strong>
-    <div class="footer-links">
-      <a href="data.html">Data</a>
-      <a href="campus-map.html">Campus Map</a>
-      <a href="why-avatar.html">Why AVATAR?</a>
-      <a href="sustainability-resources.html">Sustainability Resources</a>
-      <a href="acknowledgements.html">Acknowledgements</a>
-      <a href="meet-the-team.html">Meet the Team</a>
-    </div>
-  </footer>
+  <footer class="site-footer"><strong>AVATAR</strong><div class="footer-links"><a href="data.html">Data</a><a href="campus-map.html">Campus Map</a><a href="why-avatar.html">Why AVATAR?</a><a href="sustainability-resources.html">Sustainability Resources</a><a href="acknowledgements.html">Acknowledgements</a><a href="meet-the-team.html">Meet the Team</a></div></footer>
 </div>
 <script src="static/script.js?v=20261020-brand-1"></script>
+<script>
+(() => {
+  const cards=[...document.querySelectorAll('.resource-card')],buttons=[...document.querySelectorAll('.filter-button')],search=document.querySelector('#resource-search'),count=document.querySelector('#resource-count'),empty=document.querySelector('#no-results');
+  let activeFilter='all';
+  function applyFilters(){const query=search.value.trim().toLowerCase();let visible=0;cards.forEach(card=>{const matchesFilter=activeFilter==='all'||card.dataset.tags.split(' ').includes(activeFilter);const matchesSearch=!query||(card.textContent+' '+card.dataset.tags).toLowerCase().includes(query);card.hidden=!(matchesFilter&&matchesSearch);if(!card.hidden)visible+=1;});count.textContent=`Showing ${visible} resource${visible===1?'':'s'}`;empty.hidden=visible!==0;}
+  function selectFilter(filter){activeFilter=filter;buttons.forEach(button=>{const selected=button.dataset.filter===filter;button.classList.toggle('active',selected);button.setAttribute('aria-pressed',String(selected));});applyFilters();}
+  buttons.forEach(button=>button.addEventListener('click',()=>selectFilter(button.dataset.filter)));search.addEventListener('input',applyFilters);
+  document.querySelectorAll('[data-path-filter]').forEach(button=>button.addEventListener('click',()=>{search.value='';selectFilter(button.dataset.pathFilter);document.querySelector('#library').scrollIntoView({behavior:'smooth',block:'start'});}));
+})();
+</script>
 </body>
 </html>
