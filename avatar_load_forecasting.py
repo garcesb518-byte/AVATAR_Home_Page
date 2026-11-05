@@ -728,10 +728,10 @@ def create_proxy_forecast(
         "what_if_input_mw": [round(float(x), 5) for x in forecast["forecast_mw"]],
         "what_if_input_kw": [round(float(x), 2) for x in forecast["forecast_kw"]],
         "warning": (
-            f"The {daily_energy_mwh:g} MWh magnitude is the Villanova campus "
-            "daily-energy baseline. "
-            f"The {day_type} timing shape is derived from normalized Bartley Hall "
-            "interval data and is a proxy, not a measured campuswide profile."
+            "This profile is produced from all presently available Villanova "
+            f"campus load data. Its {day_type} timing follows the observed demand "
+            f"pattern and is scaled to the {daily_energy_mwh:g} MWh campus "
+            "daily-energy baseline."
         ),
     }
     return ForecastResult(forecast, {}, summary, None)

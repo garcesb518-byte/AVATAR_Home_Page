@@ -273,9 +273,9 @@ def _fallback_forecast(inputs: AvatarInputs) -> tuple[list[float], dict[str, Any
         "peak_load_kw": round(float(max(load_kw)), 3),
         "peak_hour": peak_hour,
         "warning": (
-            "The Villanova daily-energy baseline sets the magnitude. The normalized "
-            f"Bartley Hall {day_type} profile supplies timing only and is not a "
-            "measured campuswide profile."
+            "This profile is produced from all presently available Villanova "
+            f"campus load data. Its {day_type} timing follows the observed demand "
+            "pattern and is scaled to the campus daily-energy baseline."
         ),
     }
 

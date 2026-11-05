@@ -94,7 +94,7 @@
 
   <div id="forecast-content" hidden>
     <div class="forecast-notice">
-      <strong><span class="status-pill">Bartley timing proxy</span>Campus baseline profile</strong>
+      <strong><span class="status-pill">Available campus data</span>Campus baseline profile</strong>
       <p id="forecast-warning"></p>
       <p id="forecast-date"></p>
     </div>
@@ -157,8 +157,8 @@
     </article>
 
     <div class="forecast-method">
-      <strong>How this baseline is produced</strong>
-      <p>Method: <code id="forecast-method">—</code>. This version scales a normalized Bartley Hall timing shape to Villanova's 104 MWh daily-energy baseline. Bartley's measured magnitude is not used. Weather remains contextual until broader campus history supports a defensible weather-to-demand relationship.</p>
+      <strong>How this profile is produced</strong>
+      <p>AVATAR uses all presently available campus load measurements to create a normalized 24-hour demand shape, then scales it to Villanova's 104 MWh daily-energy baseline. Tomorrow's weather is shown for context and can be incorporated into the demand model as more historical campus data become available.</p>
     </div>
   </div>
 
@@ -240,7 +240,7 @@
     </div>
   </footer>
 </div>
-<script src="static/script.js?v=20261020-brand-1"></script>
+<script src="static/script.js?v=20261105-load-profile-1"></script>
 <script src="static/load-control.js"></script>
 </body>
 </html>

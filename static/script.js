@@ -94,7 +94,8 @@ async function renderForecast(){
     document.querySelector("#forecast-peak-time").textContent="Expected near "+data.peak_label+".";
     document.querySelector("#forecast-warning").textContent=data.warning;
     document.querySelector("#forecast-date").textContent=data.forecast_date?"Profile date: "+displayDate(data.forecast_date):"Static representative profile";
-    document.querySelector("#forecast-method").textContent=data.method;
+    const method=document.querySelector("#forecast-method");
+    if(method)method.textContent=data.method;
     renderForecastWeather(data.weather);
     loading.hidden=true;
     content.hidden=false;
