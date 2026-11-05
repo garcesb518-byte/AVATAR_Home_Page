@@ -112,6 +112,23 @@ class ControllerTests(unittest.TestCase):
 
 
 class ForecastTests(unittest.TestCase):
+    def test_bartley_proxy_preserves_energy_and_selects_day_type(self):
+        from avatar_load_forecasting import create_proxy_forecast
+
+        weekday = create_proxy_forecast(104.0, "2026-10-05")
+        weekend = create_proxy_forecast(104.0, "2026-10-03")
+
+        self.assertAlmostEqual(weekday.forecast["forecast_kw"].sum(), 104000.0)
+        self.assertAlmostEqual(weekend.forecast["forecast_kw"].sum(), 104000.0)
+        self.assertEqual(weekday.summary["shape_day_type"], "weekday")
+        self.assertEqual(weekend.summary["shape_day_type"], "weekend")
+        self.assertEqual(weekday.forecast["forecast_kw"].idxmax().hour, 13)
+        self.assertEqual(weekday.forecast["forecast_kw"].idxmin().hour, 5)
+        self.assertEqual(weekend.forecast["forecast_kw"].idxmax().hour, 17)
+        self.assertEqual(weekend.forecast["forecast_kw"].idxmin().hour, 4)
+        self.assertIn("Bartley Hall", weekday.summary["warning"])
+        self.assertNotIn("Bryn Mawr", weekday.summary["warning"])
+
     def test_contract_calendar_days_energy_and_cache(self):
         for today, count in [('2026-10-01',24),('2026-03-07',23),('2026-10-31',25)]:
             now=datetime.fromisoformat(today+'T12:00:00+00:00'); service=ForecastService()

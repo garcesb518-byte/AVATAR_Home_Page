@@ -65,3 +65,18 @@ See [the setup, rules and forecast contract](docs/SIMULATED_LOAD_CONTROL.md).
 The public GitHub Pages site includes the demonstration interface and setup links.
 Run the Python server locally to use the controls; GitHub Pages does not execute Python.
 No physical relay is connected.
+
+## Bartley timing proxy
+
+The temporary campus load curve uses normalized weekday/weekend timing shapes
+derived from Bartley Hall's 15-minute SEL present-demand export. Bartley's raw
+kW readings are not committed to this public repository and do not set the
+campus magnitude. The forecast renormalizes the selected timing shape to the
+104 MWh/day campus baseline.
+
+To reproduce the dimensionless shapes from an approved local copy of the SEL
+export, run:
+
+```bash
+python tools/derive_bartley_proxy_shape.py "Bartley SEL Present Demand.csv"
+```

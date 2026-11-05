@@ -296,7 +296,9 @@ def _tomorrows_proxy_and_weather() -> dict[str, Any]:
             ],
             "note": (
                 "Weather is displayed for context but is not yet applied to demand. "
-                "Historical Villanova load data are required to learn that relationship."
+                "The available Bartley Hall history supports the timing proxy, but "
+                "additional campuswide history is needed to estimate a defensible "
+                "weather-to-demand relationship."
             ),
         }
     except (WeatherServiceError, ValueError) as exc:
@@ -314,8 +316,12 @@ def _tomorrows_proxy_and_weather() -> dict[str, Any]:
         }
 
     return {
-        "status": "temporary_proxy",
+        "status": "bartley_shape_proxy",
         "method": proxy.summary["method"],
+        "shape_source": proxy.summary["shape_source"],
+        "shape_data_start": proxy.summary["shape_data_start"],
+        "shape_data_end": proxy.summary["shape_data_end"],
+        "shape_day_type": proxy.summary["shape_day_type"],
         "forecast_date": forecast_date.isoformat(),
         "daily_energy_mwh": proxy.summary["forecast_energy_mwh"],
         "daily_energy_kwh": proxy.summary["forecast_energy_kwh"],

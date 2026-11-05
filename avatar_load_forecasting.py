@@ -46,36 +46,70 @@ BRYN_MAWR_REFERENCE = {
     },
 }
 
-# Approximate hourly MW shape inferred from the supplied Bryn Mawr screenshot.
-# Hours 00:00-15:00 follow the visible curve; 16:00-23:00 are explicitly
-# speculative because the screenshot ends at about 3 PM. Only the ratios matter:
-# create_proxy_forecast() normalizes these values to the campus daily-energy input.
-BRYN_MAWR_PROXY_SHAPE = np.array(
+# Dimensionless hourly shapes derived from Bartley Hall SEL present-demand data
+# from an export covering 2025-12-24 through 2026-10-23. The 278 usable complete
+# days span 2025-12-25 through 2026-10-22. Readings were cleaned to keep valid
+# positive values, normalized by each day's energy, and reduced to the median
+# hourly share. Only these ratios
+# are used here; Bartley's measured kW magnitude is not published or scaled.
+# create_proxy_forecast() renormalizes the selected shape so every forecast day
+# integrates to the caller's daily-energy input, including 23/25-hour DST days.
+BARTLEY_WEEKDAY_PROXY_SHAPE = np.array(
     [
-        5.65,
-        5.56,
-        5.53,
-        5.52,
-        5.54,
-        5.57,
-        5.64,
-        5.82,
-        6.08,
-        6.35,
-        6.62,
-        6.88,
-        7.10,
-        7.32,
-        7.50,
-        7.42,
-        7.28,
-        7.12,
-        6.95,
-        6.76,
-        6.52,
-        6.26,
-        6.00,
-        5.80,
+        0.03995482,
+        0.03940973,
+        0.03892719,
+        0.03892613,
+        0.03884826,
+        0.03870690,
+        0.03914490,
+        0.04023276,
+        0.04123195,
+        0.04252713,
+        0.04369739,
+        0.04417818,
+        0.04469163,
+        0.04489485,
+        0.04469916,
+        0.04389482,
+        0.04349820,
+        0.04305318,
+        0.04270927,
+        0.04212540,
+        0.04181299,
+        0.04146007,
+        0.04095752,
+        0.04041759,
+    ],
+    dtype=float,
+)
+
+BARTLEY_WEEKEND_PROXY_SHAPE = np.array(
+    [
+        0.04122622,
+        0.04065350,
+        0.04040942,
+        0.04012103,
+        0.03990527,
+        0.04003008,
+        0.04000657,
+        0.04032938,
+        0.04099047,
+        0.04115471,
+        0.04130738,
+        0.04169091,
+        0.04238428,
+        0.04293875,
+        0.04305206,
+        0.04303750,
+        0.04283575,
+        0.04316026,
+        0.04286989,
+        0.04291279,
+        0.04272435,
+        0.04255970,
+        0.04203243,
+        0.04166730,
     ],
     dtype=float,
 )
@@ -637,7 +671,7 @@ def create_proxy_forecast(
     forecast_date: str | None = None,
     timezone: str = DEFAULT_TIMEZONE,
 ) -> ForecastResult:
-    """Create a temporary campus forecast from a scaled town reference shape.
+    """Create a campus proxy from Bartley timing and a campus energy target.
 
     The hourly average-power values integrate to the requested daily MWh.
     Eastern calendar days contain 23 or 25 intervals at daylight-saving changes.
@@ -657,7 +691,13 @@ def create_proxy_forecast(
 
     end = pd.Timestamp(start.date() + timedelta(days=1)).tz_localize(timezone)
     index = pd.date_range(start=start, end=end, inclusive="left", freq="1h")
-    shape = BRYN_MAWR_PROXY_SHAPE[index.hour]
+    day_type = "weekend" if start.dayofweek >= 5 else "weekday"
+    source_shape = (
+        BARTLEY_WEEKEND_PROXY_SHAPE
+        if day_type == "weekend"
+        else BARTLEY_WEEKDAY_PROXY_SHAPE
+    )
+    shape = source_shape[index.hour]
     normalized_shape = shape / shape.sum()
     forecast_mw = daily_energy_mwh * normalized_shape
     forecast = pd.DataFrame(
@@ -670,8 +710,12 @@ def create_proxy_forecast(
     forecast.index.name = "timestamp"
     peak_time = forecast["forecast_mw"].idxmax()
     summary: dict[str, object] = {
-        "method": "scaled_bryn_mawr_reference_shape",
-        "forecast_status": "temporary_proxy_not_trained_model",
+        "method": f"scaled_bartley_hall_{day_type}_shape",
+        "forecast_status": "bartley_shape_proxy_not_campus_model",
+        "shape_source": "Bartley Hall SEL present-demand data",
+        "shape_data_start": "2025-12-25",
+        "shape_data_end": "2026-10-22",
+        "shape_day_type": day_type,
         "forecast_energy_mwh": round(float(forecast["forecast_mw"].sum()), 3),
         "forecast_energy_kwh": round(float(forecast["forecast_kw"].sum()), 1),
         "average_load_mw": round(float(forecast["forecast_mw"].mean()), 4),
@@ -684,8 +728,10 @@ def create_proxy_forecast(
         "what_if_input_mw": [round(float(x), 5) for x in forecast["forecast_mw"]],
         "what_if_input_kw": [round(float(x), 2) for x in forecast["forecast_kw"]],
         "warning": (
-            "The magnitude is the user-supplied Villanova daily energy target. "
-            "The shape is a temporary Bryn Mawr proxy, and hours 16-23 are inferred."
+            f"The {daily_energy_mwh:g} MWh magnitude is the Villanova campus "
+            "daily-energy baseline. "
+            f"The {day_type} timing shape is derived from normalized Bartley Hall "
+            "interval data and is a proxy, not a measured campuswide profile."
         ),
     }
     return ForecastResult(forecast, {}, summary, None)
