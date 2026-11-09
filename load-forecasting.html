@@ -34,7 +34,7 @@
 .weather-panel{position:relative;margin-top:24px;padding:28px;overflow:hidden;border:1px solid #c8dbe8;border-radius:17px;background:radial-gradient(circle at 93% 14%,rgba(114,200,255,.25),transparent 27%),linear-gradient(135deg,#f6fbff,#eef7f2);box-shadow:0 16px 38px rgba(11,45,80,.06)}
 .weather-panel::after{content:"";position:absolute;right:-28px;top:-38px;width:150px;height:150px;border:24px solid rgba(255,255,255,.42);border-radius:50%;pointer-events:none}.weather-heading,.weather-grid,.weather-note{position:relative;z-index:1}
 .weather-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:20px}.weather-heading h2{margin:0;color:var(--navy);font-size:27px;letter-spacing:-.03em}.weather-heading p{margin:6px 0 0;color:#627584;font-size:12px}.weather-date{padding:7px 11px;border:1px solid rgba(11,45,80,.07);border-radius:999px;background:#fff;color:var(--navy);font-size:10px;font-weight:750;white-space:nowrap;box-shadow:0 6px 16px rgba(11,45,80,.05)}
-.weather-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.weather-metric{padding:17px;border:1px solid rgba(11,45,80,.08);border-radius:11px;background:rgba(255,255,255,.86)}.weather-metric span{display:block;color:#677987;font-size:9px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.weather-metric strong{display:block;margin-top:8px;color:var(--navy);font-size:23px;letter-spacing:-.025em}.weather-note{margin:17px 0 0;color:#587063;font-size:11px;line-height:1.65}
+.weather-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.weather-metric{padding:17px;border:1px solid rgba(11,45,80,.08);border-radius:11px;background:rgba(255,255,255,.86)}.weather-metric span{display:block;color:#677987;font-size:9px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.weather-metric strong{display:block;margin-top:8px;color:var(--navy);font-size:23px;letter-spacing:-.025em}.weather-note{margin:17px 0 0;color:#587063;font-size:11px;line-height:1.65}
 .weather-unavailable{margin-top:24px;margin-bottom:0;background:#f5f7f8;border-color:#dce3e8}.weather-unavailable p{color:#677987}
 
 .forecast-chart-shell{margin-top:24px;padding:30px 28px 24px;overflow-x:auto;border:1px solid #173f60;border-radius:18px;background:radial-gradient(circle at 90% 0,rgba(88,214,160,.13),transparent 30%),var(--forecast-ink);box-shadow:0 22px 50px rgba(6,29,54,.14)}
@@ -44,7 +44,7 @@
 .forecast-method{margin-top:24px;padding:23px 24px;border:1px solid #e0e7e3;border-radius:15px;background:#f4f7f5}.forecast-method strong{color:var(--navy)}.forecast-method p{margin:8px 0 0;color:#607080;font-size:12px;line-height:1.7}.forecast-method code{color:var(--green);font-weight:800}
 .forecast-error{padding:18px;border:1px solid #e1bcbc;border-radius:12px;background:#fff2f2;color:#8b3b3b}.forecast-page+.page-return{background:#fff}
 
-@media(max-width:900px){.forecast-hero{grid-template-columns:1fr;min-height:auto}.forecast-visual{min-height:300px}.forecast-content-section{padding-left:28px;padding-right:28px}}
+@media(max-width:900px){.forecast-hero{grid-template-columns:1fr;min-height:auto}.forecast-visual{min-height:300px}.forecast-content-section{padding-left:28px;padding-right:28px}.weather-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:650px){.forecast-hero{padding:48px 23px}.forecast-hero h1{font-size:44px}.forecast-visual{min-height:280px}.forecast-horizon{padding-left:20px;padding-right:20px}.horizon-readouts{gap:5px}.forecast-content-section{padding:42px 22px 58px}.weather-heading{display:block}.weather-date{display:inline-block;margin-top:12px}.weather-grid{grid-template-columns:1fr}.forecast-chart-shell{padding-left:18px;padding-right:18px}.forecast-heading{display:block}.forecast-heading>span{display:block;margin-top:8px}}
 </style>
 </head>
@@ -94,7 +94,7 @@
 
   <div id="forecast-content" hidden>
     <div class="forecast-notice">
-      <strong><span class="status-pill">Available campus data</span>Campus baseline profile</strong>
+      <strong><span id="forecast-status-pill" class="status-pill">Weather-adjusted</span><span id="forecast-status-title">Day-ahead campus forecast</span></strong>
       <p id="forecast-warning"></p>
       <p id="forecast-date"></p>
     </div>
@@ -139,6 +139,10 @@
           <span>Expected precipitation</span>
           <strong id="weather-precipitation">—</strong>
         </div>
+        <div class="weather-metric">
+          <span>Impact versus 104 MWh average</span>
+          <strong id="weather-impact">—</strong>
+        </div>
       </div>
       <p id="weather-note" class="weather-note"></p>
     </article>
@@ -158,7 +162,7 @@
 
     <div class="forecast-method">
       <strong>How this profile is produced</strong>
-      <p>AVATAR uses all presently available campus load measurements to create a normalized 24-hour demand shape, then scales it to Villanova's 104 MWh daily-energy baseline. Tomorrow's weather is shown for context and can be incorporated into the demand model as more historical campus data become available.</p>
+      <p>AVATAR learns normalized daily-energy and hourly-timing relationships from all presently available campus load data and matching historical weather. Tomorrow's forecast weather adjusts both the total above or below Villanova's 104 MWh average day and the timing of demand. If weather or the trained model is unavailable, the page automatically returns to the static campus profile.</p>
     </div>
   </div>
 

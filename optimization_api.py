@@ -12,10 +12,8 @@ from __future__ import annotations
 
 import os
 import math
-from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
-from zoneinfo import ZoneInfo
 
 import requests
 from bs4 import BeautifulSoup
@@ -30,12 +28,7 @@ from AVATARbegginsformodifiableWHATIF import (
     run_avatar,
     website_payload,
 )
-from avatar_load_forecasting import create_proxy_forecast
-from weather_service import (
-    WeatherConfig,
-    WeatherServiceError,
-    fetch_forecast_weather,
-)
+from forecast_pipeline import build_day_ahead_forecast, hourly_for_what_if
 
 
 load_dotenv()
@@ -229,111 +222,8 @@ def health():
 
 
 def _tomorrows_proxy_and_weather() -> dict[str, Any]:
-    """Build the Load Forecasting tab payload without overstating accuracy."""
-    weather_config = WeatherConfig.from_environment()
-    local_now = datetime.now(ZoneInfo(weather_config.timezone_name))
-    forecast_date = local_now.date() + timedelta(days=1)
-
-    proxy = create_proxy_forecast(
-        daily_energy_mwh=104.0,
-        forecast_date=forecast_date.isoformat(),
-        timezone=weather_config.timezone_name,
-    )
-    hourly_load = [
-        {
-            "timestamp": timestamp.isoformat(),
-            "hour": int(timestamp.hour),
-            "label": timestamp.strftime("%I %p").lstrip("0"),
-            "forecast_kw": round(float(row["forecast_kw"]), 2),
-        }
-        for timestamp, row in proxy.forecast.iterrows()
-    ]
-    peak = max(hourly_load, key=lambda item: item["forecast_kw"])
-
-    weather_payload: dict[str, Any]
-    try:
-        weather_result = fetch_forecast_weather(
-            forecast_days=3, config=weather_config
-        )
-        weather_day = weather_result.hourly[
-            weather_result.hourly.index.date == forecast_date
-        ]
-        if weather_day.empty:
-            raise WeatherServiceError(
-                "Tomorrow's hourly weather was not present in the provider response."
-            )
-
-        weather_payload = {
-            "status": "available",
-            "provider": weather_result.provider,
-            "dataset": weather_result.dataset,
-            "forecast_date": forecast_date.isoformat(),
-            "retrieved_at_utc": weather_result.retrieved_at_utc,
-            "from_cache": weather_result.from_cache,
-            "applied_to_demand": False,
-            "temperature_low_f": round(float(weather_day["temp_f"].min()), 1),
-            "temperature_high_f": round(float(weather_day["temp_f"].max()), 1),
-            "average_humidity_pct": round(
-                float(weather_day["humidity_pct"].mean()), 1
-            ),
-            "precipitation_total_in": round(
-                float(weather_day["precipitation_in"].sum()), 3
-            ),
-            "hourly": [
-                {
-                    "timestamp": timestamp.isoformat(),
-                    "label": timestamp.strftime("%I %p").lstrip("0"),
-                    "temp_f": round(float(row["temp_f"]), 1),
-                    "humidity_pct": round(float(row["humidity_pct"]), 1),
-                    "apparent_temp_f": round(
-                        float(row["apparent_temp_f"]), 1
-                    ),
-                    "precipitation_in": round(
-                        float(row["precipitation_in"]), 3
-                    ),
-                }
-                for timestamp, row in weather_day.iterrows()
-            ],
-            "note": (
-                "Weather is displayed for context but is not yet applied to demand. "
-                "The available Bartley Hall history supports the timing proxy, but "
-                "additional campuswide history is needed to estimate a defensible "
-                "weather-to-demand relationship."
-            ),
-        }
-    except (WeatherServiceError, ValueError) as exc:
-        app.logger.warning("AVATAR weather request unavailable: %s", exc)
-        weather_payload = {
-            "status": "unavailable",
-            "provider": "Open-Meteo",
-            "forecast_date": forecast_date.isoformat(),
-            "applied_to_demand": False,
-            "hourly": [],
-            "message": (
-                "Tomorrow's weather is temporarily unavailable. The baseline proxy "
-                "load profile is still available."
-            ),
-        }
-
-    return {
-        "status": "bartley_shape_proxy",
-        "method": proxy.summary["method"],
-        "shape_source": proxy.summary["shape_source"],
-        "shape_data_start": proxy.summary["shape_data_start"],
-        "shape_data_end": proxy.summary["shape_data_end"],
-        "shape_day_type": proxy.summary["shape_day_type"],
-        "forecast_date": forecast_date.isoformat(),
-        "daily_energy_mwh": proxy.summary["forecast_energy_mwh"],
-        "daily_energy_kwh": proxy.summary["forecast_energy_kwh"],
-        "average_load_kw": proxy.summary["average_load_kw"],
-        "peak_load_kw": proxy.summary["peak_load_kw"],
-        "peak_hour": peak["hour"],
-        "peak_label": peak["label"],
-        "weather_applied_to_demand": False,
-        "warning": proxy.summary["warning"],
-        "hourly": hourly_load,
-        "weather": weather_payload,
-    }
+    """Build the shared weather-responsive Load Forecasting payload."""
+    return build_day_ahead_forecast()
 
 
 @app.get("/api/forecast")
@@ -362,11 +252,42 @@ def calculate_scenario():
 
     try:
         model_inputs = inputs_from_request(payload)
+        forecast_payload = _tomorrows_proxy_and_weather()
+        model_inputs.baseline_load_kw = hourly_for_what_if(forecast_payload)
+        model_inputs.daily_energy_kwh = float(sum(model_inputs.baseline_load_kw))
+        model_inputs.forecast_date = forecast_payload["forecast_date"]
+        model_inputs.baseline_forecast_summary = {
+            "method": forecast_payload["method"],
+            "forecast_date": forecast_payload["forecast_date"],
+            "weather_applied_to_demand": forecast_payload[
+                "weather_applied_to_demand"
+            ],
+            "weather_impact_pct": forecast_payload["weather_impact_pct"],
+            "baseline_daily_energy_mwh": forecast_payload[
+                "baseline_daily_energy_mwh"
+            ],
+            "forecast_daily_energy_mwh": forecast_payload["daily_energy_mwh"],
+            "fallback_used": forecast_payload["fallback_used"],
+            "warning": forecast_payload["warning"],
+        }
         result = run_avatar(model_inputs, DEFAULT_PVWATTS_PATH)
         if result.get("status") != "optimal":
             return jsonify(result), 422
 
         response_payload = website_payload(result)
+        response_payload["what_if_tab"]["forecast_context"] = {
+            "forecast_date": forecast_payload["forecast_date"],
+            "method": forecast_payload["method"],
+            "weather_applied_to_demand": forecast_payload[
+                "weather_applied_to_demand"
+            ],
+            "normal_day_baseline_mwh": forecast_payload[
+                "baseline_daily_energy_mwh"
+            ],
+            "forecast_daily_energy_mwh": forecast_payload["daily_energy_mwh"],
+            "weather_impact_pct": forecast_payload["weather_impact_pct"],
+            "fallback_used": forecast_payload["fallback_used"],
+        }
         response_payload["what_if_tab"]["load_comparison"] = [
             {
                 "hour": hour,

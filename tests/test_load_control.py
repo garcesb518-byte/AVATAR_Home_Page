@@ -126,7 +126,7 @@ class ForecastTests(unittest.TestCase):
         self.assertEqual(weekday.forecast["forecast_kw"].idxmin().hour, 5)
         self.assertEqual(weekend.forecast["forecast_kw"].idxmax().hour, 17)
         self.assertEqual(weekend.forecast["forecast_kw"].idxmin().hour, 4)
-        self.assertIn("Bartley Hall", weekday.summary["warning"])
+        self.assertIn("presently available Villanova campus load data", weekday.summary["warning"])
         self.assertNotIn("Bryn Mawr", weekday.summary["warning"])
 
     def test_contract_calendar_days_energy_and_cache(self):
