@@ -17,6 +17,23 @@ class ForecastService:
         with self._lock:
             if self._cache and self._cache['forecast_date'] == tomorrow.isoformat():
                 return deepcopy(self._cache)
+            loaded_weather = None
+            if self.weather_loader:
+                try:
+                    loaded_weather = self.weather_loader(tomorrow.isoformat())
+                    weather_result = loaded_weather.pop("_weather_result", None)
+                    if weather_result is not None:
+                        from forecast_pipeline import build_day_ahead_forecast
+
+                        data = build_day_ahead_forecast(
+                            now=now,
+                            forecast_date=tomorrow.isoformat(),
+                            weather_result=weather_result,
+                        )
+                        self._cache = data
+                        return deepcopy(data)
+                except Exception:
+                    loaded_weather = None
             # Existing forecasting code remains the single source of the proxy shape.
             from avatar_load_forecasting import create_proxy_forecast
             result = create_proxy_forecast(forecast_date=tomorrow.isoformat())
@@ -31,11 +48,8 @@ class ForecastService:
             peak = max(hourly, key=lambda x: x['forecast_kw'])
             total = sum(x['forecast_kw'] for x in hourly)
             weather = {'status': 'unavailable', 'note': 'Weather is optional context; it does not change this proxy.'}
-            if self.weather_loader:
-                try:
-                    weather = self.weather_loader(tomorrow.isoformat())
-                except Exception:
-                    pass  # A weather outage must not suppress the load forecast.
+            if loaded_weather is not None:
+                weather = loaded_weather
             data = {
                 'status': 'success', 'forecast_type': 'temporary_proxy',
                 'location_id': LOCATION, 'unit': 'kW', 'timezone': 'America/New_York',
@@ -58,14 +72,18 @@ class ForecastService:
 
 def load_weather(forecast_date):
     from weather_service import fetch_forecast_weather, WeatherConfig
-    result = fetch_forecast_weather(forecast_days=2, config=WeatherConfig.from_environment())
-    frame = result.hourly.loc[forecast_date]
+    result = fetch_forecast_weather(forecast_days=3, config=WeatherConfig.from_environment())
+    target = datetime.fromisoformat(forecast_date).date()
+    frame = result.hourly[result.hourly.index.date == target]
     return {
+        '_weather_result': result,
         'status': 'available', 'provider': result.provider, 'forecast_date': forecast_date,
         'retrieved_at_utc': result.retrieved_at_utc,
         'temperature_low_f': float(frame['temp_f'].min()),
         'temperature_high_f': float(frame['temp_f'].max()),
         'average_humidity_pct': float(frame['humidity_pct'].mean()),
         'precipitation_total_in': float(frame['precipitation_in'].sum()),
-        'note': 'Weather is context only. The Bartley timing proxy is not weather-adjusted.',
+        'snowfall_total_in': float(frame['snowfall_in'].sum()) if 'snowfall_in' in frame else 0.0,
+        'average_wind_speed_mph': float(frame['wind_speed_mph'].mean()) if 'wind_speed_mph' in frame else 0.0,
+        'note': 'Weather is applied to the day-ahead demand forecast.',
     }

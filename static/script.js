@@ -67,7 +67,7 @@ function renderForecastWeather(weather){
   document.querySelector("#weather-temperature").textContent=number(weather.temperature_low_f)+"–"+number(weather.temperature_high_f)+"°F";
   document.querySelector("#weather-humidity").textContent=number(weather.average_humidity_pct)+"%";
   document.querySelector("#weather-precipitation").textContent=number(weather.precipitation_total_in)+" in";
-  document.querySelector("#weather-note").textContent=weather.note||"Weather is displayed for context and is not yet applied to demand.";
+  document.querySelector("#weather-note").textContent=weather.note||"Weather is applied to tomorrow's campus demand forecast.";
   unavailable.hidden=true;
   panel.hidden=false;
 }
@@ -92,6 +92,13 @@ async function renderForecast(){
     document.querySelector("#forecast-average-load").textContent=number(data.average_load_kw)+" kW";
     document.querySelector("#forecast-peak-load").textContent=number(data.peak_load_kw)+" kW";
     document.querySelector("#forecast-peak-time").textContent="Expected near "+data.peak_label+".";
+    const impact=Number(data.weather_impact_pct)||0;
+    const impactElement=document.querySelector("#weather-impact");
+    if(impactElement)impactElement.textContent=(impact>0?"+":"")+number(impact)+"%";
+    const statusPill=document.querySelector("#forecast-status-pill");
+    const statusTitle=document.querySelector("#forecast-status-title");
+    if(statusPill)statusPill.textContent=data.weather_applied_to_demand?"Weather-adjusted":"Static fallback";
+    if(statusTitle)statusTitle.textContent=data.weather_applied_to_demand?"Day-ahead campus forecast":"Campus baseline profile";
     document.querySelector("#forecast-warning").textContent=data.warning;
     document.querySelector("#forecast-date").textContent=data.forecast_date?"Profile date: "+displayDate(data.forecast_date):"Static representative profile";
     const method=document.querySelector("#forecast-method");
@@ -201,6 +208,14 @@ function renderScenarioResults(data){
   document.querySelector("#result-grid-reduction").textContent=integer(summary.annual_grid_energy_reduction_kwh)+" kWh/yr";
   document.querySelector("#result-renewable-share").textContent=number(summary.renewable_share_of_load_percent)+"%";
   document.querySelector("#scenario-summary").textContent="Adjusted daily demand is "+number(summary.adjusted_daily_energy_kwh)+" kWh with an estimated peak of "+number(summary.adjusted_peak_kw)+" kW. The battery uses the editable "+energyRate(summary["off_peak_rate_$_per_kwh"])+"/kWh off-peak and "+energyRate(summary["peak_rate_$_per_kwh"])+"/kWh peak planning rates.";
+  const forecast=whatIf.forecast_context;
+  const forecastContext=document.querySelector("#scenario-forecast-context");
+  if(forecastContext&&forecast){
+    const impact=Number(forecast.weather_impact_pct)||0;
+    forecastContext.textContent=forecast.weather_applied_to_demand
+      ?"Baseline source: "+number(forecast.forecast_daily_energy_mwh)+" MWh weather-adjusted forecast ("+(impact>0?"+":"")+number(impact)+"% versus the 104 MWh average day)."
+      :"Baseline source: 104 MWh static fallback because live weather adjustment was unavailable.";
+  }
   renderLoadComparison(whatIf.load_comparison,whatIf.selected_season_hourly);
   renderBessOperation(whatIf.selected_season_hourly);
   renderModelTable("commitment-table",whatIf.unit_commitment);

@@ -41,6 +41,8 @@ class AvatarInputs:
     allow_grid_bess_charging: bool = True
     solver_output: bool = False
     forecast_date: str | None = None
+    baseline_load_kw: list[float] | None = None
+    baseline_forecast_summary: dict[str, Any] | None = None
 
 
 USER_INPUTS = AvatarInputs()
@@ -231,6 +233,11 @@ def validate_inputs(inputs: AvatarInputs) -> None:
     }.items():
         if not -100 <= value <= 100:
             raise ValueError(f"{name} must be between -100 and 100.")
+    if inputs.baseline_load_kw is not None:
+        if len(inputs.baseline_load_kw) != 24:
+            raise ValueError("The supplied forecast baseline must contain 24 civil hours.")
+        if not all(np.isfinite(value) and value >= 0 for value in inputs.baseline_load_kw):
+            raise ValueError("The supplied forecast baseline contains invalid demand values.")
 
 
 def grid_rate_for_hour(inputs: AvatarInputs, hour: int) -> float:
@@ -282,6 +289,13 @@ def _fallback_forecast(inputs: AvatarInputs) -> tuple[list[float], dict[str, Any
 
 def get_baseline_forecast(inputs: AvatarInputs) -> tuple[list[float], dict[str, Any]]:
     """Load the standalone forecast module while preserving a local fallback."""
+    if inputs.baseline_load_kw is not None:
+        summary = dict(inputs.baseline_forecast_summary or {})
+        summary.setdefault("method", "supplied_day_ahead_forecast")
+        summary.setdefault("source_module", "forecast_pipeline.py")
+        summary.setdefault("daily_energy_kwh", float(sum(inputs.baseline_load_kw)))
+        summary.setdefault("peak_load_kw", float(max(inputs.baseline_load_kw)))
+        return [float(value) for value in inputs.baseline_load_kw], summary
     try:
         from avatar_load_forecasting import create_proxy_forecast
     except ImportError:

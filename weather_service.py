@@ -39,6 +39,8 @@ HOURLY_VARIABLES = (
     "relative_humidity_2m",
     "apparent_temperature",
     "precipitation",
+    "snowfall",
+    "wind_speed_10m",
 )
 
 
@@ -187,6 +189,8 @@ def _parse_hourly_payload(
         "relative_humidity_2m": "humidity_pct",
         "apparent_temperature": "apparent_temp_f",
         "precipitation": "precipitation_in",
+        "snowfall": "snowfall_in",
+        "wind_speed_10m": "wind_speed_mph",
     }
     frame = pd.DataFrame(index=timestamps)
     for source_name, output_name in source_columns.items():
@@ -219,6 +223,7 @@ def _base_parameters(config: WeatherConfig) -> dict[str, object]:
         "hourly": ",".join(HOURLY_VARIABLES),
         "temperature_unit": "fahrenheit",
         "precipitation_unit": "inch",
+        "wind_speed_unit": "mph",
         "timezone": config.timezone_name,
     }
 

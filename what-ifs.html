@@ -71,7 +71,7 @@
       <div class="scenario-layout">
         <form id="scenario-form" class="tool-card scenario-form">
           <h2>Scenario controls</h2>
-          <p class="form-note">The campus baseline is currently scaled to 104 MWh/day while preserving the existing proxy shape. PECO energy is valued at $0.10236/kWh.</p>
+          <p class="form-note">The calculator uses tomorrow's weather-adjusted campus forecast as its baseline. The 104 MWh average day remains the automatic fallback. PECO energy is valued at $0.10236/kWh.</p>
 
           <div class="form-grid">
             <label for="displayed-season">Displayed season
@@ -169,6 +169,7 @@
                 <div class="scenario-metric"><span>Renewable share</span><strong id="result-renewable-share">—</strong></div>
               </div>
               <p id="scenario-summary" class="scenario-summary"></p>
+              <p id="scenario-forecast-context" class="scenario-summary"></p>
             </div>
           </section>
 
@@ -200,7 +201,7 @@
           </section>
         </div>
       </div>
-      <p class="proxy-note"><strong>Current data status:</strong> This planning demonstration scales the existing proxy shape to 104 MWh/day. Replace the proxy shape when approved campus interval data becomes available.</p>
+      <p class="proxy-note"><strong>Current data status:</strong> The Load Forecaster and What-If calculator share one weather-responsive profile produced from all presently available campus load data. The relationship is transferred to Villanova's 104 MWh average day until broader campus interval history is available.</p>
     </section>
 
     <section class="content-section student-actions" aria-labelledby="student-actions-title">
