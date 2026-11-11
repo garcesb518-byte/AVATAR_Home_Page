@@ -346,7 +346,7 @@
     <div class="sidebar">
       <div class="sidebar-header">
         <p class="sidebar-title">Campus Energy Map</p>
-        <p class="sidebar-sub">Click a building to see its energy profile. Figures are illustrative estimates.</p>
+        <p class="sidebar-sub">Click a building to see its energy profile. Figures are illustrative estimates, except Bartley Hall, which uses measured meter data (Dec 2025 &ndash; Oct 2026). Bartley Hall averages about 12,155 kWh per day, with a peak of 884 kW.</p>
       </div>
       <form class="map-search" id="building-search-form" role="search">
         <label for="building-search">Find a building</label>
@@ -450,9 +450,9 @@
     { id:11, name:"Falvey Library",      type:"Academic",  lat:40.037373, lng:-75.342128, kwhDay:1840,
       breakdown:{HVAC:42,Lighting:30,Appliances:16,"Hot water":5,Other:7},
       tip:"Extended operating hours mean lighting and HVAC run longer than any classroom building. LED retrofits would have a large payoff here." },
-    { id:12, name:"Bartley Hall",        type:"Academic",  lat:40.034726, lng:-75.338191, kwhDay:2100,
+    { id:12, name:"Bartley Hall",        type:"Academic",  lat:40.034726, lng:-75.338191, kwhDay:12155, measured:true, peakKw:884,
       breakdown:{HVAC:38,Lighting:28,Appliances:22,"Hot water":4,Other:8},
-      tip:"Business school computing labs and lecture halls drive appliance load. Enabling power management on all computers cuts idle draw significantly." },
+      tip:"Measured data shows Bartley's load at 1\u20134 AM is about 87% of its weekday daytime load, so it barely powers down overnight. Setting back HVAC and switching off idle equipment overnight is the biggest opportunity." },
     { id:13, name:"Tolentine Hall",      type:"Academic",  lat:40.036810, lng:-75.344836, kwhDay:1560,
       breakdown:{HVAC:40,Lighting:27,Appliances:18,"Hot water":7,Other:8},
       tip:"One of the highest HVAC loads among academic buildings. Its age makes it a strong candidate for insulation upgrades." },
@@ -671,16 +671,16 @@
       return '<div class="pb-row"><span class="pb-label">'+e[0]+'</span><div class="pb-track"><div class="pb-fill" style="width:'+e[1]+'%;background:'+(BC[e[0]]||"#888")+'"></div></div><span class="pb-pct">'+e[1]+'%</span></div>';
     }).join("");
     var resRow = b.residents ? '<div class="ps"><span class="ps-val">'+b.residents+'</span><span class="ps-label">Residents</span></div>' : '<div class="ps"><span class="ps-val">—</span><span class="ps-label">N/A</span></div>';
-    return '<div class="popup-head"><span class="popup-type-badge">'+typeLabel(b)+'</span><p class="popup-name">'+b.name+'</p></div>'
+    return '<div class="popup-head"><span class="popup-type-badge">'+typeLabel(b)+'</span>'+(b.measured ? ' <span class="popup-type-badge" style="background:#91e9bc;color:#0b2d50">Measured</span>' : '')+'<p class="popup-name">'+b.name+'</p></div>'
       + '<div class="popup-body">'
       + '<div class="popup-stats">'
       + '<div class="ps"><span class="ps-val">'+b.kwhDay.toLocaleString()+'</span><span class="ps-label">kWh / day</span></div>'
       + '<div class="ps"><span class="ps-val">'+kwhHour(b.kwhDay)+'</span><span class="ps-label">kWh / hour</span></div>'
-      + resRow
+      + (b.measured ? '<div class="ps"><span class="ps-val">'+b.peakKw+'</span><span class="ps-label">Peak kW</span></div>' : resRow)
       + '</div>'
-      + '<div class="popup-breakdown"><p class="pb-title">Energy breakdown</p>'+brows+'</div>'
+      + '<div class="popup-breakdown"><p class="pb-title">Energy breakdown'+(b.measured ? ' (estimated)' : '')+'</p>'+brows+'</div>'
       + '<div class="popup-tip">💡 <strong>Tip:</strong> '+b.tip+'</div>'
-      + '<p class="popup-data-note">* Estimated figures for academic purposes. Replace with actual campus metering data.</p>'
+      + '<p class="popup-data-note">'+(b.measured ? '* Total load is measured by the building meter (Dec 2025 &ndash; Oct 2026). The breakdown by use is an estimate.' : '* Estimated figures for academic purposes. Replace with actual campus metering data.')+'</p>'
       + '</div>';
   }
 
@@ -735,7 +735,7 @@
     list.innerHTML = filtered.map(function(b) {
       return '<div class="bldg-item'+(activeId === b.id ? ' active' : '')+'" role="button" tabindex="0" data-id="'+b.id+'" onclick="selectBuilding('+b.id+');" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();selectBuilding('+b.id+');}">'
         + typeIcon(iconType(b))
-        + '<div class="bldg-item-info"><p class="bldg-item-name">'+b.name+'</p><p class="bldg-item-type">'+typeLabel(b)+'</p></div>'
+        + '<div class="bldg-item-info"><p class="bldg-item-name">'+b.name+'</p><p class="bldg-item-type">'+typeLabel(b)+(b.measured ? ' &middot; <strong style="color:#1b7a4a">Measured</strong>' : '')+'</p></div>'
         + '<div class="bldg-item-kwh">'+b.kwhDay.toLocaleString()+'<span>kWh/day</span></div></div>';
     }).join("");
   }

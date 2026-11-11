@@ -36,7 +36,13 @@
     <article class="feature-card static-card"><span class="feature-icon">02</span><div><h2>Analyze</h2><p>Identify patterns, compare periods, and create forecasts and scenarios.</p></div></article>
     <article class="feature-card static-card"><span class="feature-icon">03</span><div><h2>Communicate</h2><p>Present results clearly for the Villanova community and campus decision-makers.</p></div></article>
   </div>
-  <div class="info-panel"><strong>Current data status</strong><p>The public prototype uses demo values. Approved campus datasets can be connected as the project develops without presenting placeholder values as official Villanova information.</p></div>
+  <div class="info-panel"><strong>Current data status</strong><p>Bartley Hall is the first building with real meter data. Everything else on the public prototype, including the other buildings on the campus map, still uses clearly labeled demo or estimated values. Approved campus datasets can be connected as the project develops without presenting placeholder values as official Villanova information.</p></div>
+  <div class="info-panel"><strong>About the Bartley Hall data</strong>
+    <p>Source: 15-minute electric demand readings (in kW) from Villanova Facilities' meter for Bartley Hall, covering December 24, 2025 to October 23, 2026. Energy is calculated as demand multiplied by 0.25 hours for each reading, then summed into daily, monthly, and hourly averages. The meter's own energy counter was not used because it was mis-scaled before March 4, 2026.</p>
+    <p>Cleaning: readings flagged as meter down or restarting, and a few implausibly low readings, were removed. Days with fewer than 90 of 96 readings were left out, and about 93% of all intervals were valid. There was one meter outage from March 26 to April 17, 2026.</p>
+    <p>Limits: the meter measures total building electricity only, so it cannot show how much goes to HVAC, lighting, or plug loads. No data was supplied after October 23, 2026, so the yearly total of about 4.4 million kWh is an estimate. Weekday averages include holidays and breaks.</p>
+    <div class="button-row" style="margin-top:20px"><a class="button button-secondary" href="energy-usage.html">See the Bartley charts and savings scenario</a></div>
+  </div>
 </section>  <section class="content-section page-return">
     <div class="button-row">
       <a class="button button-primary" href="index.html">Return to homepage</a>

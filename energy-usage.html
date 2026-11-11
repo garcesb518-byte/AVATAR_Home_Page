@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Explore how AVATAR will make Villanova campus energy demand easier to understand.">
   <title>Energy Usage | AVATAR</title>
-  <link rel="stylesheet" href="static/styles.css?v=20261020-brand-1">
+  <link rel="stylesheet" href="static/styles.css?v=20261111-bartley-1">
   
 </head>
 <body>
@@ -21,16 +21,38 @@
   <main><section class="page-hero">
   <p class="eyebrow">Energy Usage</p>
   <h1>A clear view of campus demand</h1>
-  <p>Explore how Villanova uses energy and how demand changes over time. The cards below are prepared for approved campus meter data.</p>
+  <p>Explore how Villanova uses energy and how demand changes over time. Bartley Hall's real meter data is shown below; campus-wide data will follow once approved.</p>
 </section>
 <section class="content-section">
-  <div class="section-heading"><p class="eyebrow">Campus overview</p><h2>Energy information at a glance</h2></div>
+  <div class="section-heading"><p class="eyebrow">Measured data</p><h2>Bartley Hall at a glance</h2></div>
+  <p class="bartley-summary">Bartley Hall's meter recorded an average load of about 507 kW, or roughly 12,155 kWh per day, from December 2025 to October 2026. Its peak demand was 884 kW on September 1, 2026 at 4:30 PM. Between 1 and 4 AM the building still draws about 477 kW, which is 87% of its weekday daytime load (549 kW between 10 AM and 4 PM), so it barely powers down overnight. Monthly use ranged from about 10,600 kWh per day in March to about 14,100 kWh per day in August. At this rate Bartley uses an estimated 4.4 million kWh per year. Figures come from 15-minute readings from Villanova Facilities' meter for the building.</p>
   <div class="metric-grid">
-    <article class="metric-card"><span>Current campus load</span><strong>Demo data</strong><p>Ready to connect to the approved campus meter feed.</p></article>
-    <article class="metric-card"><span>Peak demand</span><strong>Demo data</strong><p>Compare hourly, daily, and seasonal demand peaks.</p></article>
-    <article class="metric-card"><span>Energy trend</span><strong>Demo data</strong><p>Reveal patterns that can guide campus energy decisions.</p></article>
+    <article class="metric-card"><span>Average load</span><strong>507 kW</strong><p>About 12,155 kWh per day, measured Dec 2025 &ndash; Oct 2026.</p></article>
+    <article class="metric-card"><span>Peak demand</span><strong>884 kW</strong><p>Reached on Sep 1, 2026 at 4:30 PM.</p></article>
+    <article class="metric-card"><span>Overnight vs. daytime</span><strong>87%</strong><p>Load at 1&ndash;4 AM compared with weekday 10 AM &ndash; 4 PM.</p></article>
   </div>
-  <div class="info-panel"><strong>Designed for real Villanova data</strong><p>This prototype uses clearly labeled placeholders until approved facilities data is connected. Future versions can include historical usage, live demand, building comparisons, and emissions information.</p></div>
+  <div class="chart-grid">
+    <article class="chart-card"><h3>A typical day</h3><p>Average load by hour of the day. Weekdays peak mid-afternoon; weekends stay flatter.</p><div id="chart-profile"><div class="chart-error">Loading chart&hellip;</div></div><div class="chart-legend"><span><i style="background:#0b2d50"></i>Weekday</span><span><i style="background:#2e8b57"></i>Weekend</span></div></article>
+    <article class="chart-card"><h3>Month by month</h3><p>Average kWh per day. Months marked * have fewer days of data.</p><div id="chart-monthly"><div class="chart-error">Loading chart&hellip;</div></div></article>
+  </div>
+  <div class="two-column" style="margin-top:20px">
+    <div class="tool-card energy-input">
+      <h2>Overnight savings scenario</h2>
+      <label for="overnight-cut">Cut overnight use (10 PM &ndash; 6 AM) by <strong id="cut-label">10%</strong></label>
+      <div class="range-wrap" id="cut-wrap"><input type="range" id="overnight-cut" min="0" max="30" step="1" value="10"></div>
+      <p class="demo-note">Bartley uses about 483 kW on average overnight, roughly 1.41 million kWh per year. Savings use $0.10236 per kWh.</p>
+    </div>
+    <div class="tool-card">
+      <h2>Estimated savings</h2>
+      <div class="scenario-result">
+        <div><span>Energy saved per year</span><strong id="save-kwh">141,129 kWh</strong></div>
+        <div><span>Cost saved per year</span><strong id="save-usd">$14,446</strong></div>
+      </div>
+      <p class="demo-note" id="save-text">A 10% cut in overnight use would save about 141,129 kWh and about $14,446 per year.</p>
+    </div>
+  </div>
+  <div class="button-row" style="margin-top:16px"><a class="button button-secondary" href="data.html">How this data was prepared</a></div>
+  <div class="info-panel"><strong>Campus-wide data is still to come</strong><p>Bartley Hall is the first building with real meter data. Other buildings and campus-wide totals will be added once approved facilities data is connected.</p></div>
 </section>  <section class="content-section page-return">
     <div class="button-row">
       <a class="button button-primary" href="index.html">Return to homepage</a>
@@ -49,6 +71,69 @@
     </div>
   </footer>
 </div>
+<script>
+(function () {
+  var NS = "http://www.w3.org/2000/svg";
+  function svg(w, h, label) { return '<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="' + label + '">'; }
+  function lineChart(data) {
+    var W = 520, H = 250, L = 44, R = 22, T = 24, B = 30, lo = 400, hi = 600;
+    function x(i) { return L + i * (W - L - R) / 23; }
+    function y(v) { return T + (hi - v) * (H - T - B) / (hi - lo); }
+    var out = svg(W, H, "Line chart of average Bartley Hall load by hour, weekday and weekend");
+    [400, 450, 500, 550, 600].forEach(function (v) {
+      out += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="#e3e9ee"/><text x="' + (L - 6) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + v + '</text>';
+    });
+    [0, 6, 12, 18, 23].forEach(function (i) {
+      out += '<text x="' + x(i) + '" y="' + (H - 10) + '" text-anchor="middle">' + (i === 0 ? "12 AM" : i === 12 ? "12 PM" : i === 6 ? "6 AM" : i === 18 ? "6 PM" : "11 PM") + '</text>';
+    });
+    out += '<text x="4" y="12">kW</text>';
+    [[data.weekend, "#2e8b57"], [data.weekday, "#0b2d50"]].forEach(function (s) {
+      out += '<polyline fill="none" stroke="' + s[1] + '" stroke-width="2.5" stroke-linejoin="round" points="' + s[0].map(function (v, i) { return x(i).toFixed(1) + "," + y(v).toFixed(1); }).join(" ") + '"/>';
+    });
+    return out + "</svg>";
+  }
+  function barChart(months) {
+    var W = 520, H = 250, L = 44, R = 8, T = 12, B = 34, hi = 16000;
+    var n = months.length, slot = (W - L - R) / n, bw = slot * 0.62;
+    function y(v) { return T + (hi - v) * (H - T - B) / hi; }
+    var out = svg(W, H, "Bar chart of Bartley Hall average kWh per day by month");
+    [0, 4000, 8000, 12000, 16000].forEach(function (v) {
+      out += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="#e3e9ee"/><text x="' + (L - 6) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + (v / 1000) + 'k</text>';
+    });
+    months.forEach(function (m, i) {
+      var cx = L + slot * i + slot / 2, partial = m.days < 25;
+      out += '<rect x="' + (cx - bw / 2).toFixed(1) + '" y="' + y(m.kwh_per_day).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + (y(0) - y(m.kwh_per_day)).toFixed(1) + '" rx="2" fill="#0b2d50" opacity="' + (partial ? 0.55 : 1) + '"><title>' + m.label + ": " + m.kwh_per_day.toLocaleString() + " kWh/day (" + m.days + " days of data)</title></rect>";
+      out += '<text x="' + cx.toFixed(1) + '" y="' + (H - 16) + '" text-anchor="middle">' + m.label.slice(0, 3) + (partial ? "*" : "") + "</text>";
+    });
+    return out + "</svg>";
+  }
+  fetch("static/data/bartley_profile.json")
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (d) {
+      document.getElementById("chart-profile").innerHTML = lineChart(d.profile.all);
+      document.getElementById("chart-monthly").innerHTML = barChart(d.monthly);
+    })
+    .catch(function () {
+      ["chart-profile", "chart-monthly"].forEach(function (id) {
+        document.getElementById(id).innerHTML = '<div class="chart-error">The chart could not be loaded. The numbers above come from the same data.</div>';
+      });
+    });
+
+  var KWH = 1411286, RATE = 0.10236;
+  var input = document.getElementById("overnight-cut"), wrap = document.getElementById("cut-wrap");
+  function update() {
+    var p = Number(input.value), kwh = Math.round(KWH * p / 100), usd = Math.round(kwh * RATE);
+    wrap.style.setProperty("--range-percent", (p / 30 * 100) + "%");
+    document.getElementById("cut-label").textContent = p + "%";
+    document.getElementById("save-kwh").textContent = kwh.toLocaleString() + " kWh";
+    document.getElementById("save-usd").textContent = "$" + usd.toLocaleString();
+    document.getElementById("save-text").textContent = p === 0 ? "Move the slider to see the savings from cutting overnight use."
+      : "A " + p + "% cut in overnight use would save about " + kwh.toLocaleString() + " kWh and about $" + usd.toLocaleString() + " per year.";
+  }
+  input.addEventListener("input", update);
+  update();
+})();
+</script>
 <script src="static/script.js?v=20261020-brand-1"></script>
 </body>
 </html>

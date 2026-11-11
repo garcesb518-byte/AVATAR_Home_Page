@@ -635,3 +635,18 @@ body{background:linear-gradient(125deg,#0b2446 0%,#143e61 56%,#278f88 100%);back
 .back-to-top:hover{background:#d6eddf}
 .back-to-top:focus-visible{outline:2px solid #2e8b57;outline-offset:4px}
 @media(max-width:680px){.avatar-wordmark{font-size:32px}.site-header .brand{min-width:0}.avatar-brand-caption{font-size:8px}.site-footer{display:flex;flex-direction:row;align-items:center}}
+
+/* Bartley Hall measured-data section (Energy Usage page) */
+.bartley-summary{margin:0 0 18px;color:#40515f;line-height:1.65;max-width:860px}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px}
+.chart-card{padding:20px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.chart-card h3{margin:0 0 4px;color:var(--navy);font-size:15px}
+.chart-card > p{margin:0 0 12px;color:#667684;font-size:12px;line-height:1.5}
+.chart-card svg{width:100%;height:auto;display:block}
+.chart-card svg text{font-family:inherit;fill:#607080;font-size:11px}
+.chart-legend{display:flex;gap:16px;margin-top:8px;font-size:12px;color:#516270}
+.chart-legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.chart-error{padding:14px;border-radius:8px;background:#f4f7f5;color:#667684;font-size:13px}
+.save-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--navy);font-weight:750}
+.bartley-caveats{margin:14px 0 0;padding-left:18px;color:#607080;font-size:12px;line-height:1.6}
+@media(max-width:1080px){.chart-grid{grid-template-columns:1fr}}
