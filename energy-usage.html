@@ -3,52 +3,65 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Explore how AVATAR will make Villanova campus energy demand easier to understand.">
+  <meta name="description" content="View AVATAR's current snapshot of Villanova campus energy demand.">
+  <meta name="avatar-api-url" content="https://avatar-api-5i2l.onrender.com">
   <title>Energy Usage | AVATAR</title>
   <link rel="stylesheet" href="static/styles.css?v=20261020-brand-1">
-  
+  <style>
+    .usage-page{background:linear-gradient(180deg,#f7fbf9,#fff 55%)}
+    .usage-hero{position:relative;overflow:hidden;padding:68px 50px;background:radial-gradient(circle at 88% 20%,rgba(88,214,160,.22),transparent 27%),linear-gradient(135deg,#071f3b,#0b3c51);color:#fff}.usage-hero::after{content:"";position:absolute;right:-110px;top:-150px;width:430px;height:430px;border:48px solid rgba(255,255,255,.035);border-radius:50%}.usage-hero>*{position:relative;z-index:1}.usage-hero .eyebrow{color:#8ee8bb}.usage-hero h1{max-width:790px;margin:0;color:#fff;font-size:clamp(44px,6vw,74px);line-height:.98;letter-spacing:-.055em}.usage-hero h1 span{color:#58d6a0}.usage-hero>p:last-child{max-width:720px;margin:23px 0 0;color:#d8e5ec;font-size:17px;line-height:1.7}
+    .snapshot-shell{margin-top:0}.snapshot-loading,.snapshot-error{padding:22px;border:1px solid #d7e1e6;border-radius:13px;background:#fff;color:#526779}.snapshot-error{border-color:#e1bcbc;background:#fff2f2;color:#8b3b3b}
+    .snapshot-head{display:flex;align-items:flex-end;justify-content:space-between;gap:22px}.snapshot-head h2{margin:4px 0 0;color:var(--navy);font-size:34px}.snapshot-head p:last-child{margin:7px 0 0;color:#607080}.snapshot-status{padding:8px 12px;border-radius:999px;background:#dff3e7;color:#1f7045;font-size:10px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+    .snapshot-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:24px}.snapshot-card{position:relative;min-height:150px;padding:24px;border:1px solid #d8e3e8;border-radius:15px;background:#fff;box-shadow:0 13px 32px rgba(6,29,54,.055)}.snapshot-card::before{content:"";position:absolute;top:0;left:22px;right:22px;height:3px;border-radius:3px;background:linear-gradient(90deg,#58d6a0,#72c8ff)}.snapshot-card span{display:block;color:#6b7c89;font-size:10px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.snapshot-card strong{display:block;margin-top:13px;color:var(--navy);font-size:31px;letter-spacing:-.035em}.snapshot-card p{margin:10px 0 0;color:#607080;font-size:12px;line-height:1.6}
+    .snapshot-visual{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(280px,.7fr);gap:20px;margin-top:20px}.usage-chart-card,.usage-context{padding:26px;border-radius:16px}.usage-chart-card{border:1px solid #174463;background:radial-gradient(circle at 90% 0,rgba(88,214,160,.15),transparent 30%),#061d36;color:#fff}.usage-chart-card h3,.usage-context h3{margin:0;font-size:23px}.usage-chart-card h3{color:#fff}.usage-chart-card p{margin:7px 0 0;color:#9fb3c2;font-size:11px}.usage-spark{height:210px;margin-top:22px;padding:16px 8px 0;display:flex;align-items:flex-end;gap:5px;border-bottom:1px solid rgba(255,255,255,.18);background-image:linear-gradient(rgba(255,255,255,.055) 1px,transparent 1px);background-size:100% 25%}.usage-spark-bar{flex:1;min-width:5px;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#58d6a0,#167a5c 62%,#12405c)}
+    .usage-context{border:1px solid #d4e5dc;background:linear-gradient(145deg,#edf8f1,#f5faff)}.usage-context h3{color:var(--navy)}.usage-context>p{color:#587063;line-height:1.7}.usage-context-list{margin:20px 0 0;padding:0;list-style:none}.usage-context-list li{padding:12px 0;border-top:1px solid rgba(11,45,80,.1)}.usage-context-list span{display:block;color:#72828e;font-size:9px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}.usage-context-list strong{display:block;margin-top:6px;color:var(--navy);line-height:1.45}
+    .snapshot-next{margin-top:24px;padding:27px;border:1px solid #d8e3e8;border-radius:16px;background:#fff}.snapshot-next h2{margin:0;color:var(--navy)}.snapshot-next p{color:#607080;line-height:1.7}
+    @media(max-width:900px){.snapshot-grid{grid-template-columns:1fr 1fr}.snapshot-visual{grid-template-columns:1fr}.snapshot-card:last-child{grid-column:1/-1}}
+    @media(max-width:650px){.usage-hero{padding:50px 23px}.snapshot-head{display:block}.snapshot-status{display:inline-block;margin-top:15px}.snapshot-grid{grid-template-columns:1fr}.snapshot-card:last-child{grid-column:auto}.usage-spark{gap:3px}.usage-chart-card,.usage-context{padding:21px}}
+  </style>
 </head>
 <body>
 <div class="site-shell">
   <header class="site-header">
-  <a class="brand" href="index.html" aria-label="AVATAR homepage">
-    <span class="brand-mark" aria-hidden="true"></span>
-    <span><strong>AVATAR</strong><small>Advancing Villanova to Energy Autonomy and Resiliency</small></span>
-  </a>
-  <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">Menu</button>
-  <nav id="main-navigation" class="main-nav" aria-label="Main navigation"></nav>
-</header>
-  <main><section class="page-hero">
-  <p class="eyebrow">Energy Usage</p>
-  <h1>A clear view of campus demand</h1>
-  <p>Explore how Villanova uses energy and how demand changes over time. The cards below are prepared for approved campus meter data.</p>
-</section>
-<section class="content-section">
-  <div class="section-heading"><p class="eyebrow">Campus overview</p><h2>Energy information at a glance</h2></div>
-  <div class="metric-grid">
-    <article class="metric-card"><span>Current campus load</span><strong>Demo data</strong><p>Ready to connect to the approved campus meter feed.</p></article>
-    <article class="metric-card"><span>Peak demand</span><strong>Demo data</strong><p>Compare hourly, daily, and seasonal demand peaks.</p></article>
-    <article class="metric-card"><span>Energy trend</span><strong>Demo data</strong><p>Reveal patterns that can guide campus energy decisions.</p></article>
-  </div>
-  <div class="info-panel"><strong>Designed for real Villanova data</strong><p>This prototype uses clearly labeled placeholders until approved facilities data is connected. Future versions can include historical usage, live demand, building comparisons, and emissions information.</p></div>
-</section>  <section class="content-section page-return">
-    <div class="button-row">
-      <a class="button button-primary" href="index.html">Return to homepage</a>
-    </div>
-  </section>
-</main>
-  <footer class="site-footer">
-    <strong>AVATAR</strong>
-    <div class="footer-links">
-      <a href="data.html">Data</a>
-      <a href="campus-map.html">Campus Map</a>
-      <a href="why-avatar.html">Why AVATAR?</a>
-      <a href="sustainability-resources.html">Sustainability Resources</a>
-      <a href="acknowledgements.html">Acknowledgements</a>
-      <a href="meet-the-team.html">Meet the Team</a>
-    </div>
-  </footer>
+    <a class="brand" href="index.html" aria-label="AVATAR homepage"><span class="brand-mark" aria-hidden="true"></span><span><strong>AVATAR</strong><small>Advancing Villanova to Energy Autonomy and Resiliency</small></span></a>
+    <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">Menu</button>
+    <nav id="main-navigation" class="main-nav" aria-label="Main navigation"></nav>
+  </header>
+
+  <main class="usage-page">
+    <section class="usage-hero">
+      <p class="eyebrow">Campus energy snapshot</p>
+      <h1>Tomorrow's demand, <span>at a glance.</span></h1>
+      <p>See the current campus outlook before opening the detailed Load Forecaster or building a solar-and-battery scenario.</p>
+    </section>
+
+    <section class="content-section snapshot-shell">
+      <div id="energy-snapshot-loading" class="snapshot-loading"><strong>Loading the latest campus outlook…</strong></div>
+      <div id="energy-snapshot-error" class="snapshot-error" hidden>The campus snapshot could not be loaded. The detailed Load Forecasting page may still be available.</div>
+      <div id="energy-snapshot-content" hidden>
+        <div class="snapshot-head">
+          <div><p class="eyebrow">Next-day outlook</p><h2 id="energy-snapshot-date">—</h2><p>Forecast values are planning estimates, not live campus meter readings.</p></div>
+          <span id="energy-snapshot-status" class="snapshot-status">Loading</span>
+        </div>
+
+        <div class="snapshot-grid">
+          <article class="snapshot-card"><span>Estimated daily energy</span><strong id="energy-snapshot-daily">—</strong><p id="energy-snapshot-difference">—</p></article>
+          <article class="snapshot-card"><span>Average campus load</span><strong id="energy-snapshot-average">—</strong><p>Average estimated demand across the forecast day.</p></article>
+          <article class="snapshot-card"><span>Estimated peak demand</span><strong id="energy-snapshot-peak">—</strong><p id="energy-snapshot-peak-time">—</p></article>
+        </div>
+
+        <div class="snapshot-visual">
+          <article class="usage-chart-card"><h3>24-hour demand shape</h3><p>Hourly estimated power; hover over a bar for its value.</p><div id="energy-snapshot-chart" class="usage-spark" role="img" aria-label="Tomorrow's hourly campus demand profile"></div></article>
+          <aside class="usage-context"><h3>What is influencing tomorrow?</h3><p>Weather changes the estimated total and hourly timing relative to Villanova's 104 MWh average day.</p><ul class="usage-context-list"><li><span>Weather outlook</span><strong id="energy-snapshot-weather">—</strong></li><li><span>Reference day</span><strong>104 MWh average campus consumption</strong></li><li><span>Continuity</span><strong>Static campus profile is available if the weather service or model cannot respond</strong></li></ul></aside>
+        </div>
+
+        <section class="snapshot-next"><h2>Explore the result</h2><p>Open the full hourly forecast to inspect weather and methodology, or use this same baseline in the What-If calculator.</p><div class="button-row"><a class="button button-primary" href="load-forecasting.html">Open Load Forecasting</a><a class="button button-secondary" href="what-ifs.html">Build a What-If scenario</a></div></section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><strong>AVATAR</strong><div class="footer-links"><a href="data.html">Data</a><a href="campus-map.html">Campus Map</a><a href="why-avatar.html">Why AVATAR?</a><a href="sustainability-resources.html">Sustainability Resources</a><a href="acknowledgements.html">Acknowledgements</a><a href="meet-the-team.html">Meet the Team</a></div></footer>
 </div>
-<script src="static/script.js?v=20261020-brand-1"></script>
+<script src="static/script.js?v=20261110-final-polish-1"></script>
 </body>
 </html>
