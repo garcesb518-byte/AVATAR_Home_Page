@@ -5,6 +5,12 @@ const displayDate=value=>{
   if(parts.length!==3||parts.some(part=>!Number.isFinite(part)))return String(value);
   return new Intl.DateTimeFormat("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"}).format(new Date(parts[0],parts[1]-1,parts[2]));
 };
+const displayDateTime=value=>{
+  if(!value)return "Not available";
+  const parsed=new Date(value);
+  if(Number.isNaN(parsed.getTime()))return String(value);
+  return new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit",timeZoneName:"short"}).format(parsed);
+};
 
 const NAV_GROUPS = [
   {label:'Campus Energy', links:[['energy-usage.html','Energy Usage'],['load-forecasting.html','Load Forecasting'],['what-ifs.html','What-Ifs'],['data.html','Data']]},
@@ -72,6 +78,22 @@ function renderForecastWeather(weather){
   panel.hidden=false;
 }
 
+function renderForecastTransparency(data){
+  const set=(selector,value)=>{const target=document.querySelector(selector);if(target)target.textContent=value;};
+  set("#transparency-status",data.weather_applied_to_demand?"Weather-adjusted trained model":"Static fallback profile");
+  set("#transparency-generated",data.generated_at||data.generated_at_utc?displayDateTime(data.generated_at||data.generated_at_utc):"Packaged static profile; no live generation timestamp");
+  set("#transparency-method",data.method?String(data.method).replaceAll("_"," "):"Static campus profile");
+  set("#transparency-source","Approved Facilities interval data and matching historical weather");
+  const range=data.shape_data_start&&data.shape_data_end
+    ?displayDate(data.shape_data_start)+" through "+displayDate(data.shape_data_end)
+    :"Training-period details unavailable in this response";
+  set("#transparency-period",range);
+  const fallbackActive=Boolean(data.fallback_used)||!data.weather_applied_to_demand||data.forecast_type==="temporary_proxy"||data.status==="bartley_shape_proxy";
+  set("#transparency-fallback",fallbackActive
+    ?"Active"+(data.fallback_reason?" · "+String(data.fallback_reason).replaceAll("_"," "):"")
+    :"Available but not active");
+}
+
 async function renderForecast(){
   const chart=document.querySelector("#forecast-chart");
   if(!chart)return;
@@ -104,6 +126,43 @@ async function renderForecast(){
     const method=document.querySelector("#forecast-method");
     if(method)method.textContent=data.method;
     renderForecastWeather(data.weather);
+    renderForecastTransparency(data);
+    loading.hidden=true;
+    content.hidden=false;
+  }catch(error){
+    loading.hidden=true;
+    errorPanel.hidden=false;
+    console.error(error);
+  }
+}
+
+async function renderEnergySnapshot(){
+  const loading=document.querySelector("#energy-snapshot-loading");
+  const content=document.querySelector("#energy-snapshot-content");
+  const errorPanel=document.querySelector("#energy-snapshot-error");
+  if(!loading||!content||!errorPanel)return;
+  const set=(selector,value)=>{const target=document.querySelector(selector);if(target)target.textContent=value;};
+  try{
+    const data=await requestForecastData();
+    if(!Array.isArray(data.hourly)||data.hourly.length<23)throw new Error("Forecast data is incomplete");
+    const impact=Number(data.weather_impact_pct)||0;
+    set("#energy-snapshot-status",data.weather_applied_to_demand?"Weather-adjusted forecast":"Static fallback profile");
+    set("#energy-snapshot-date",data.forecast_date?displayDate(data.forecast_date):"Representative campus day");
+    set("#energy-snapshot-daily",number(data.daily_energy_mwh)+" MWh");
+    set("#energy-snapshot-difference",(impact>0?"+":"")+number(impact)+"% versus the 104 MWh average day");
+    set("#energy-snapshot-average",number(data.average_load_kw)+" kW");
+    set("#energy-snapshot-peak",number(data.peak_load_kw)+" kW");
+    set("#energy-snapshot-peak-time","Expected near "+data.peak_label);
+    const weather=data.weather;
+    set("#energy-snapshot-weather",weather?.status==="available"
+      ?number(weather.temperature_low_f)+"–"+number(weather.temperature_high_f)+"°F · "+number(weather.precipitation_total_in)+" in precipitation"
+      :"Live weather unavailable; the 104 MWh fallback remains available");
+    const chart=document.querySelector("#energy-snapshot-chart");
+    const maximum=Math.max(...data.hourly.map(row=>Number(row.forecast_kw)||0),1);
+    if(chart)chart.innerHTML=data.hourly.map(row=>{
+      const value=Number(row.forecast_kw)||0;
+      return '<div class="usage-spark-bar" title="'+row.label+': '+number(value)+' kW" style="height:'+Math.max(7,value/maximum*100)+'%"></div>';
+    }).join("");
     loading.hidden=true;
     content.hidden=false;
   }catch(error){
@@ -130,6 +189,74 @@ function scenarioRequest(){
     occupancy_load_change_percent:scenarioValue("#occupancy-change"),
     temperature_load_change_percent:scenarioValue("#temperature-change")
   };
+}
+
+let latestScenario=null;
+const SCENARIO_STORAGE_KEY="avatar-saved-scenarios-v1";
+function readSavedScenarios(){
+  try{
+    const saved=JSON.parse(sessionStorage.getItem(SCENARIO_STORAGE_KEY));
+    return saved&&typeof saved==="object"?{A:saved.A||null,B:saved.B||null}:{A:null,B:null};
+  }catch(error){return {A:null,B:null};}
+}
+let savedScenarios=readSavedScenarios();
+function writeSavedScenarios(){
+  try{sessionStorage.setItem(SCENARIO_STORAGE_KEY,JSON.stringify(savedScenarios));}catch(error){}
+}
+function scenarioSnapshot(slot){
+  if(!latestScenario)return null;
+  const summary=latestScenario.data.what_if_tab.summary;
+  const payload=latestScenario.payload;
+  return {
+    slot,
+    season:String(summary.displayed_season||payload.displayed_season||"").replace(/^./,letter=>letter.toUpperCase()),
+    budget:Number(summary["project_budget_$"]),
+    panels:Number(summary.panels_selected),
+    bess:Number(summary.bess_units_selected),
+    projectCost:Number(summary["project_cost_$"]),
+    budgetDifference:Number(summary["budget_difference_$"]),
+    savings:Number(summary["annual_total_operating_savings_$"]),
+    gridReduction:Number(summary.annual_grid_energy_reduction_kwh),
+    renewableShare:Number(summary.renewable_share_of_load_percent),
+    adjustedDailyMwh:Number(summary.adjusted_daily_energy_kwh)/1000,
+    peakKw:Number(summary.adjusted_peak_kw)
+  };
+}
+function renderSavedScenarioComparison(){
+  const body=document.querySelector("#scenario-compare-body");
+  const status=document.querySelector("#scenario-save-status");
+  if(!body)return;
+  const empty='<span class="scenario-slot-empty">Not saved</span>';
+  const value=(slot,formatter)=>savedScenarios[slot]?formatter(savedScenarios[slot]):empty;
+  const rows=[
+    ["Solar production season",item=>item.season||"—"],
+    ["Project budget",item=>currency(item.budget)],
+    ["Solar panels",item=>integer(item.panels)],
+    ["BESS units",item=>integer(item.bess)],
+    ["Project cost",item=>currency(item.projectCost)],
+    ["Budget position",item=>item.budgetDifference>=0?currency(item.budgetDifference)+" remaining":currency(Math.abs(item.budgetDifference))+" over"],
+    ["Annual operating savings",item=>currency(item.savings)+"/yr"],
+    ["Annual grid-energy reduction",item=>integer(item.gridReduction)+" kWh/yr"],
+    ["Renewable share",item=>number(item.renewableShare)+"%"],
+    ["Adjusted daily demand",item=>number(item.adjustedDailyMwh)+" MWh"],
+    ["Estimated peak demand",item=>number(item.peakKw)+" kW"]
+  ];
+  body.innerHTML=rows.map(([label,formatter])=>'<tr><th scope="row">'+label+'</th><td>'+value("A",formatter)+'</td><td>'+value("B",formatter)+'</td></tr>').join("");
+  const count=Number(Boolean(savedScenarios.A))+Number(Boolean(savedScenarios.B));
+  if(status)status.textContent=count===0?"No scenarios saved yet.":count===1?"One scenario saved. Calculate another plan and save it to the open slot.":"Scenario A and Scenario B are ready to compare.";
+}
+function saveLatestScenario(slot){
+  const snapshot=scenarioSnapshot(slot);
+  if(!snapshot)return;
+  savedScenarios[slot]=snapshot;
+  writeSavedScenarios();
+  renderSavedScenarioComparison();
+  const status=document.querySelector("#scenario-save-status");
+  if(status)status.textContent="Saved the current result as Scenario "+slot+". No additional optimization request was made.";
+  document.querySelector("#saved-scenario-comparison")?.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function setScenarioSaveButtons(enabled){
+  ["#save-scenario-a","#save-scenario-b"].forEach(selector=>{const button=document.querySelector(selector);if(button)button.disabled=!enabled;});
 }
 
 function showScenarioState(state,message=""){
@@ -224,6 +351,7 @@ function renderScenarioResults(data){
   document.querySelector("#comparison-card")?.removeAttribute("hidden");
   document.querySelector("#bess-card")?.removeAttribute("hidden");
   document.querySelector("#model-details")?.removeAttribute("hidden");
+  setScenarioSaveButtons(true);
 }
 
 async function runScenario(event){
@@ -234,6 +362,8 @@ async function runScenario(event){
   const apiBase=document.querySelector('meta[name="avatar-api-url"]')?.content?.replace(/\/$/,"");
   if(!apiBase){showScenarioState("scenario-error","The optimization API URL has not been configured.");return;}
   const payload=scenarioRequest();
+  latestScenario=null;
+  setScenarioSaveButtons(false);
   showScenarioState("scenario-loading");
   if(button)button.disabled=true;
   try{
@@ -244,6 +374,7 @@ async function runScenario(event){
     });
     const data=await response.json().catch(()=>({}));
     if(!response.ok||data.status!=="optimal")throw new Error(data.message||"The optimization service returned an error.");
+    latestScenario={data,payload};
     renderScenarioResults(data);
   }catch(error){
     const message=error instanceof TypeError
@@ -256,6 +387,14 @@ async function runScenario(event){
 }
 
 document.querySelector("#scenario-form")?.addEventListener("submit",runScenario);
+document.querySelector("#save-scenario-a")?.addEventListener("click",()=>saveLatestScenario("A"));
+document.querySelector("#save-scenario-b")?.addEventListener("click",()=>saveLatestScenario("B"));
+document.querySelector("#clear-scenarios")?.addEventListener("click",()=>{
+  savedScenarios={A:null,B:null};
+  writeSavedScenarios();
+  renderSavedScenarioComparison();
+});
+renderSavedScenarioComparison();
 
 function updateStudentActions(){
   const population=8000;
@@ -279,6 +418,7 @@ document.querySelector("#student-action-list")?.addEventListener("input",updateS
 document.querySelector("#student-participation")?.addEventListener("input",updateStudentActions);
 updateStudentActions();
 renderForecast();
+renderEnergySnapshot();
 
 // Shared static-site chatbot. The provider key remains server-side on Render.
 (()=>{

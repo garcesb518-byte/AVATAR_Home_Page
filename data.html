@@ -3,58 +3,65 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Learn how AVATAR turns approved Villanova campus information into understandable energy insights.">
-  <title>Data | AVATAR</title>
+  <meta name="description" content="Learn how AVATAR uses approved data while protecting confidential Facilities measurements.">
+  <title>Data &amp; Methodology | AVATAR</title>
   <link rel="stylesheet" href="static/styles.css?v=20261020-brand-1">
-  
+  <style>
+    .data-page{background:linear-gradient(180deg,#f8fbfa,#fff)}
+    .data-hero{position:relative;overflow:hidden;padding:70px 50px;background:linear-gradient(135deg,#f0f8f3,#edf6fb)}.data-hero::after{content:"";position:absolute;right:-100px;bottom:-190px;width:430px;height:430px;border:55px solid rgba(46,139,87,.07);border-radius:50%}.data-hero>*{position:relative;z-index:1}.data-hero h1{max-width:850px;margin:0;color:var(--navy);font-size:clamp(44px,6vw,72px);line-height:1;letter-spacing:-.055em}.data-hero h1 span{color:var(--green)}.data-hero>p:last-child{max-width:760px;margin:23px 0 0;color:#526779;font-size:17px;line-height:1.7}
+    .privacy-banner{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start;padding:25px;border:1px solid #bcdac8;border-radius:15px;background:#edf8f1}.privacy-mark{display:grid;width:48px;height:48px;place-items:center;border-radius:13px;background:var(--green);color:#fff;font-size:20px;font-weight:900}.privacy-banner h2{margin:0;color:var(--navy);font-size:24px}.privacy-banner p{margin:8px 0 0;color:#4f6e5d;line-height:1.7}
+    .data-section-heading{margin:38px 0 18px}.data-section-heading h2{margin:4px 0 0;color:var(--navy);font-size:32px}.data-section-heading p:last-child{max-width:720px;margin:9px 0 0;color:#607080;line-height:1.7}
+    .data-source-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.data-source-card{padding:23px;border:1px solid #d7e2e7;border-radius:14px;background:#fff;box-shadow:0 10px 28px rgba(6,29,54,.045)}.source-top{display:flex;align-items:center;justify-content:space-between;gap:15px}.source-top span:first-child{color:var(--navy);font-size:17px;font-weight:850}.source-access{padding:6px 9px;border-radius:999px;background:#eef3f5;color:#526779;font-size:9px;font-weight:850;letter-spacing:.06em;text-transform:uppercase}.source-access.private{background:#e9f5ee;color:#25704a}.data-source-card p{margin:13px 0 0;color:#607080;font-size:12px;line-height:1.7}.data-source-card dl{margin:17px 0 0}.data-source-card dl div{display:grid;grid-template-columns:105px 1fr;gap:12px;padding:9px 0;border-top:1px solid #e4eaed}.data-source-card dt{color:#778691;font-size:9px;font-weight:850;letter-spacing:.06em;text-transform:uppercase}.data-source-card dd{margin:0;color:#193f5c;font-size:11px;font-weight:750}
+    .method-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.method-step{position:relative;padding:24px;border-radius:15px;background:#071f3b;color:#fff}.method-step span{display:block;color:#58d6a0;font-size:11px;font-weight:900;letter-spacing:.1em}.method-step h3{margin:12px 0 0;color:#fff;font-size:21px}.method-step p{margin:10px 0 0;color:#bdd0dc;font-size:12px;line-height:1.65}
+    .public-output{margin-top:34px;padding:28px;border:1px solid #d7e2e7;border-radius:16px;background:linear-gradient(135deg,#fff,#f4f8f6)}.public-output h2{margin:0;color:var(--navy)}.public-output>p{color:#607080;line-height:1.7}.output-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:19px}.output-grid div{padding:17px;border:1px solid #dce6e1;border-radius:11px;background:#fff}.output-grid strong{display:block;color:var(--navy)}.output-grid span{display:block;margin-top:7px;color:#6c7d88;font-size:11px;line-height:1.55}
+    @media(max-width:850px){.data-source-grid,.method-flow{grid-template-columns:1fr}.output-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:650px){.data-hero{padding:50px 23px}.privacy-banner{grid-template-columns:1fr}.output-grid{grid-template-columns:1fr}.data-source-card dl div{grid-template-columns:1fr;gap:4px}}
+  </style>
 </head>
 <body>
 <div class="site-shell">
   <header class="site-header">
-  <a class="brand" href="index.html" aria-label="AVATAR homepage">
-    <span class="brand-mark" aria-hidden="true"></span>
-    <span><strong>AVATAR</strong><small>Advancing Villanova to Energy Autonomy and Resiliency</small></span>
-  </a>
-  <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">Menu</button>
-  <nav id="main-navigation" class="main-nav" aria-label="Main navigation">
-      <a href="energy-usage.html">Energy Usage</a>
-      <a href="load-forecasting.html">Load Forecasting</a>
-      <a href="what-ifs.html">What-Ifs</a>
-      <a href="power-basics.html">Power Basics</a>
-      <a href="fun-facts.html">Fun Facts</a>
-      <a href="dorm-facts.html">Dorm Facts</a>
-    </nav>
-</header>
-  <main><section class="page-hero">
-  <p class="eyebrow">Data</p>
-  <h1>From campus systems to understandable insights</h1>
-  <p>AVATAR is designed to organize approved energy information and present it in a form that students, faculty, facilities staff, and decision-makers can use.</p>
-</section>
-<section class="content-section">
-  <div class="feature-grid">
-    <article class="feature-card static-card"><span class="feature-icon">01</span><div><h2>Collect</h2><p>Bring approved meter, weather, occupancy, and infrastructure data together.</p></div></article>
-    <article class="feature-card static-card"><span class="feature-icon">02</span><div><h2>Analyze</h2><p>Identify patterns, compare periods, and create forecasts and scenarios.</p></div></article>
-    <article class="feature-card static-card"><span class="feature-icon">03</span><div><h2>Communicate</h2><p>Present results clearly for the Villanova community and campus decision-makers.</p></div></article>
-  </div>
-  <div class="info-panel"><strong>Current data status</strong><p>The public prototype uses demo values. Approved campus datasets can be connected as the project develops without presenting placeholder values as official Villanova information.</p></div>
-</section>  <section class="content-section page-return">
-    <div class="button-row">
-      <a class="button button-primary" href="index.html">Return to homepage</a>
-    </div>
-  </section>
-</main>
-  <footer class="site-footer">
-    <strong>AVATAR</strong>
-    <div class="footer-links">
-      <a href="data.html">Data</a>
-      <a href="campus-map.html">Campus Map</a>
-      <a href="why-avatar.html">Why AVATAR?</a>
-      <a href="sustainability-resources.html">Sustainability Resources</a>
-      <a href="acknowledgements.html">Acknowledgements</a>
-      <a href="meet-the-team.html">Meet the Team</a>
-    </div>
-  </footer>
+    <a class="brand" href="index.html" aria-label="AVATAR homepage"><span class="brand-mark" aria-hidden="true"></span><span><strong>AVATAR</strong><small>Advancing Villanova to Energy Autonomy and Resiliency</small></span></a>
+    <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">Menu</button>
+    <nav id="main-navigation" class="main-nav" aria-label="Main navigation"></nav>
+  </header>
+
+  <main class="data-page">
+    <section class="data-hero">
+      <p class="eyebrow">Data &amp; methodology</p>
+      <h1>Useful energy insight, <span>without publishing private readings.</span></h1>
+      <p>AVATAR combines approved internal information with public weather and solar resources, then presents only normalized, aggregated, or model-generated campus estimates.</p>
+    </section>
+
+    <section class="content-section">
+      <div class="privacy-banner">
+        <span class="privacy-mark" aria-hidden="true">✓</span>
+        <div><h2>Facilities measurements remain confidential</h2><p>Raw building-level interval data are used only as approved internal model inputs. They are not displayed, downloadable, or returned to website visitors. Public pages show campus-scale planning estimates and derived relationships rather than the underlying Facilities records.</p></div>
+      </div>
+
+      <div class="data-section-heading"><p class="eyebrow">Information used by AVATAR</p><h2>Each source has a defined purpose</h2><p>The project separates confidential operational inputs from public reference data and editable planning assumptions.</p></div>
+      <div class="data-source-grid">
+        <article class="data-source-card"><div class="source-top"><span>Facilities interval data</span><span class="source-access private">Confidential input</span></div><p>Approved measurements support representative load timing and weather relationships without exposing raw building-level records.</p><dl><div><dt>Used for</dt><dd>Normalized demand shape and model training</dd></div><div><dt>Public output</dt><dd>Derived campus-scale forecast only</dd></div></dl></article>
+        <article class="data-source-card"><div class="source-top"><span>Campus energy baseline</span><span class="source-access">Approved reference</span></div><p>Villanova's 104 MWh average daily consumption anchors the campus magnitude while weather can move a forecast above or below the average day.</p><dl><div><dt>Used for</dt><dd>Campus scaling and comparison</dd></div><div><dt>Public output</dt><dd>Average-day reference and forecast difference</dd></div></dl></article>
+        <article class="data-source-card"><div class="source-top"><span>Open-Meteo weather</span><span class="source-access">Public source</span></div><p>Historical and forecast weather provide temperature, humidity, precipitation, snowfall, wind, and apparent-temperature inputs.</p><dl><div><dt>Used for</dt><dd>Day-ahead load adjustment</dd></div><div><dt>Public output</dt><dd>Forecast weather context and estimated impact</dd></div></dl></article>
+        <article class="data-source-card"><div class="source-top"><span>NREL PVWatts</span><span class="source-access">Public source</span></div><p>Representative seasonal solar-production profiles support the PV portion of the What-If calculator.</p><dl><div><dt>Used for</dt><dd>Hourly solar-production estimates</dd></div><div><dt>Public output</dt><dd>Scenario renewable share and grid reduction</dd></div></dl></article>
+        <article class="data-source-card"><div class="source-top"><span>Energy price assumptions</span><span class="source-access">Planning input</span></div><p>The calculator uses the team's PECO energy-rate reference and editable illustrative peak and off-peak rates.</p><dl><div><dt>Used for</dt><dd>Operating-cost and savings estimates</dd></div><div><dt>Public output</dt><dd>Clearly labeled planning results</dd></div></dl></article>
+        <article class="data-source-card"><div class="source-top"><span>Equipment cost assumptions</span><span class="source-access">Planning input</span></div><p>Team-approved solar-panel and battery estimates translate user selections into a conceptual project cost.</p><dl><div><dt>Used for</dt><dd>PV and BESS scenario pricing</dd></div><div><dt>Public output</dt><dd>Project cost and budget position</dd></div></dl></article>
+      </div>
+
+      <div class="data-section-heading"><p class="eyebrow">Processing approach</p><h2>From protected inputs to public estimates</h2></div>
+      <div class="method-flow">
+        <article class="method-step"><span>01</span><h3>Prepare</h3><p>Clean approved measurements, remove incomplete periods, and convert the usable history into normalized relationships.</p></article>
+        <article class="method-step"><span>02</span><h3>Model</h3><p>Combine normalized energy behavior with public weather and calendar features to create the next-day campus estimate.</p></article>
+        <article class="method-step"><span>03</span><h3>Communicate</h3><p>Publish only campus-scale forecasts, scenario results, status information, and explanations suitable for public use.</p></article>
+      </div>
+
+      <section class="public-output"><h2>What website visitors can access</h2><p>AVATAR intentionally limits its public outputs to information needed for education and planning.</p><div class="output-grid"><div><strong>Campus forecast</strong><span>Hourly estimated demand, daily energy, expected peak, and model status.</span></div><div><strong>Weather context</strong><span>Public forecast inputs and their estimated effect relative to the 104 MWh average day.</span></div><div><strong>What-If results</strong><span>User-selected PV, BESS, cost, savings, renewable share, and grid-energy effects.</span></div></div><div class="button-row"><a class="button button-primary" href="load-forecasting.html">View Load Forecasting</a><a class="button button-secondary" href="what-ifs.html">Open What-Ifs</a></div></section>
+    </section>
+  </main>
+
+  <footer class="site-footer"><strong>AVATAR</strong><div class="footer-links"><a href="data.html">Data</a><a href="campus-map.html">Campus Map</a><a href="why-avatar.html">Why AVATAR?</a><a href="sustainability-resources.html">Sustainability Resources</a><a href="acknowledgements.html">Acknowledgements</a><a href="meet-the-team.html">Meet the Team</a></div></footer>
 </div>
-<script src="static/script.js?v=20261020-brand-1"></script>
+<script src="static/script.js?v=20261110-final-polish-1"></script>
 </body>
 </html>

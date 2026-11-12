@@ -42,10 +42,11 @@
 .chart{min-width:820px;height:330px;padding:14px 5px 0;display:grid;grid-template-columns:repeat(24,minmax(27px,1fr));align-items:end;gap:5px;border-bottom:1px solid rgba(255,255,255,.16);background-image:linear-gradient(rgba(255,255,255,.055) 1px,transparent 1px);background-size:100% 25%}
 .bar-wrap{height:100%;display:grid;grid-template-rows:18px 1fr 34px;align-items:end;gap:5px;text-align:center}.bar-value{font-size:8px;color:#aec0cd}.bar-track{height:100%;display:flex;align-items:flex-end}.bar{width:100%;min-height:5px;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--forecast-electric),#167a5c 55%,#12405c);box-shadow:0 -4px 12px rgba(88,214,160,.12)}.bar-label{min-height:30px;font-size:8px;line-height:1.15;color:#8fa5b5}
 .forecast-method{margin-top:24px;padding:23px 24px;border:1px solid #e0e7e3;border-radius:15px;background:#f4f7f5}.forecast-method strong{color:var(--navy)}.forecast-method p{margin:8px 0 0;color:#607080;font-size:12px;line-height:1.7}.forecast-method code{color:var(--green);font-weight:800}
+.forecast-transparency{margin-top:18px;border:1px solid #d7e2e7;border-radius:15px;background:#fff;box-shadow:0 10px 28px rgba(6,29,54,.045)}.forecast-transparency>summary{padding:20px 24px;cursor:pointer;color:var(--navy);font-weight:850}.forecast-transparency>summary span{display:block;margin-top:5px;color:#6b7d8a;font-size:11px;font-weight:500}.transparency-body{padding:0 24px 24px}.transparency-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.transparency-item{padding:15px;border:1px solid #e0e7ea;border-radius:10px;background:#f8faf9}.transparency-item span{display:block;color:#70808d;font-size:9px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}.transparency-item strong{display:block;margin-top:7px;color:var(--navy);font-size:13px;line-height:1.45}.transparency-note{margin:17px 0 0;color:#607080;font-size:11px;line-height:1.7}
 .forecast-error{padding:18px;border:1px solid #e1bcbc;border-radius:12px;background:#fff2f2;color:#8b3b3b}.forecast-page+.page-return{background:#fff}
 
 @media(max-width:900px){.forecast-hero{grid-template-columns:1fr;min-height:auto}.forecast-visual{min-height:300px}.forecast-content-section{padding-left:28px;padding-right:28px}.weather-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:650px){.forecast-hero{padding:48px 23px}.forecast-hero h1{font-size:44px}.forecast-visual{min-height:280px}.forecast-horizon{padding-left:20px;padding-right:20px}.horizon-readouts{gap:5px}.forecast-content-section{padding:42px 22px 58px}.weather-heading{display:block}.weather-date{display:inline-block;margin-top:12px}.weather-grid{grid-template-columns:1fr}.forecast-chart-shell{padding-left:18px;padding-right:18px}.forecast-heading{display:block}.forecast-heading>span{display:block;margin-top:8px}}
+@media(max-width:650px){.forecast-hero{padding:48px 23px}.forecast-hero h1{font-size:44px}.forecast-visual{min-height:280px}.forecast-horizon{padding-left:20px;padding-right:20px}.horizon-readouts{gap:5px}.forecast-content-section{padding:42px 22px 58px}.weather-heading{display:block}.weather-date{display:inline-block;margin-top:12px}.weather-grid,.transparency-grid{grid-template-columns:1fr}.forecast-chart-shell{padding-left:18px;padding-right:18px}.forecast-heading{display:block}.forecast-heading>span{display:block;margin-top:8px}}
 </style>
 </head>
 <body>
@@ -164,6 +165,23 @@
       <strong>How this profile is produced</strong>
       <p>AVATAR learns normalized daily-energy and hourly-timing relationships from all presently available campus load data and matching historical weather. Tomorrow's forecast weather adjusts both the total above or below Villanova's 104 MWh average day and the timing of demand. If weather or the trained model is unavailable, the page automatically returns to the static campus profile.</p>
     </div>
+
+    <details class="forecast-transparency">
+      <summary>Forecast methodology and limitations<span>Open the technical details behind the displayed profile.</span></summary>
+      <div class="transparency-body">
+        <div class="transparency-grid">
+          <div class="transparency-item"><span>Active forecast path</span><strong id="transparency-status">Loading…</strong></div>
+          <div class="transparency-item"><span>Forecast generated</span><strong id="transparency-generated">Loading…</strong></div>
+          <div class="transparency-item"><span>Method</span><strong id="transparency-method">Loading…</strong></div>
+          <div class="transparency-item"><span>Model inputs</span><strong>Temperature, apparent temperature, humidity, precipitation, snowfall, wind, calendar timing</strong></div>
+          <div class="transparency-item"><span>Training source</span><strong id="transparency-source">Approved Facilities interval data and historical weather</strong></div>
+          <div class="transparency-item"><span>Available training period</span><strong id="transparency-period">Loading…</strong></div>
+          <div class="transparency-item"><span>Chronological validation</span><strong>Approximately 7.2% daily-energy mean absolute error on the held-out validation period</strong></div>
+          <div class="transparency-item"><span>Static fallback</span><strong id="transparency-fallback">Loading…</strong></div>
+        </div>
+        <p class="transparency-note">The model transfers relationships learned from presently available Facilities data to Villanova's 104 MWh average campus day. It is a planning forecast rather than a campus meter reading. Raw Facilities measurements are not displayed or distributed through this page.</p>
+      </div>
+    </details>
   </div>
 
   <div id="forecast-error" class="forecast-error" hidden>
@@ -244,7 +262,7 @@
     </div>
   </footer>
 </div>
-<script src="static/script.js?v=20261105-load-profile-1"></script>
+<script src="static/script.js?v=20261110-final-polish-1"></script>
 <script src="static/load-control.js"></script>
 </body>
 </html>
