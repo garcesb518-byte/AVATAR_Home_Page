@@ -48,6 +48,15 @@
 @media(max-width:900px){.forecast-hero{grid-template-columns:1fr;min-height:auto}.forecast-visual{min-height:300px}.forecast-content-section{padding-left:28px;padding-right:28px}.weather-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:650px){.forecast-hero{padding:48px 23px}.forecast-hero h1{font-size:44px}.forecast-visual{min-height:280px}.forecast-horizon{padding-left:20px;padding-right:20px}.horizon-readouts{gap:5px}.forecast-content-section{padding:42px 22px 58px}.weather-heading{display:block}.weather-date{display:inline-block;margin-top:12px}.weather-grid,.transparency-grid{grid-template-columns:1fr}.forecast-chart-shell{padding-left:18px;padding-right:18px}.forecast-heading{display:block}.forecast-heading>span{display:block;margin-top:8px}}
 </style>
+<style>
+.site-header .survey-header-link{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;min-height:44px;padding:10px 16px;border:1px solid #6ccf9c;border-radius:9px;background:#91e9bc;color:#0b2d50;font:700 14px/1.3 system-ui,sans-serif;text-decoration:none;white-space:nowrap}
+.site-header .survey-header-link:hover{background:#cff6df}
+.site-header .survey-header-link:focus-visible{outline:3px solid #2e8b57;outline-offset:3px}
+.site-header .survey-nav-link{display:none!important}
+.site-header{flex-wrap:wrap}
+@media(max-width:1080px){.site-header .survey-header-link{order:0;margin-left:auto}.site-header .menu-button{order:1}.site-header .main-nav{order:2}}
+@media(max-width:480px){.site-header .survey-header-link{padding:10px;font-size:12px}}
+</style>
 </head>
 <body>
 <div class="site-shell">
@@ -58,6 +67,7 @@
   </a>
   <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">Menu</button>
   <nav id="main-navigation" class="main-nav" aria-label="Main navigation"></nav>
+<a class="survey-header-link" href="student-survey.html">Student Survey</a>
 </header>
   <main class="forecast-page"><section class="forecast-hero">
   <div class="forecast-hero-copy">

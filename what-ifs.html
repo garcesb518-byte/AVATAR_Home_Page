@@ -40,6 +40,15 @@
     @media(max-width:980px){.scenario-hero{grid-template-columns:1fr}.scenario-blueprint{max-width:610px}.scenario-layout,.student-actions-layout{grid-template-columns:1fr}.scenario-form,.actions-summary{position:static}.scenario-metrics{grid-template-columns:1fr 1fr}}
     @media(max-width:680px){.scenario-hero{padding:48px 22px}.scenario-hero h1{font-size:44px}.scenario-workspace{padding:42px 22px 58px}.blueprint-chain{grid-template-columns:1fr}.blueprint-plus{transform:rotate(45deg)}.scenario-form>label,.scenario-form>.form-grid,.scenario-form>.form-section{margin-left:19px;margin-right:19px}.scenario-form button{width:calc(100% - 38px);margin-left:19px;margin-right:19px}.form-grid,.scenario-metrics,.action-list{grid-template-columns:1fr}.load-chart,.bess-chart{gap:3px}.load-hour{min-width:24px}}
   </style>
+<style>
+.site-header .survey-header-link{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;min-height:44px;padding:10px 16px;border:1px solid #6ccf9c;border-radius:9px;background:#91e9bc;color:#0b2d50;font:700 14px/1.3 system-ui,sans-serif;text-decoration:none;white-space:nowrap}
+.site-header .survey-header-link:hover{background:#cff6df}
+.site-header .survey-header-link:focus-visible{outline:3px solid #2e8b57;outline-offset:3px}
+.site-header .survey-nav-link{display:none!important}
+.site-header{flex-wrap:wrap}
+@media(max-width:1080px){.site-header .survey-header-link{order:0;margin-left:auto}.site-header .menu-button{order:1}.site-header .main-nav{order:2}}
+@media(max-width:480px){.site-header .survey-header-link{padding:10px;font-size:12px}}
+</style>
 </head>
 <body>
 <div class="site-shell">
@@ -50,7 +59,8 @@
     </a>
     <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">Menu</button>
     <nav id="main-navigation" class="main-nav" aria-label="Main navigation"></nav>
-  </header>
+  <a class="survey-header-link" href="student-survey.html">Student Survey</a>
+</header>
 
   <main class="scenario-page">
     <section class="scenario-hero">
