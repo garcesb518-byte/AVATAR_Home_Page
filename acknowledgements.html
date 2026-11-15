@@ -11,7 +11,8 @@
 .site-header .survey-header-link:hover{background:#cff6df}
 .site-header .survey-header-link:focus-visible{outline:3px solid #2e8b57;outline-offset:3px}
 .site-header .survey-nav-link{display:none!important}
-.site-header{flex-wrap:wrap}
+.site-header{flex-wrap:wrap;justify-content:flex-start;column-gap:10px}
+@media(min-width:1081px){.site-header{flex-wrap:nowrap}.site-header .main-nav{margin-left:auto;flex:0 0 auto}.site-header .survey-header-link{margin-left:0}}
 @media(max-width:1080px){.site-header .survey-header-link{order:0;margin-left:auto}.site-header .menu-button{order:1}.site-header .main-nav{order:2}}
 @media(max-width:480px){.site-header .survey-header-link{padding:10px;font-size:12px}}
 </style>
