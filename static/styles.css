@@ -635,3 +635,20 @@ body{background:linear-gradient(125deg,#0b2446 0%,#143e61 56%,#278f88 100%);back
 .back-to-top:hover{background:#d6eddf}
 .back-to-top:focus-visible{outline:2px solid #2e8b57;outline-offset:4px}
 @media(max-width:680px){.avatar-wordmark{font-size:32px}.site-header .brand{min-width:0}.avatar-brand-caption{font-size:8px}.site-footer{display:flex;flex-direction:row;align-items:center}}
+
+/* Student survey: shared navigation and homepage invitation */
+.site-header{flex-wrap:wrap}
+.main-nav .survey-nav-link{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:12px 16px;border:1px solid #91e9bc;border-radius:9px;background:#91e9bc;color:#0b2d50;font-size:14px;font-weight:750;white-space:nowrap}
+.main-nav .survey-nav-link:hover,.main-nav .survey-nav-link[aria-current="page"]{background:#cff6df;color:#082744;border-color:#2e8b57}
+.survey-nav-link:focus-visible,.survey-banner a:focus-visible{outline:3px solid #2e8b57;outline-offset:4px}
+.survey-banner{display:flex;align-items:center;justify-content:space-between;gap:28px;padding:32px 40px;background:#e1f5e9;border-bottom:1px solid #b7d8c5}
+.survey-banner h2{margin:0 0 10px;color:#0b2d50;font-size:clamp(23px,3vw,31px);line-height:1.2}
+.survey-banner p:not(.eyebrow){margin:0;max-width:650px;line-height:1.6;color:#3e5d55}
+.survey-banner .survey-cta{flex-shrink:0;min-height:48px;background:#0b2d50;color:white;border-color:#0b2d50}
+.survey-banner .survey-cta:hover{background:#164768}
+.survey-content{padding:28px 32px;background:#f4faf6}
+.survey-help{max-width:800px;margin:0 auto 22px;line-height:1.6;color:#3e5d55}
+.survey-help a{color:#0b2d50;font-weight:700;text-underline-offset:3px}
+.survey-frame{display:block;width:100%;max-width:900px;height:1800px;margin:0 auto;border:0;border-radius:12px;background:white}
+@media(max-width:1080px){.main-nav .survey-nav-link{align-self:flex-start;margin:8px 0}}
+@media(max-width:680px){.survey-banner{align-items:flex-start;flex-direction:column;padding:28px 22px;gap:20px}.survey-content{padding:24px 8px}.survey-help{padding:0 14px}.survey-frame{height:1800px}}
