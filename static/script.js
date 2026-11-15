@@ -23,6 +23,12 @@ const NAV_GROUPS = [
  const menu=document.querySelector('.menu-button');
  const current=location.pathname.split('/').pop()||'index.html';
  nav.innerHTML=NAV_GROUPS.map((group,i)=>`<div class="nav-group"><button type="button" class="nav-group-button${group.links.some(([href])=>href===current)?' current-group':''}" aria-expanded="false" aria-controls="nav-panel-${i}">${group.label}<span class="nav-chevron" aria-hidden="true"></span></button><div class="nav-panel" id="nav-panel-${i}" hidden>${group.links.map(([href,label])=>`<a href="${href}"${href===current?' class="active" aria-current="page"':''}>${label}</a>`).join('')}</div></div>`).join('');
+ const surveyLink=document.createElement('a');
+ surveyLink.href='student-survey.html';
+ surveyLink.className='survey-nav-link';
+ surveyLink.textContent='Student Survey';
+ if(current==='student-survey.html')surveyLink.setAttribute('aria-current','page');
+ nav.appendChild(surveyLink);
  const groups=[...nav.querySelectorAll('.nav-group')];
  function show(target){groups.forEach(g=>{const open=g===target;g.querySelector('button').setAttribute('aria-expanded',String(open));g.querySelector('.nav-panel').hidden=!open;});}
  const desktop=matchMedia('(min-width:1081px)');
