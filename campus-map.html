@@ -794,5 +794,397 @@
   </script>
 
   <script src="static/script.js?v=20261020-brand-1"></script>
+  <script>
+(async function updateCampusEstimates() {
+  "use strict";
+
+  // MODEL ASSUMPTIONS, not official building measurements.
+  const MODEL = {
+    campusKwhDay: 104000,
+    bartleySqft: 134500,
+    doubleRoomSqft: 206,
+
+    // Assumed fraction of total building area occupied by bedrooms.
+    traditionalBedroomShare: 0.65,
+    apartmentBedroomShare: 0.50,
+
+    // Leave 15% for unmapped buildings, central equipment,
+    // outdoor lighting, and other loads. This is adjustable.
+    otherCampusShare: 0.15,
+
+    // Assumed floor areas and electricity intensity relative to Bartley.
+    defaults: {
+      Residence: { sqft: 35000, factor: 0.55 },
+      Academic:  { sqft: 75000, factor: 0.70 },
+      Lab:       { sqft: 100000, factor: 1.15 },
+      Dining:    { sqft: 45000, factor: 1.20 },
+      Athletics: { sqft: 65000, factor: 0.75 },
+      Admin:     { sqft: 35000, factor: 0.55 },
+      Other:     { sqft: 45000, factor: 0.65 }
+    }
+  };
+
+  // Apartment-style assumptions for existing map entries.
+  const APARTMENTS = new Set([
+  "The Commons",
+  "St. Clare Hall",
+  "Welsh Hall",
+  "Jackson Hall",
+  "Rudolph Hall",
+  "Gallen Hall",
+  "Moulden Hall",
+  "Farley Hall",
+  "Klekotka Hall"
+]);
+
+  // These remain provisional modeling choices.
+  // Add sqft or doubleRooms here when better information is available.
+  const OVERRIDES = {
+    "The Commons": { bedroomShare: 0.55, factor: 0.65 },
+    "St. Mary's Hall": { bedroomShare: 0.45, factor: 0.75 },
+    "Falvey Library": { factor: 0.85 },
+    "Driscoll Hall": { factor: 0.80 },
+
+    // Enclosed support-space assumption, not the outdoor field area.
+    "Villanova Stadium": { sqft: 20000, factor: 0.65 },
+    "Finneran Pavilion": { factor: 0.85 },
+    "Davis Center": { factor: 0.85 },
+
+    // Background use plus services/events, averaged across days.
+    "St. Thomas of Villanova Church": {
+      sqft: 20000,
+      factor: 0.30
+    }
+  };
+
+  const notice = document.createElement("p");
+  notice.setAttribute("role", "status");
+  notice.style.cssText =
+    "padding:12px;background:#eef4f8;color:#16324f;" +
+    "font-size:12px;line-height:1.5;border-radius:8px;";
+  notice.textContent = "Loading Bartley-based campus estimates…";
+  document.querySelector(".sidebar-header").appendChild(notice);
+
+  const number = value => Math.round(value).toLocaleString();
+  const escapeHtml = value => String(value).replace(
+    /[&<>"']/g,
+    character => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;",
+      '"': "&quot;", "'": "&#39;"
+    })[character]
+  );
+
+  try {
+    const response = await fetch("static/data/bartley_profile.json", {
+      cache: "no-cache"
+    });
+    if (!response.ok) throw new Error("Bartley JSON could not be loaded.");
+
+    const data = await response.json();
+    const bartleyDay = Number(data.summary?.kwh_per_day);
+    const bartleyPeak = Number(data.summary?.peak_kw);
+    const bartley = BUILDINGS.find(b => b.name === "Bartley Hall");
+
+    if (!bartley || !Number.isFinite(bartleyDay) || bartleyDay <= 0 ||
+        !Number.isFinite(bartleyPeak) || bartleyPeak <= 0 ||
+        !data.period?.start || !data.period?.end) {
+      throw new Error("Bartley data is incomplete or invalid.");
+    }
+
+    const reserve = MODEL.campusKwhDay * MODEL.otherCampusShare;
+    const available = MODEL.campusKwhDay - reserve - bartleyDay;
+    if (available <= 0) {
+      throw new Error("Campus baseline is too small for this configuration.");
+    }
+
+    const intensity = bartleyDay / MODEL.bartleySqft;
+    const estimated = BUILDINGS.filter(b => b !== bartley);
+
+    // Calculate everything before changing the map.
+    const results = estimated.map(b => {
+      const category = b.iconType === "Lab" ? "Lab" : b.type;
+      const defaults = MODEL.defaults[category] || MODEL.defaults.Other;
+      const override = OVERRIDES[b.name] || {};
+
+      let sqft = override.sqft ?? defaults.sqft;
+      let factor = override.factor ?? defaults.factor;
+      let basis = override.sqft
+        ? "Assumed building area"
+        : "Assumed average area for this building category";
+
+      if (b.type === "Residence" && override.sqft == null) {
+  const apartment = APARTMENTS.has(b.name);
+  const residents = Number(b.residents);
+
+  const share = override.bedroomShare ??
+    (apartment
+      ? MODEL.apartmentBedroomShare
+      : MODEL.traditionalBedroomShare);
+
+  if (apartment && residents > 0) {
+    const residentsPerApartment = 4;
+    const doubleBedroomsPerApartment = 2;
+
+    // Approximate occupied apartment count from existing resident totals.
+    const apartmentCount = residents / residentsPerApartment;
+
+    const bedroomArea =
+      apartmentCount *
+      doubleBedroomsPerApartment *
+      MODEL.doubleRoomSqft;
+
+    // Adds allowance for kitchens, living rooms, bathrooms,
+    // corridors, stairs, laundry, and mechanical spaces.
+    sqft = bedroomArea / share;
+
+    basis =
+      "Four residents per apartment; assumed two double bedrooms " +
+      "at 206 ft² each, plus shared-space allowance. " +
+      "Resident count and apartment layout remain provisional.";
+
+    if (override.factor == null) factor = 0.65;
+  } else {
+    const roomCount = override.doubleRooms ??
+      (residents > 0 ? residents / 2 : null);
+
+    if (roomCount !== null) {
+      sqft = roomCount * MODEL.doubleRoomSqft / share;
+
+      basis = override.doubleRooms != null
+        ? "Entered double-room count plus shared-space allowance"
+        : "Assumed two residents per double bedroom, " +
+          "plus shared-space allowance";
+    }
+  }
+}
+
+      const rawKwhDay = intensity * sqft * factor;
+      if (!Number.isFinite(rawKwhDay) || rawKwhDay <= 0) {
+        throw new Error("Invalid estimate for " + b.name);
+      }
+
+      return { building: b, sqft, factor, basis, rawKwhDay };
+    });
+
+    const rawTotal = results.reduce((sum, r) => sum + r.rawKwhDay, 0);
+    if (rawTotal <= 0) throw new Error("No buildings available to estimate.");
+
+    // Allocate the campus remainder by the modeled relative weights.
+    // This makes totals consistent; it does not validate individual loads.
+    const calibration = available / rawTotal;
+
+    results.forEach(r => {
+      r.kwhDay = r.rawKwhDay * calibration;
+    });
+
+    bartley.kwhDay = bartleyDay;
+    bartley.peakKw = bartleyPeak;
+    bartley.measured = true;
+
+    results.forEach(r => {
+      r.building.kwhDay = r.kwhDay;
+      r.building.measured = false;
+      r.building.energyEstimate = r;
+    });
+
+    // Replace the popup renderer so old illustrative end-use percentages
+    // and unsupported building-specific claims are no longer displayed.
+    makePopup = function(b) {
+     makePopup = function(b) {
+  const measured = b === bartley;
+  const percent = (b.kwhDay / bartley.kwhDay) * 100;
+  const barWidth = Math.min(percent, 100);
+  const prefix = measured ? "" : "≈ ";
+
+  const tips = {
+    Residence:
+      "Turn off unused lights and electronics, and report heating or cooling problems.",
+    Academic:
+      "Switch off classroom lights, projectors, and unused computers when rooms are empty.",
+    Lab:
+      "Follow lab shutdown procedures for equipment approved to be switched off.",
+    Dining:
+      "Reduce idle kitchen equipment use when safe, and report refrigeration problems.",
+    Athletics:
+      "Match lighting and equipment schedules to practices, events, and occupied hours.",
+    Admin:
+      "Switch off unused office equipment and lights when spaces are empty.",
+    Other:
+      "Match lighting and equipment use to the hours the space is occupied."
+  };
+
+  const category = b.iconType === "Lab" ? "Lab" : b.type;
+  const tip = measured
+    ? "Bartley's measured profile shows substantial overnight demand. " +
+      "Review equipment schedules with Facilities to identify potential savings."
+    : tips[category] || tips.Other;
+
+  const isResidence = b.type === "Residence";
+
+// Scale Bartley's peak-to-average relationship to each building.
+const estimatedPeakKw =
+  (b.kwhDay / bartley.kwhDay) * bartley.peakKw;
+
+const thirdCard = isResidence
+  ? (
+      '<span class="ps-val">' +
+        (b.residents ? "≈ " + number(b.residents) : "—") +
+      '</span>' +
+      '<span class="ps-label">Residents*</span>'
+    )
+  : (
+      '<span class="ps-val">' +
+        (measured
+          ? number(bartley.peakKw)
+          : "≈ " + number(estimatedPeakKw)) +
+      '</span>' +
+      '<span class="ps-label">' +
+        (measured ? "Peak kW" : "Est. peak kW") +
+      '</span>'
+    );;
+
+  const comparisonText = measured
+    ? "Bartley is the reference building."
+    : "About " + percent.toFixed(1) +
+      "% of Bartley's daily electricity use.";
+
+  const overflowNote = percent > 100
+    ? " Bar fills at 100%; this building exceeds Bartley."
+    : "";
+
+  const note = measured
+    ? "Historical meter-data average: " +
+      escapeHtml(data.period.start) + " to " +
+      escapeHtml(data.period.end) + ". Not live data."
+    : "Estimated from assumed building size and use, balanced against " +
+      "the campus baseline. Not a meter reading." +
+      (b.residents ? " *Resident count is an unverified model input." : "");
+
+  return (
+    '<div class="popup-head">' +
+      '<span class="popup-type-badge">' +
+        escapeHtml(typeLabel(b)) +
+      '</span> ' +
+      '<span class="popup-type-badge">' +
+        (measured ? "Measured" : "Estimated") +
+      '</span>' +
+      '<p class="popup-name">' + escapeHtml(b.name) + '</p>' +
+    '</div>' +
+
+    '<div class="popup-body">' +
+      '<div class="popup-stats">' +
+        '<div class="ps">' +
+          '<span class="ps-val">' + prefix + number(b.kwhDay) + '</span>' +
+          '<span class="ps-label">kWh / day</span>' +
+        '</div>' +
+        '<div class="ps">' +
+          '<span class="ps-val">' + prefix +
+            (b.kwhDay / 24).toFixed(1) +
+          '</span>' +
+          '<span class="ps-label">Average kW</span>' +
+        '</div>' +
+        '<div class="ps">' + thirdCard + '</div>' +
+      '</div>' +
+
+      '<div class="popup-breakdown">' +
+        '<p class="pb-title">Daily electricity vs. Bartley</p>' +
+        '<div class="pb-row">' +
+          '<span class="pb-label">Relative use</span>' +
+          '<div class="pb-track">' +
+            '<div class="pb-fill" style="width:' + barWidth +
+              '%;background:#378ADD"></div>' +
+          '</div>' +
+          '<span class="pb-pct" style="min-width:52px">' +
+            percent.toFixed(1) + '%' +
+          '</span>' +
+        '</div>' +
+        '<p style="font-size:11px;color:#607080;line-height:1.5;margin:10px 0 0">' +
+          comparisonText + overflowNote +
+          '<br>Bartley baseline: ' + number(bartley.kwhDay) + ' kWh/day.' +
+          '<br>This compares total use, not building efficiency.' +
+        '</p>' +
+      '</div>' +
+
+      '<div class="popup-tip">💡 <strong>Tip:</strong> ' +
+        escapeHtml(tip) +
+      '</div>' +
+
+      '<p class="popup-data-note">' + note +
+  (!isResidence && !measured
+    ? " Peak kW assumes Bartley's peak-to-average demand ratio."
+    : "") +
+'</p>' +
+    '</div>'
+  );
+};
+    };
+
+    // Update every existing marker with the new values.
+    BUILDINGS.forEach(b => {
+      markers[b.id].setPopupContent(makePopup(b));
+    });
+
+    // Keep search, category filters, and sorting using the updated values.
+    const originalRenderList = renderList;
+    renderList = function(filtered) {
+      originalRenderList(filtered);
+      filtered.forEach(b => {
+        const row = document.querySelector(
+          '.bldg-item[data-id="' + b.id + '"]'
+        );
+        if (!row) return;
+
+        const value = row.querySelector(".bldg-item-kwh");
+        if (value) {
+          value.innerHTML = (b === bartley ? "" : "≈ ") +
+            number(b.kwhDay) + "<span>kWh/day</span>";
+        }
+
+        if (b !== bartley) {
+          const label = row.querySelector(".bldg-item-type");
+          if (label) label.appendChild(document.createTextNode(" · Estimated"));
+        }
+      });
+    };
+    applyFilters();
+
+    const mappedTotal = BUILDINGS.reduce((sum, b) => sum + b.kwhDay, 0);
+
+    document.querySelector(".sidebar-sub").textContent =
+      "Bartley uses historical meter data. All other values are " +
+      "provisional estimates based on assumed building size and use.";
+
+    notice.textContent =
+      "Campus baseline: " + number(MODEL.campusKwhDay) +
+      " kWh/day. Mapped buildings: " + number(mappedTotal) +
+      " kWh/day. Other/unmapped allowance: " + number(reserve) +
+      " kWh/day (assumed " + MODEL.otherCampusShare * 100 +
+      "%). Displayed values are rounded.";
+
+    // Available in the browser console for checking calculations.
+    window.AVATAR_ENERGY_MODEL = {
+      assumptions: MODEL,
+      calibration,
+      mappedKwhDay: mappedTotal,
+      otherKwhDay: reserve,
+      totalKwhDay: mappedTotal + reserve
+    };
+
+    console.table(BUILDINGS.map(b => ({
+      building: b.name,
+      status: b === bartley ? "Measured" : "Estimated",
+      kwhDay: Math.round(b.kwhDay),
+      averageKw: Number((b.kwhDay / 24).toFixed(1))
+    })));
+
+  } catch (error) {
+    notice.style.background = "#fff1dc";
+    notice.textContent =
+      "Estimate update failed. Original map values remain and must not " +
+      "be treated as updated estimates. " + error.message;
+    console.error(error);
+  }
+})();
+</script>
 </body>
 </html>
