@@ -652,3 +652,7 @@ body{background:linear-gradient(125deg,#0b2446 0%,#143e61 56%,#278f88 100%);back
 .survey-frame{display:block;width:100%;max-width:900px;height:1800px;margin:0 auto;border:0;border-radius:12px;background:white}
 @media(max-width:1080px){.main-nav .survey-nav-link{align-self:flex-start;margin:8px 0}}
 @media(max-width:680px){.survey-banner{align-items:flex-start;flex-direction:column;padding:28px 22px;gap:20px}.survey-content{padding:24px 8px}.survey-help{padding:0 14px}.survey-frame{height:1800px}}
+
+/* Keep survey adjacent to the grouped navigation on every desktop page. */
+.site-header{justify-content:flex-start;column-gap:10px}
+@media(min-width:1081px){.site-header{flex-wrap:nowrap}.site-header .main-nav{margin-left:auto;flex:0 0 auto}.site-header .survey-header-link{margin-left:0}}
